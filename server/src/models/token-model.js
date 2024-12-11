@@ -9,13 +9,13 @@ const TokenSchema = sequelize.define("TokenSchema", {
             model: 'users',
             key: 'id',
         },
-        field: 'user_id', // Ensures the column name in the database is 'user_id'
+        field: 'user_id',
     },
     refresh_token: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: 'refresh_token', // Ensures the column name in the database is 'refresh_token'
+        field: 'refresh_token',
     },
 });
 
-module.exports = TokenSchema; // Default export
+module.exports = TokenSchema;

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const userService = require("../services/user-service");
 const { validationResult } = require('express-validator');
 const ApiError = require("../exceptions/api-error");
-
+const TokenSchema = require('../models/token-model.js')
 exports.register = async (req, res, next) => {
     try {
         const errors = validationResult(req);
@@ -31,6 +31,7 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
+        console.log(req.body);
         const userData = await userService.login( email, password);
         res.cookie('refreshToken', userData.refreshToken, {
             maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -74,18 +75,114 @@ exports.refresh = async (req, res, next) => {
 }
 
 };
-exports.me = async (req, res,next) => {
-    try {
-
-    } catch (error) {
-        next(error)
-    }
-};
-exports.getUsers = async (req, res, next) => {
+exports.getAllUsers = async (req, res, next) => {
     try {
         const users = await userService.getAllUsers();
         return res.json(users);
     } catch (error) {
         next(error)
+    }
+};
+exports.getUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (id) {
+            const user = await userService.getUserById(id);
+            return res.json(user);
+        } else {
+            throw ApiError.BadRequest('Необходимо передать id ');
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.editUser = async (req, res, next) => {
+    try {
+        const { id } = req.params; // ID пользователя
+        // const { refreshToken } = req.cookies;
+        const data = req.body; // Данные для обновления
+
+        if (!refreshToken) {
+            throw ApiError.UnauthorizedError('Токен отсутствует');
+        }
+
+
+        // let userData;
+        // try {
+        //     userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        // } catch (err) {
+        //     throw ApiError.UnauthorizedError('Невалидный токен');
+        // }
+
+        // const { role } = userData; // Извлечение роли из токена
+
+        // if (role !== 'admin') {
+        //     throw ApiError.BadRequest('У вас нет прав на редактирование');
+        // }
+        const updatedUser = await userService.editUserById(id, data);
+        return res.json(updatedUser);
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.toggleBlock = async (req, res, next) => {
+    try {
+        // const { refreshToken } = req.cookies;
+
+        const userId = req.params.id;
+        // let userData;
+        // try {
+        //     userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        // } catch (err) {
+        //     throw ApiError.UnauthorizedError('Невалидный токен');
+        // }
+        // const { role } = userData; // Извлечение роли из токена
+
+        // if (role !== 'admin') {
+        //     throw ApiError.BadRequest('У вас нет прав на редактирование');
+        // }
+
+        const status = await userService.toggleBlockByToken(userId);
+        return res.json(status);
+    } catch (error) {
+        next(error);
+    }
+};
+exports.toggleUnblock = async (req, res, next) => {
+    try {
+        // const { refreshToken } = req.cookies;
+        const userId = req.params.id;
+        // let userData;
+        // try {
+        //     userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        // } catch (err) {
+        //     throw ApiError.UnauthorizedError('Невалидный токен');
+        // }
+        // const { role } = userData; // Извлечение роли из токена
+
+        // if (role !== 'admin') {
+        //     throw ApiError.BadRequest('У вас нет прав на редактирование');
+        // }
+
+        const status = await userService.toggleUnblockById(userId);
+        return res.json(status);
+    } catch (error) {
+        next(error);
+    }
+};
+exports.deleteUser = async (req, res, next) => {
+    try {
+        const userId = req.params.id;
+        const { refreshToken } = req.cookies;
+        if (!refreshToken) {
+            throw ApiError.UnauthorizedError();
+        }
+        await userService.deleteUserById(userId);
+        return res.json({ message: 'Пользователь успешно удален' });
+    } catch (error) {
+        next(error);
     }
 };

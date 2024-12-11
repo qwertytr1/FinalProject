@@ -17,10 +17,18 @@ class TokenService{
             return null;
     }
 }
-validateRefreshToken(token) {
+   async validateRefreshToken(token) {
+
     try {
         const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-        return userData;
+        const refreshToken = await TokenSchema.findOne( {where:{ token, isBlocked: false }});
+
+        if (!refreshToken) {
+            return res.status(403).json({ message: 'Invalid or blocked refresh token' });
+        }
+
+        req.user = { id: userData.id };
+        next();
     } catch (e) {
         return null;
 }
@@ -39,6 +47,14 @@ async removeToken(refreshToken) {
     const tokenData = await TokenSchema.destroy({
         where: {
             refresh_token: refreshToken
+        }
+    });
+    return tokenData;
+}
+async removeTokenById(userId) {
+    const tokenData = await TokenSchema.destroy({
+        where: {
+            user_id: userId
         }
     });
     return tokenData;

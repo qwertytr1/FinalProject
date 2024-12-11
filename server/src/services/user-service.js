@@ -1,10 +1,10 @@
 const UserDto = require('../dtos/user-dto.js');
-const {User} = require('../models/index.js');
-const tokenService = require('../services/token-service');
-const TokenService  = require('../services/token-service');
+const { User } = require('../models/index.js');
+const {TokenSchema} = require('../models/token-model.js');
+const TokenService = require('../services/token-service');
 const bcrypt = require('bcrypt');
 const ApiError = require('../exceptions/api-error.js');
-const { urlencoded } = require('body-parser');
+const tokenService = require('../services/token-service');
 class UserService {
     async register(username, email, password, language, theme, role) {
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,23 +21,23 @@ class UserService {
             language,
             theme,
             role,
+            isBlocked,
         });
 
         const userDto = new UserDto(newUser);
         const tokens = TokenService.generateTokens({ ...userDto });
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+        await TokenService.saveToken(userDto.id, tokens.refreshToken);
 
         return { ...tokens, user: userDto };
     }
     async login(email, password) {
-        // Corrected query with `where` clause
+
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
             throw ApiError.BadRequest('User not found');
         }
 
-        // Use the correct field for the hashed password
         const isPassEquals = await bcrypt.compare(password, user.password_hash);
         if (!isPassEquals) {
             throw ApiError.BadRequest('Invalid password');
@@ -45,7 +45,7 @@ class UserService {
 
         const userDto = new UserDto(user);
         const tokens = TokenService.generateTokens({ ...userDto });
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+        await TokenService.saveToken(userDto.id, tokens.refreshToken);
 
         return { ...tokens, user: userDto };
     }
@@ -57,24 +57,75 @@ class UserService {
         if (!refreshToken) {
             throw ApiError.UnathorizedError();
         }
-        const userData = tokenService.validateRefreshToken(refreshToken);
-        const tokenFromDb = await tokenService.findToken(refreshToken);
+        const userData = TokenService.validateRefreshToken(refreshToken);
+        const tokenFromDb = await TokenService.findToken(refreshToken);
         if (!userData || !tokenFromDb) {
             throw ApiError.UnathorizedError();
         }
         const user = await User.findById(userData.id);
         const userDto = new UserDto(user);
         const tokens = TokenService.generateTokens({ ...userDto });
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+        await TokenService.saveToken(userDto.id, tokens.refreshToken);
 
         return { ...tokens, user: userDto };
 
 }
 
     async getAllUsers() {
-        // добавить проверу на админку
         const users = await User.findAll();
         return users;
+    }
+    async getUserById(id) {
+        const user = await User.findByPk(id);
+        if (!user) {
+            throw ApiError.BadRequest('User not found');
+        }
+        return user;
+    }
+
+    async editUserById(id, data) {
+        const user = await User.findByPk(id);
+        if (!user) {
+            throw ApiError.BadRequest('Пользователь не найден');
+        }
+        Object.assign(user, data);
+        await user.save();
+        return user;
+    }
+
+    async toggleBlockByToken(userId) {
+
+   const user = await User.findOne({ where: { id: userId } });
+
+   if (!user) {
+       throw new Error('User not found');
+   }
+   user.isBlocked = true;
+   await user.save();
+
+  await TokenService.removeTokenById( userId );
+
+   return { message: 'User blocked and tokens deleted successfully' };
+    }
+    async toggleUnblockById(userId) {
+        const user = await User.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        user.isBlocked = false;
+        await user.save();
+        const userDto = new UserDto(user);
+        const tokens = TokenService.generateTokens({ ...userDto });
+        await TokenService.saveToken(userDto.id, tokens.refreshToken);
+
+        return { ...tokens, user: userDto };
+
+         }
+
+    async deleteUserById(userId) {
+           const delToken = await TokenService.removeTokenById(userId);
+            const delUser = await User.destroy({ where: { id: userId } });
+            return delToken, delUser;
     }
 }
 

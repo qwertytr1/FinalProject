@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
+const TokenSchema = require("./token-model.js");
 const Tag = sequelize.define("tags", {
   id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: Sequelize.STRING, allowNull: false },
@@ -16,8 +17,12 @@ const User = sequelize.define('User', {
   language: { type: DataTypes.STRING },
   theme: { type: DataTypes.STRING },
   role: { type: DataTypes.STRING },
+  isBlocked: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+},
 }, {
-    timestamps: false, // Disable automatic addition of `createdAt` and `updatedAt`
+    timestamps: false,
 });
 
   const Template = sequelize.define("templates", {
@@ -59,7 +64,8 @@ const Comment = sequelize.define("comments", {
 
 const Like = sequelize.define("likes", {});
 
-
+User.hasMany(TokenSchema, { foreignKey: 'user_id' });
+TokenSchema.belongsTo(User, { foreignKey: 'user_id' });
 Template.belongsTo(User, { foreignKey: 'users_id' });
 Template.hasMany(Tag);
 Template.hasMany(Question, { foreignKey: 'templates_id' });
