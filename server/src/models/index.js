@@ -44,22 +44,97 @@ const Question = sequelize.define("questions", {
   type: Sequelize.STRING,
   order: Sequelize.INTEGER,
   show_in_results: Sequelize.BOOLEAN,
+  templates_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'templates',
+      key: 'id'
+    }
+  },
+  correct_answer: Sequelize.STRING(255)
+}, {
+  timestamps: false,
 });
 
 const Form = sequelize.define("forms", {
   id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
   submitted_at: Sequelize.DATE,
+  templates_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'templates',
+      key: 'id'
+    }
+  },
+  users_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
+  }
+}, {
+  timestamps: false,
 });
+
 
 const Answer = sequelize.define("answers", {
   id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
   answer: Sequelize.STRING,
+  forms_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'forms',
+      key: 'id'
+    }
+  },
+ questions_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'questions ',
+      key: 'id'
+    }
+  },
+  is_correct: Sequelize.BOOLEAN,
+  users_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
+  }
+}, {
+  timestamps: false,
 });
 
 const Comment = sequelize.define("comments", {
   id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
   content: Sequelize.TEXT,
   created_at: Sequelize.DATE,
+  templates_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'templates',
+      key: 'id'
+    }
+  },
+  users_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
+  }
+}, {
+  timestamps: false,
 });
 
 const Like = sequelize.define("likes", {});

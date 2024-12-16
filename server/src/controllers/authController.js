@@ -12,8 +12,8 @@ exports.register = async (req, res, next) => {
             return next(ApiError.BadRequest('Error in validation', errors.array()));
         }
         console.log(req.body);
-        const { username, email, password, language, theme, role } = req.body;
-        const userData = await userService.register(username, email, password, language, theme, role);
+        const { username, email, password, language, theme, role, isBlocked } = req.body;
+        const userData = await userService.register(username, email, password, language, theme, role, isBlocked);
         res.cookie('refreshToken', userData.refreshToken, {
             maxAge: 30 * 24 * 60 * 60 * 1000,
             httpOnly: true,
@@ -100,27 +100,12 @@ exports.getUser = async (req, res, next) => {
 
 exports.editUser = async (req, res, next) => {
     try {
-        const { id } = req.params; // ID пользователя
-        // const { refreshToken } = req.cookies;
-        const data = req.body; // Данные для обновления
+        const { id } = req.params;
+        const data = req.body;
 
         if (!refreshToken) {
             throw ApiError.UnauthorizedError('Токен отсутствует');
         }
-
-
-        // let userData;
-        // try {
-        //     userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-        // } catch (err) {
-        //     throw ApiError.UnauthorizedError('Невалидный токен');
-        // }
-
-        // const { role } = userData; // Извлечение роли из токена
-
-        // if (role !== 'admin') {
-        //     throw ApiError.BadRequest('У вас нет прав на редактирование');
-        // }
         const updatedUser = await userService.editUserById(id, data);
         return res.json(updatedUser);
     } catch (error) {
@@ -130,21 +115,7 @@ exports.editUser = async (req, res, next) => {
 
 exports.toggleBlock = async (req, res, next) => {
     try {
-        // const { refreshToken } = req.cookies;
-
         const userId = req.params.id;
-        // let userData;
-        // try {
-        //     userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-        // } catch (err) {
-        //     throw ApiError.UnauthorizedError('Невалидный токен');
-        // }
-        // const { role } = userData; // Извлечение роли из токена
-
-        // if (role !== 'admin') {
-        //     throw ApiError.BadRequest('У вас нет прав на редактирование');
-        // }
-
         const status = await userService.toggleBlockByToken(userId);
         return res.json(status);
     } catch (error) {
@@ -153,20 +124,8 @@ exports.toggleBlock = async (req, res, next) => {
 };
 exports.toggleUnblock = async (req, res, next) => {
     try {
-        // const { refreshToken } = req.cookies;
+
         const userId = req.params.id;
-        // let userData;
-        // try {
-        //     userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-        // } catch (err) {
-        //     throw ApiError.UnauthorizedError('Невалидный токен');
-        // }
-        // const { role } = userData; // Извлечение роли из токена
-
-        // if (role !== 'admin') {
-        //     throw ApiError.BadRequest('У вас нет прав на редактирование');
-        // }
-
         const status = await userService.toggleUnblockById(userId);
         return res.json(status);
     } catch (error) {

@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const ApiError = require('../exceptions/api-error.js');
 const tokenService = require('../services/token-service');
 class UserService {
-    async register(username, email, password, language, theme, role) {
+    async register(username, email, password, language, theme, role, isBlocked) {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const existingUser = await User.findOne({ where: { email } });
