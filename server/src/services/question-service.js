@@ -2,6 +2,24 @@ const { Template, Question } = require("../models/index");
 const QuestionsDto = require("../dtos/questions-dto");
 
 class QuestionService {
+    async GetAllQuestion(templateId) {
+        const template = await Template.findByPk(templateId);
+        if (!template) {
+            return { status: 404, json: { error: 'Template not found' } };
+        }
+
+        // Check if the question exists
+        const question = await Question.findAll({
+            where: {
+                templates_id: templateId,
+            },
+        });
+
+        if (!question) {
+            return { status: 404, json: { error: 'Question not found' } };
+        }
+        return { status: 201, json: { ...question } };
+    }
     async AddQuestion(templateId, type, title, description, order, showInResults, correct_answer) {
         // Check if the template exists
         const template = await Template.findByPk(templateId);

@@ -1,21 +1,53 @@
 const { Template, User, Tag, Question, Answer} = require("../models/index");
-
+const cloudinary = require('../config/cloudinary');
+const jwt = require('jsonwebtoken'); // Для работы с токенами
 // шаблоны
+const getUserIdFromToken = (req) => {
+  const { refreshToken } = req.cookies; // Получаем токен из куки
+  if (!refreshToken) return null;
+
+  try {
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+      console.log(decoded);
+    return decoded.id; // Поле userId должно быть в payload токена
+  } catch (err) {
+    return null; // Невалидный токен
+  }
+};
 exports.createTemplate = async (req, res) => {
   try {
-    const { title, description, category, image_url, is_public, users_id } = req.body;
+    const { title, description, category, image_url, is_public } = req.body;
+    if (!req.file) {
+      return res.status(400).json({ error: 'Файл изображения не был загружен' });
+    }
+    const userId = getUserIdFromToken(req);
+    // Загружаем изображение в Cloudinary
+    console.log(userId)
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    // Создаём новый шаблон с ссылкой на изображение
     const newTemplate = await Template.create({
       title,
       description,
       category,
-      image_url,
-      is_public,
-      users_id,
+      image_url: result.secure_url, // Ссылка на изображение из Cloudinary
+      is_public: is_public || false,
+      users_id: userId,
       created_at: new Date(),
+      updated_at: new Date(),
     });
-    res.status(201).json(newTemplate);
+
+    // Возвращаем ответ
+    return res.status(201).json({
+      message: 'Шаблон успешно создан',
+      template: newTemplate,
+    });
   } catch (err) {
-    res.status(500).json({ error: 'Ошибка при создании шаблона', details: err.message });
+    console.error('Ошибка при создании шаблона:', err);
+    return res.status(500).json({
+      error: 'Ошибка при создании шаблона',
+      details: err.message
+    });
   }
 };
 //   try {
@@ -101,26 +133,29 @@ exports.getTemplateById = async (req, res) => {
 
 exports.deleteTemplate = async (req, res) => {
   try {
-    console.log(req.user);
-      if (!req.user) {
-          return res.status(401).json({ error: 'Unauthorized: User not authenticated.' });
-      }
 
-      const template = await Template.findByPk(req.params.id);
 
-      if (!template) {
-          return res.status(404).json({ error: 'Template not found.' });
-      }
+    const template = await Template.findByPk(req.params.id);
 
-      if (req.user.id !== template.users_id && !req.user.is_admin) {
-          return res.status(403).json({ error: 'Forbidden: You cannot delete this template.' });
-      }
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found.' });
+    }
 
-      await template.destroy();
 
-      res.status(204).send();
+
+    // Если изображение привязано к шаблону, удалим его из Cloudinary перед удалением шаблона
+    const publicId = template.image_url.split('/').pop().split('.')[0]; // Извлекаем public_id из URL
+
+    if (publicId) {
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    // Удаление шаблона из базы данных
+    await template.destroy();
+
+    res.status(204).send(); // Ответ без содержимого, так как ресурс удалён
   } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to delete template.' });
+    console.error('Ошибка при удалении шаблона:', err);
+    res.status(500).json({ error: 'Failed to delete template.' });
   }
 };

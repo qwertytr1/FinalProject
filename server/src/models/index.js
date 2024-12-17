@@ -1,15 +1,15 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 const TokenSchema = require("./token-model.js");
+
 const Tag = sequelize.define("tags", {
   id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: Sequelize.STRING, allowNull: false },
 }, {
   timestamps: false,
+  tableName: 'tags',
 });
 
-
-module.exports = Tag;
 const User = sequelize.define('User', {
   username: { type: DataTypes.STRING, allowNull: false },
   email: { type: DataTypes.STRING, allowNull: false, unique: true },
@@ -137,16 +137,35 @@ const Comment = sequelize.define("comments", {
   timestamps: false,
 });
 
-const Like = sequelize.define("likes", {});
+const Like = sequelize.define("likes", {
+  templates_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'templates',
+      key: 'id'
+    }
+  },
+  users_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'users',
+      key: 'id'
+    }
+  }
+}, {
+  timestamps: false,
+});
 
 User.hasMany(TokenSchema, { foreignKey: 'user_id' });
 TokenSchema.belongsTo(User, { foreignKey: 'user_id' });
 Template.belongsTo(User, { foreignKey: 'users_id' });
-Template.hasMany(Tag);
+
 Template.hasMany(Question, { foreignKey: 'templates_id' });
 Question.hasMany(Answer, { foreignKey: 'questions_id' });
 User.hasMany(Template, { foreignKey: 'users_id' });
-Tag.belongsToMany(Template, { through: 'TemplateTag' });
+
 Question.belongsTo(Template, { foreignKey: "templates_id" });
 Form.belongsTo(Template, { foreignKey: "templates_id" });
 Form.belongsTo(User, { foreignKey: "users_id" });
@@ -167,4 +186,5 @@ module.exports = {
   Answer,
   Comment,
   Like,
+  Tag
 };
