@@ -3,7 +3,7 @@ const { User } = require('../models/index.js');
 const {TokenSchema} = require('../models/token-model.js');
 const TokenService = require('../services/token-service');
 const bcrypt = require('bcrypt');
-const ApiError = require('../exceptions/api-error.js');
+
 const tokenService = require('../services/token-service');
 class UserService {
     async register(username, email, password, language, theme, role, isBlocked) {
@@ -53,24 +53,29 @@ class UserService {
         const token = await TokenService.removeToken(refreshToken);
         return token;
      }
-    async refresh(refreshToken) {
+     async refresh(refreshToken) {
         if (!refreshToken) {
             throw ApiError.UnathorizedError();
         }
-        const userData = TokenService.validateRefreshToken(refreshToken);
-        const tokenFromDb = await TokenService.findToken(refreshToken);
-        if (!userData || !tokenFromDb) {
+        const userData = await TokenService.validateRefreshToken(refreshToken);
+        console.log(userData);
+        if (!userData) {
             throw ApiError.UnathorizedError();
         }
-        const user = await User.findById(userData.id);
+        const tokenFromDb = await TokenService.findToken(refreshToken);
+        if (!tokenFromDb) {
+            throw ApiError.UnathorizedError();
+        }
+        const user = await User.findOne({ where: { id: userData.id } });
+        if (!user) {
+            throw ApiError.UnathorizedError();
+        }
         const userDto = new UserDto(user);
         const tokens = TokenService.generateTokens({ ...userDto });
         await TokenService.saveToken(userDto.id, tokens.refreshToken);
 
         return { ...tokens, user: userDto };
-
-}
-
+    }
     async getAllUsers() {
         const users = await User.findAll();
         return users;

@@ -1,8 +1,21 @@
 const { Template, User, Tag, Question, Answer } = require("../models/index");
-const AnswerService = require("../services/answer-service.js")
-exports.addAnswer = async (req, res, next) => {
-    const { answer, forms_id, questions_id, users_id } = req.body;
+const AnswerService = require("../services/answer-service.js");
+const jwt = require('jsonwebtoken');
+const getUserIdFromToken = (req) => {
+    const { refreshToken } = req.cookies; // Получаем токен из куки
+    if (!refreshToken) return null;
 
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        console.log(decoded);
+      return decoded.id;
+    } catch (err) {
+      return null; // Невалидный токен
+    }
+  };
+exports.addAnswer = async (req, res, next) => {
+    const { answer, forms_id, questions_id, } = req.body;
+    const users_id = getUserIdFromToken(req);
     // Проверка на наличие обязательных данных
     if (!answer || !forms_id || !questions_id || !users_id) {
       return res.status(400).json({ message: 'Missing required fields' });

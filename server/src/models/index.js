@@ -137,7 +137,30 @@ const Comment = sequelize.define("comments", {
   timestamps: false,
 });
 
+const TemplatesTag = sequelize.define("template_tag", {
+  templates_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: "templates",
+      key: "id",
+    },
+  },
+  tags_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: "tags",
+      key: "id",
+    },
+  },
+}, {
+  timestamps: false,
+});
+
+
 const Like = sequelize.define("likes", {
+  id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
   templates_id: {
     type: Sequelize.INTEGER,
     allowNull: false,
@@ -157,15 +180,53 @@ const Like = sequelize.define("likes", {
 }, {
   timestamps: false,
 });
+const TemplatesAccess = sequelize.define("template_access", {
+  templates_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: "templates",
+      key: "id",
+    },
+  },
+  users_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    references: {
+      model: "users",
+      key: "id",
+    },
+  },
+}, {
+  timestamps: false,
+});
 
+Template.hasMany(Like, { foreignKey: 'templates_id', onDelete: 'CASCADE' });
+Template.hasMany(Question, { foreignKey: 'templates_id', onDelete: 'CASCADE' });
+Template.hasMany(Comment, { foreignKey: 'templates_id', onDelete: 'CASCADE' });
+Template.hasMany(Form, { foreignKey: 'templates_id', onDelete: 'CASCADE' });
+Template.belongsToMany(Tag, {
+  through: TemplatesTag,
+  foreignKey: "templates_id",
+  otherKey: "tags_id",
+  onDelete: "CASCADE"
+});
 User.hasMany(TokenSchema, { foreignKey: 'user_id' });
 TokenSchema.belongsTo(User, { foreignKey: 'user_id' });
 Template.belongsTo(User, { foreignKey: 'users_id' });
-
-Template.hasMany(Question, { foreignKey: 'templates_id' });
 Question.hasMany(Answer, { foreignKey: 'questions_id' });
 User.hasMany(Template, { foreignKey: 'users_id' });
+Template.belongsToMany(Tag, {
+  through: TemplatesTag,
+  foreignKey: "templates_id",
+  otherKey: "tags_id",
+});
 
+Tag.belongsToMany(Template, {
+  through: TemplatesTag,
+  foreignKey: "tags_id",
+  otherKey: "templates_id",
+});
 Question.belongsTo(Template, { foreignKey: "templates_id" });
 Form.belongsTo(Template, { foreignKey: "templates_id" });
 Form.belongsTo(User, { foreignKey: "users_id" });
@@ -186,5 +247,7 @@ module.exports = {
   Answer,
   Comment,
   Like,
+  TemplatesTag,
+  TemplatesAccess,
   Tag
 };

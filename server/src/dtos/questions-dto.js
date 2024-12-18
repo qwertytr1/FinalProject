@@ -13,7 +13,7 @@ module.exports = class QuestionsDto{
         this.type = model.type;
         this.order = model.order;
         this.showInResults = model.showInResults;
-        this.correct_answer = correct_answer;
+        this.correct_answer = model.correct_answer;
     }
 
 }

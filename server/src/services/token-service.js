@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const TokenSchema = require('../models/token-model.js')
+const TokenSchema = require('../models/token-model.js');
+const ApiError = require('../exceptions/api-error.js');
 class TokenService{
     generateTokens (payload) {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' })
@@ -17,21 +18,18 @@ class TokenService{
             return null;
     }
 }
-   async validateRefreshToken(token) {
-
+async validateRefreshToken(token) {
     try {
         const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-        const refreshToken = await TokenSchema.findOne( {where:{ token, isBlocked: false }});
-
+        const refreshToken = await TokenSchema.findOne({ where: { refresh_token: token } });
         if (!refreshToken) {
-            return res.status(403).json({ message: 'Invalid or blocked refresh token' });
+            throw ApiError.BadRequest("Invalid or blocked refresh token");
         }
-
-        req.user = { id: userData.id };
-        next();
+        return userData;
     } catch (e) {
+        console.error(e);
         return null;
-}
+    }
 }
 async saveToken(userId, refreshToken) {
     console.log("userId:", userId, "refreshToken:", refreshToken); // Debugging logs

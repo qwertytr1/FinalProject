@@ -2,13 +2,9 @@ const { User, Template, Form, Comment } = require('../models/index.js'); // Им
 
 exports.getStatistics = async (req, res) => {
   try {
-    // Получаем количество пользователей
     const userCount = await User.count();
 
-    // Получаем количество шаблонов
     const templateCount = await Template.count();
-
-    // Получаем количество форм
     const formCount = await Form.count();
 
     // Получаем количество комментариев

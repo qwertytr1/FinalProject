@@ -1,4 +1,4 @@
-const {Form, User} = require('../models/index.js');
+const {Form, User, Template} = require('../models/index.js');
 class FormService {
     async getAllForms() {
         const allForms = await Form.findAll({ include: User });

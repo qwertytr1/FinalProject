@@ -1,4 +1,4 @@
-const { Template, User, Tag, Question, Answer} = require("../models/index");
+const {sequelize, Template, User, Tag, Question, TemplatesAccess, Like, Comment, Form, TemplatesTag} = require("../models/index");
 const cloudinary = require('../config/cloudinary');
 const jwt = require('jsonwebtoken'); // Для работы с токенами
 // шаблоны
@@ -16,16 +16,18 @@ const getUserIdFromToken = (req) => {
 };
 exports.createTemplate = async (req, res) => {
   try {
-    const { title, description, category, image_url, is_public } = req.body;
+    const { title, description, category, image_url, is_public, tags } = req.body;
+
     if (!req.file) {
-      return res.status(400).json({ error: 'Файл изображения не был загружен' });
+      return res.status(400).json({ error: "Файл изображения не был загружен" });
     }
+
     const userId = getUserIdFromToken(req);
+
     // Загружаем изображение в Cloudinary
-    console.log(userId)
     const result = await cloudinary.uploader.upload(req.file.path);
 
-    // Создаём новый шаблон с ссылкой на изображение
+    // Создаём новый шаблон
     const newTemplate = await Template.create({
       title,
       description,
@@ -37,51 +39,47 @@ exports.createTemplate = async (req, res) => {
       updated_at: new Date(),
     });
 
-    // Возвращаем ответ
+    // Проверяем наличие тегов
+    const tagIds = tags || []; // Передаётся массив ID тегов
+    const existingTags = await Tag.findAll({
+      where: { id: tagIds },
+    });
+
+    if (existingTags.length !== tagIds.length) {
+      return res.status(400).json({
+        error: "Один или несколько указанных тегов не существуют.",
+      });
+    }
+
+    // Создаём связи шаблона с тегами
+    const templatesTagData = existingTags.map((tag) => ({
+      templates_id: newTemplate.id,
+      tags_id: tag.id,
+    }));
+
+    await TemplatesTag.bulkCreate(templatesTagData);
+
+    // Создаём запись в таблице templates_access
+    await TemplatesAccess.create({
+      users_id: userId,
+      templates_id: newTemplate.id,
+    });
+
+    // Возвращаем успешный ответ
     return res.status(201).json({
-      message: 'Шаблон успешно создан',
+      message: "Шаблон успешно создан",
       template: newTemplate,
     });
   } catch (err) {
-    console.error('Ошибка при создании шаблона:', err);
+    console.error("Ошибка при создании шаблона:", err);
     return res.status(500).json({
-      error: 'Ошибка при создании шаблона',
-      details: err.message
+      error: "Ошибка при создании шаблона",
+      details: err.message,
     });
   }
 };
-//   try {
-//     const { tags, category, is_public } = req.query;
 
-//     // Создаем объект условий фильтрации
-//     const filters = {};
-//     if (category) filters.category = category;
-//     if (is_public) filters.is_public = is_public === 'true';
 
-//     // Если фильтр по тегам, используем ассоциацию
-//     const include = [
-//       { model: User, attributes: ['id', 'username'] }, // Автор
-//     ];
-
-//     if (tags) {
-//       include.push({
-//         model: Tag,
-//         where: { name: tags.split(',') }, // Теги через запятую
-//         through: { attributes: [] },
-//       });
-//     }
-
-//     const templates = await Template.findAll({
-//       where: filters,
-//       include,
-//     });
-
-//     res.status(200).json(templates);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: 'Failed to fetch templates.' });
-//   }
-// };
 exports.getTemplates = async (req, res) => {
   try {
     const templates = await Template.findAll({ include: User });
@@ -96,10 +94,15 @@ exports.getTemplates = async (req, res) => {
 };
 exports.updateTemplate = async (req, res) => {
   try {
-    const [updated] = await Template.update(req.body, {
-      where: { id: req.params.id },
-    });
+    const { id } = req.params;
+    const dataToUpdate = {
+      ...req.body,
+      updated_at: new Date(),
+    };
 
+    const [updated] = await Template.update(dataToUpdate, {
+      where: { id },
+    });
     if (!updated) {
       return res.status(404).json({ error: "Template not found." });
     }
@@ -130,32 +133,44 @@ exports.getTemplateById = async (req, res) => {
   }
 };
 
-
 exports.deleteTemplate = async (req, res) => {
+  const transaction = await sequelize.transaction(); // Начинаем транзакцию
   try {
+      const templateId = req.params.id;
 
+      // Проверяем существование шаблона
+      const template = await Template.findByPk(templateId, { transaction });
+      if (!template) {
+          return res.status(404).json({ error: 'Template not found.' });
+      }
 
-    const template = await Template.findByPk(req.params.id);
+      // Проверяем и удаляем связанные записи только при их наличии
+      const relatedTables = [
+          { model: TemplatesTag, where: { templates_id: templateId } },
+          { model: Like, where: { templates_id: templateId } },
+          { model: Question, where: { templates_id: templateId } },
+          { model: Comment, where: { templates_id: templateId } },
+          { model: Form, where: { templates_id: templateId } },
+      ];
 
-    if (!template) {
-      return res.status(404).json({ error: 'Template not found.' });
-    }
+      for (const { model, where } of relatedTables) {
+          const count = await model.count({ where, transaction });
+          if (count > 0) {
+              await model.destroy({ where, transaction });
+          }
+      }
 
+      // Удаляем сам шаблон
+      await template.destroy({ transaction });
 
+      // Подтверждаем транзакцию
+      await transaction.commit();
 
-    // Если изображение привязано к шаблону, удалим его из Cloudinary перед удалением шаблона
-    const publicId = template.image_url.split('/').pop().split('.')[0]; // Извлекаем public_id из URL
-
-    if (publicId) {
-      await cloudinary.uploader.destroy(publicId);
-    }
-
-    // Удаление шаблона из базы данных
-    await template.destroy();
-
-    res.status(204).send(); // Ответ без содержимого, так как ресурс удалён
+      return res.status(204).send();
   } catch (err) {
-    console.error('Ошибка при удалении шаблона:', err);
-    res.status(500).json({ error: 'Failed to delete template.' });
+      // Откатываем транзакцию в случае ошибки
+      await transaction.rollback();
+      console.error('Ошибка при удалении шаблона:', err);
+      res.status(500).json({ error: 'Failed to delete template.' });
   }
 };
