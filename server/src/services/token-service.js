@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const TokenSchema = require('../models/token-model.js')
+const TokenSchema = require('../models/token-model.js');
+const ApiError = require('../exceptions/api-error.js');
 class TokenService{
     generateTokens (payload) {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' })
@@ -17,13 +18,18 @@ class TokenService{
             return null;
     }
 }
-validateRefreshToken(token) {
+async validateRefreshToken(token) {
     try {
         const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        const refreshToken = await TokenSchema.findOne({ where: { refresh_token: token } });
+        if (!refreshToken) {
+            throw ApiError.BadRequest("Invalid or blocked refresh token");
+        }
         return userData;
     } catch (e) {
+        console.error(e);
         return null;
-}
+    }
 }
 async saveToken(userId, refreshToken) {
     console.log("userId:", userId, "refreshToken:", refreshToken); // Debugging logs
@@ -39,6 +45,14 @@ async removeToken(refreshToken) {
     const tokenData = await TokenSchema.destroy({
         where: {
             refresh_token: refreshToken
+        }
+    });
+    return tokenData;
+}
+async removeTokenById(userId) {
+    const tokenData = await TokenSchema.destroy({
+        where: {
+            user_id: userId
         }
     });
     return tokenData;
