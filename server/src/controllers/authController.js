@@ -1,5 +1,5 @@
 const { Template, User, Tag, Question, Answer} = require("../models/index");
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userService = require("../services/user-service");
 const { validationResult } = require('express-validator');

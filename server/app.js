@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const app = express();
+const mysql2 = require('mysql2');
 const errorMiddleware = require('./src/middleware/error-middleware.js');
 // Middlewares
 app.use(cors());

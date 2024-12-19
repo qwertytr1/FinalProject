@@ -2,7 +2,7 @@ const UserDto = require('../dtos/user-dto.js');
 const { User } = require('../models/index.js');
 const {TokenSchema} = require('../models/token-model.js');
 const TokenService = require('../services/token-service');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const tokenService = require('../services/token-service');
 const ApiError = require('../exceptions/api-error.js');
 class UserService {
