@@ -1,6 +1,6 @@
 const { Template, User, Tag, Question, Answer} = require("../models/index");
 
-// Создание шаблона
+// шаблоны
 exports.createTemplate = async (req, res) => {
   try {
     const { title, description, category, image_url, is_public, users_id } = req.body;
@@ -18,12 +18,6 @@ exports.createTemplate = async (req, res) => {
     res.status(500).json({ error: 'Ошибка при создании шаблона', details: err.message });
   }
 };
-//обновление шаблонов
-//проверка что человек создавал
-//проверка на админа
-//проверка
-// Получение всех шаблонов
-// exports.getTemplates = async (req, res) => {
 //   try {
 //     const { tags, category, is_public } = req.query;
 
@@ -84,13 +78,13 @@ exports.updateTemplate = async (req, res) => {
     res.status(500).json({ error: "Failed to update template." });
   }
 };
-// Получение шаблона по ID
+
 exports.getTemplateById = async (req, res) => {
   try {
-    const { id } = req.params; // Получаем id из параметров маршрута
+    const { id } = req.params;
     const template = await Template.findOne({
-      where: { id }, // Условие поиска по id
-      include: User, // Включаем связанные данные из модели User
+      where: { id },
+      include: User,
     });
 
     if (!template) {
@@ -105,24 +99,28 @@ exports.getTemplateById = async (req, res) => {
 };
 
 
-// Удаление шаблона
 exports.deleteTemplate = async (req, res) => {
   try {
-    const template = await Template.findByPk(req.params.id);
+    console.log(req.user);
+      if (!req.user) {
+          return res.status(401).json({ error: 'Unauthorized: User not authenticated.' });
+      }
 
-    if (!template) return res.status(404).json({ error: 'Template not found.' });
+      const template = await Template.findByPk(req.params.id);
 
-    // Проверяем права: текущий пользователь должен быть создателем или админом
-    if (req.user.id !== template.users_id && !req.user.is_admin) {
-      return res.status(403).json({ error: 'Forbidden: You cannot delete this template.' });
-    }
+      if (!template) {
+          return res.status(404).json({ error: 'Template not found.' });
+      }
 
-    await template.destroy();
+      if (req.user.id !== template.users_id && !req.user.is_admin) {
+          return res.status(403).json({ error: 'Forbidden: You cannot delete this template.' });
+      }
 
-    res.status(204).send();
+      await template.destroy();
+
+      res.status(204).send();
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to delete template.' });
+      console.error(err);
+      res.status(500).json({ error: 'Failed to delete template.' });
   }
 };
-
