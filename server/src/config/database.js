@@ -10,14 +10,8 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     dialect: "mysql",
     logging: false,
-    pool: {
-      max: 3,
-      min: 0
-    }
+
   }
 );
-sequelize.close()
-  .then(() => console.log('Connection closed successfully'))
-  .catch(err => console.error('Error while closing connection:', err));
 
 module.exports = sequelize;
