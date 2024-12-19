@@ -3,8 +3,8 @@ const { User } = require('../models/index.js');
 const {TokenSchema} = require('../models/token-model.js');
 const TokenService = require('../services/token-service');
 const bcrypt = require('bcrypt');
-
 const tokenService = require('../services/token-service');
+const ApiError = require('../exceptions/api-error.js');
 class UserService {
     async register(username, email, password, language, theme, role, isBlocked) {
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -55,20 +55,20 @@ class UserService {
      }
      async refresh(refreshToken) {
         if (!refreshToken) {
-            throw ApiError.UnathorizedError();
+            throw ApiError.UnauthorizedError();
         }
         const userData = await TokenService.validateRefreshToken(refreshToken);
         console.log(userData);
         if (!userData) {
-            throw ApiError.UnathorizedError();
+            throw ApiError.UnauthorizedError();
         }
         const tokenFromDb = await TokenService.findToken(refreshToken);
         if (!tokenFromDb) {
-            throw ApiError.UnathorizedError();
+            throw ApiError.UnauthorizedError();
         }
         const user = await User.findOne({ where: { id: userData.id } });
         if (!user) {
-            throw ApiError.UnathorizedError();
+            throw ApiError.UnauthorizedError();
         }
         const userDto = new UserDto(user);
         const tokens = TokenService.generateTokens({ ...userDto });

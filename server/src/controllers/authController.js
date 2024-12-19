@@ -91,7 +91,7 @@ exports.getUser = async (req, res, next) => {
             const user = await userService.getUserById(id);
             return res.json(user);
         } else {
-            throw ApiError.BadRequest('Необходимо передать id ');
+            throw ApiError.UnauthorizedError();
         }
     } catch (error) {
         next(error);
@@ -102,10 +102,6 @@ exports.editUser = async (req, res, next) => {
     try {
         const { id } = req.params;
         const data = req.body;
-
-        if (!refreshToken) {
-            throw ApiError.UnauthorizedError('Токен отсутствует');
-        }
         const updatedUser = await userService.editUserById(id, data);
         return res.json(updatedUser);
     } catch (error) {
@@ -119,17 +115,19 @@ exports.toggleBlock = async (req, res, next) => {
         const status = await userService.toggleBlockByToken(userId);
         return res.json(status);
     } catch (error) {
-        next(error);
+        console.error(error); // Логирование ошибки в консоль для дебага
+        return res.status(500).json({ message: 'Ошибка при блокировке пользователя', error: error.message });
     }
 };
+
 exports.toggleUnblock = async (req, res, next) => {
     try {
-
         const userId = req.params.id;
         const status = await userService.toggleUnblockById(userId);
         return res.json(status);
     } catch (error) {
-        next(error);
+        console.error(error); // Логирование ошибки в консоль для дебага
+        return res.status(500).json({ message: 'Ошибка при разблокировке пользователя', error: error.message });
     }
 };
 exports.deleteUser = async (req, res, next) => {

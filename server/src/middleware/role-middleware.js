@@ -1,26 +1,20 @@
 const tokenService = require('../services/token-service');
 const ApiError = require('../exceptions/api-error');
-
+const jwt = require('jsonwebtoken')
 module.exports = (req, res, next) => {
+    const { refreshToken } = req.cookies; // Получаем токен из куки
+    if (!refreshToken) return null;
     try {
-        const { refreshToken } = req.cookies;
-        if (!refreshToken) {
-            throw ApiError.UnauthorizedError('Токен отсутствует');
-        }
-
-
-        let userData;
-        try {
-            userData = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-        } catch (err) {
-            throw ApiError.UnauthorizedError('Невалидный токен');
-        }
-
-        const { role } = userData;
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        console.log('Decoded token:', decoded);
+        const role = decoded.role;
         if (role !== 'admin') {
             throw ApiError.BadRequest('У вас нет прав на редактирование');
         }
-    } catch (error) {
-        next(error);
+        req.user = role;
+        next();
+    } catch (e) {
+        console.error('Token validation error:', e.message);
+        return next(ApiError.UnauthorizedError());
     }
-};
+}

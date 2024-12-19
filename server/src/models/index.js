@@ -10,7 +10,7 @@ const Tag = sequelize.define("tags", {
   tableName: 'tags',
 });
 
-const User = sequelize.define('User', {
+const User = sequelize.define('users', {
   username: { type: DataTypes.STRING, allowNull: false },
   email: { type: DataTypes.STRING, allowNull: false, unique: true },
   password_hash: { type: DataTypes.STRING, allowNull: false },

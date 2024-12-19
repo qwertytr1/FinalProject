@@ -9,7 +9,7 @@ const TokenSchema = sequelize.define("TokenSchema", {
             model: 'users',
             key: 'id',
         },
-        field: 'user_id',
+        field: 'users_id',
     },
     refresh_token: {
         type: DataTypes.STRING,

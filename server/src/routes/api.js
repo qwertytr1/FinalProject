@@ -21,76 +21,75 @@ const likeController = require('../controllers/likeController.js');
 const tagsController = require('../controllers/tagsController.js');
 const upload = require('../middleware/upload.js');
 const statisticController = require('../controllers/statisticController.js');
-const homeRoutes = require("./homeRoutes.js"); // Маршруты для /api/home
-
+const checkTemplates = require('../middleware/templates-middleware.js')
+const homeController = require('../controllers/mainPageController.js')
 //auth//+
 router.post('/register', body('email').isEmail(), authController.register);
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
-router.get('/refresh', authController.refresh);
+router.get('/refresh',authMiddleware, authController.refresh);
 
 //Users//+
-router.get('/getUsers', authMiddleware, authController.getAllUsers);
-router.get('/getUsers/:id?', authController.getUser);
-router.put('/user/:id', checkAdmin, authController.editUser);
-router.post('/user/block/:id', checkAdmin, authController.toggleBlock);
-router.post('/user/unblock/:id', checkAdmin, authController.toggleUnblock);
-router.delete('/users/:id', checkAdmin, authController.deleteUser);
+router.get('/getUsers',checkAdmin, authController.getAllUsers);
+router.get('/getUsers/:id?',checkAdmin, authController.getUser);
+router.put('/user/:id',checkAdmin, authController.editUser);
+router.post('/user/block/:id',checkAdmin, authController.toggleBlock);
+router.post('/user/unblock/:id',checkAdmin, authController.toggleUnblock);
+router.delete('/users/:id',checkAdmin, authController.deleteUser);
 
 //templates
-router.get('/templates', getTemplates);
-router.get('/templates/:id', getTemplateById);
-router.post('/templates', upload.single('image'), createTemplate);//++
-router.patch('/templates/:id', updateTemplate);//++
-router.delete('/templates/:id', deleteTemplate);//??
+router.get('/templates',authMiddleware, getTemplates);
+router.get('/templates/:id',authMiddleware, getTemplateById);
+router.post('/templates', upload.single('image'),authMiddleware, createTemplate);//++
+router.patch('/templates/:id',checkTemplates, updateTemplate);//++
+router.delete('/templates/:id',checkTemplates, deleteTemplate);//??
 
 //questions//+
-router.get('/templates/:id/questions', questionController.getAllQuestions);
-router.post('/templates/:id/questions', questionController.addQuestions);
-router.patch('/templates/:id/questions/:questionId', questionController.editQuestions);
-router.delete('/templates/:id/questions/:questionId', questionController.deleteQuestions);
+router.get('/templates/:id/questions', authMiddleware,questionController.getAllQuestions);
+router.post('/templates/:id/questions',authMiddleware, questionController.addQuestions);
+router.patch('/templates/:id/questions/:questionId',checkAdmin, questionController.editQuestions);
+router.delete('/templates/:id/questions/:questionId',checkAdmin, questionController.deleteQuestions);
 
 //comments//+
-router.get('/templates/:id/comments', commentsController.getCommentsByTemplates);
-router.get('/users/:id/comments', commentsController.getCommentsByUsers);
-router.post('/templates/:id/comments', commentsController.addComment);
+router.get('/templates/:id/comments',authMiddleware, commentsController.getCommentsByTemplates);
+router.get('/users/:id/comments',authMiddleware, commentsController.getCommentsByUsers);
+router.post('/templates/:id/comments',authMiddleware, commentsController.addComment);
 
 //forms+++
-router.get('/forms', formsController.getAllForms);
-router.get('/forms/:id', formsController.getFormsById);
-router.patch('/forms/:id', formsController.updateForms);
-router.post('/forms', formsController.createForms);
-router.delete('/forms/:id', formsController.deleteForms);
+router.get('/forms',authMiddleware, formsController.getAllForms);
+router.get('/forms/:id',authMiddleware, formsController.getFormsById);
+router.patch('/forms/:id',checkAdmin, formsController.updateForms);
+router.post('/forms', checkAdmin,formsController.createForms);
+router.delete('/forms/:id',checkAdmin, formsController.deleteForms);
 
 //answers+
-router.post('/answer', answerController.addAnswer);
-router.get('/answer', answerController.getAnswerWithFilter);
-router.get('/answers/:id', answerController.getAnswerById);
-router.delete('/answers/:id', answerController.deleteAnswer);
-router.patch('/answers/:id', answerController.editAnswer);
+router.post('/answer',authMiddleware, answerController.addAnswer);
+router.get('/answer',checkAdmin, answerController.getAnswerWithFilter);
+router.get('/answers/:id',checkAdmin, answerController.getAnswerById);
+router.delete('/answers/:id',checkAdmin, answerController.deleteAnswer);
+router.patch('/answers/:id',checkAdmin, answerController.editAnswer);
 
 //like//+
-router.get('/templates/:id/like', likeController.getLikes);
-router.post('/templates/:id/like', likeController.addLike);
-router.delete('/templates/:id/like', likeController.removeLike);
+router.get('/templates/:id/like',authMiddleware, likeController.getLikes);
+router.post('/templates/:id/like',authMiddleware, likeController.addLike);
+router.delete('/templates/:id/like',authMiddleware, likeController.removeLike);
 //Теги и темы //+
-router.get('/tags', tagsController.getTags);
-router.post('/tags', tagsController.createTag);
+router.get('/tags',authMiddleware, tagsController.getTags);
+router.post('/tags',checkAdmin, tagsController.createTag);
 //Главная страница //+
-const homeController = require("../controllers/mainPageController.js");
 
-router.get("/latest-templates", homeController.getLatestTemplates);
-router.get("/top-templates", homeController.getTopTemplates);
-router.get("/tags-cloud", homeController.getTagsCloud);
+router.get("/latest-templates",authMiddleware, homeController.getLatestTemplates);
+router.get("/top-templates",authMiddleware, homeController.getTopTemplates);
+router.get("/tags-cloud",authMiddleware, homeController.getTagsCloud);
 
 //Поиск//+
-router.get('/search', searchController.searchTemplates);
+router.get('/search',authMiddleware, searchController.searchTemplates);
 
 //Языки и темы интерфейса //+
-router.get("/settings/:id", settingsController.getSettings)
-router.patch("/settings/:id", settingsController.editSettings)
+router.get("/settings/:id",checkAdmin, settingsController.getSettings)
+router.patch("/settings/:id",checkAdmin, settingsController.editSettings)
 //Администрировани //+
-router.get('/admin/statistics', statisticController.getStatistics);
+router.get('/admin/statistics',checkAdmin, statisticController.getStatistics);
 //права доступа
 
 module.exports = router;
