@@ -12,12 +12,12 @@ const sequelize = new Sequelize(
     logging: false,
     pool: {
       max: 3,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
+      min: 0
     }
   }
 );
-
+sequelize.close()
+  .then(() => console.log('Connection closed successfully'))
+  .catch(err => console.error('Error while closing connection:', err));
 
 module.exports = sequelize;
