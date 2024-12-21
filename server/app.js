@@ -14,6 +14,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 // Routes
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use("/api", apiRoutes);
 app.use(errorMiddleware);
 // Sync DB and start server
