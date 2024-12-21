@@ -17,24 +17,18 @@ export default class Store {
     }
     async login(email: string, password: string) {
         try {
-          const response = await AuthService.login(email, password);
-          console.log(response);
-          localStorage.setItem('token', response.data.accessToken);
-          this.setAuth(true);
-          this.setUser(response.data.user);
-        } catch (e: any) {
-          if (e.response) {
-            // Server responded with a status outside 2xx
-            console.error('Server Error:', e.response.data);
-          } else if (e.request) {
-            // Request was made, but no response received
-            console.error('Network Error:', e.request);
-          } else {
-            // Other errors
-            console.error('Error:', e.message);
-          }
+            const response = await AuthService.login(email, password);
+            console.log(response)
+            localStorage.setItem('token', `${response.data.accessToken}`);
+            this.setAuth(true);
+            this.setUser(response.data.user);
+        } catch (e) {
+            console.log(e)
         }
-      }
+    }
+    private isAxiosError(error: unknown): error is import("axios").AxiosError {
+        return (error as import("axios").AxiosError).isAxiosError !== undefined;
+    }
     async registration(email: string, password: string) {
         try {
             const response = await AuthService.registration(email, password);
