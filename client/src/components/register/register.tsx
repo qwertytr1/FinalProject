@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Typography, Form, Input, Button, Select, message } from "antd";
 import { useNavigate } from "react-router-dom"; // Для перенаправления после регистрации
 import axios from "axios";
 import "./register.css";
+import { Context } from "../../index";
+import { observer } from "mobx-react-lite";
+
 const API_URL = process.env.REACT_APP_API_URL;
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -17,47 +20,51 @@ interface RegisterFormValues {
 }
 
 function Register() {
-  const [form] = Form.useForm();
-  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  const navigate = useNavigate(); // Для перенаправления
+  const [username, setUsername] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [language, setLanguage] = useState<string>('');
+  const [theme, setTheme] = useState<string>('');
+  const [role, setRole] = useState<string>('');
+  const [isFormSubmitted, setIsFormSubmitted] = useState<boolean>(false);
+  const { store } = useContext(Context);
 
-  const handleSubmit = async (values: RegisterFormValues) => {
-    setIsFormSubmitted(true);
-    try {
-      // Отправка данных на сервер
-      const response = await axios.post(`${API_URL}/api/register`, values);
-      message.success("Registration successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 2000); // Перенаправляем на страницу логина
-      return response.data;
-    } catch (error) {
-      console.error("Ошибка регистрации:", error);
-      message.error("Failed to register. Please try again.");
-    } finally {
-      setIsFormSubmitted(false);
-    }
+  const handleLanguageChange = (value: string) => {
+    setLanguage(value);
+  };
+
+  const handleThemeChange = (value: string) => {
+    setTheme(value);
+  };
+
+  const handleRoleChange = (value: string) => {
+    setRole(value);
   };
 
   return (
     <div className="register-container">
       <div className="register-box">
-        <Title level={3} className={`form-title ${isFormSubmitted ? "animate" : ""}`}>
+        <Title level={3} className={`form-title}`}>
           Register
         </Title>
         <Text className="form-text">
           Create an account to get started. <span className="former">Former</span>
         </Text>
         <Form
-          form={form}
           name="registerForm"
           layout="vertical"
-          onFinish={handleSubmit}
         >
           <Form.Item
             label="Username"
             name="username"
             rules={[{ required: true, message: "Please input your username!" }]}
           >
-            <Input className="register-input" placeholder="Enter your username" />
+            <Input
+              className="register-input"
+              placeholder="Enter your username"
+              onChange={e => setUsername(e.target.value)}
+              value={username}
+            />
           </Form.Item>
 
           <Form.Item
@@ -68,7 +75,12 @@ function Register() {
               { type: "email", message: "Please enter a valid email!" },
             ]}
           >
-            <Input className="register-input" placeholder="Enter your email" />
+            <Input
+              className="register-input"
+              placeholder="Enter your email"
+              onChange={e => setEmail(e.target.value)}
+              value={email}
+            />
           </Form.Item>
 
           <Form.Item
@@ -76,7 +88,12 @@ function Register() {
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password className="register-input" placeholder="Enter your password" />
+            <Input.Password
+              className="register-input"
+              placeholder="Enter your password"
+              onChange={e => setPassword(e.target.value)}
+              value={password}
+            />
           </Form.Item>
 
           <Form.Item
@@ -84,7 +101,12 @@ function Register() {
             name="language"
             rules={[{ required: true, message: "Please select your language!" }]}
           >
-            <Select className="register-input" placeholder="Select your language">
+            <Select
+              className="register-input"
+              placeholder="Select your language"
+              onChange={handleLanguageChange}
+              value={language}
+            >
               <Option value="ru">Russian</Option>
               <Option value="en">English</Option>
               <Option value="pl">Polish</Option>
@@ -96,7 +118,12 @@ function Register() {
             name="theme"
             rules={[{ required: true, message: "Please select your theme!" }]}
           >
-            <Select className="register-input" placeholder="Select your theme">
+            <Select
+              className="register-input"
+              placeholder="Select your theme"
+              onChange={handleThemeChange}
+              value={theme}
+            >
               <Option value="black">Black</Option>
               <Option value="white">White</Option>
             </Select>
@@ -107,24 +134,26 @@ function Register() {
             name="role"
             rules={[{ required: true, message: "Please select your role!" }]}
           >
-            <Select className="register-input" placeholder="Select your role">
+            <Select
+              className="register-input"
+              placeholder="Select your role"
+              onChange={handleRoleChange}
+              value={role}
+            >
               <Option value="user">User</Option>
               <Option value="admin">Admin</Option>
             </Select>
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block loading={isFormSubmitted}>
+            <Button type="primary" htmlType="submit" block onClick={()=>store.registration(username,email,password, language, theme,role)}>
               Register
             </Button>
           </Form.Item>
         </Form>
-        <Text>
-
-        </Text>
       </div>
     </div>
   );
 }
 
-export default Register;
+export default observer( Register);
