@@ -63,8 +63,9 @@ export default class Store {
         this.setLoading(true);
 
         try {
-            const response = await axios.get<AuthResponse>(`http://localhost:3000/api/refresh`, {withCredentials: true})
+            const response = await axios.get<AuthResponse>(`${API_URL}/refresh`, {withCredentials: true})
             console.log(response);
+            // localStorage.getItem('token')
             localStorage.setItem('token', response.data.userData.accessToken);
             console.log(localStorage)
             this.setAuth(true);

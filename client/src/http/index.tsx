@@ -4,7 +4,7 @@ export const API_URL = `https://final-project-chi-nine.vercel.app/api`;
 
 const $api = axios.create({
     withCredentials: true,
-    baseURL:API_URL
+    baseURL: API_URL
 })
 
 
