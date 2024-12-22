@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", apiRoutes);
 
 // Error Middleware
-app.use(errorMiddleware);
+//app.use(errorMiddleware);
 
 // Sync DB and start server
 sequelize
