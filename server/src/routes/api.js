@@ -27,7 +27,7 @@ const homeController = require('../controllers/mainPageController.js')
 router.post('/register', body('email').isEmail(), authController.register);
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
-router.get('/refresh',authMiddleware, authController.refresh);
+router.get('/refresh', authController.refresh);
 
 //Users//+
 router.get('/getUsers',checkAdmin, authController.getAllUsers);

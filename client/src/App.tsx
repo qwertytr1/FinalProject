@@ -12,9 +12,10 @@ function App() {
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
-        store.checkAuth()
+      console.log('ss')
+        store.checkAuth();
     }
-}, [])
+}, []);
 
 if (!store.isAuth) {
   return (

@@ -9,6 +9,6 @@ export default class AuthService {
         return $api.post<AuthResponse>('/register', { username,email, password, language,theme,role })
     }
     static async logout(): Promise<void> {
-        return $api.post('/logout', {}, { withCredentials: true })
+        return $api.post('/logout', { withCredentials: true })
     }
 }
