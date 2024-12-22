@@ -1,11 +1,11 @@
 require("dotenv").config();
 const express = require("express");
-const sequelize = require("./src/config/database");
-const apiRoutes = require("./src/routes/api");
+const sequelize = require("../src/config/database");
+const apiRoutes = require("../src/routes/api");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const errorMiddleware = require('./src/middleware/error-middleware.js');
+const errorMiddleware = require('../src/middleware/error-middleware.js');
 const app = express();
 
 // Updated CORS Configuration

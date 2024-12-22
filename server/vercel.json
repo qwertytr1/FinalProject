@@ -1,7 +1,7 @@
 {
     "version": 2,
     "functions":{
-      "app.js":{
+      "api/app.js":{
 "memory":1024,
 "maxDuration":60
       }
@@ -12,7 +12,7 @@
       },
       {
         "src": "/(.*)",
-        "dest": "./app.js"
+        "dest": "api/app.js"
       }
     ],
     "installCommand": "npm install"
