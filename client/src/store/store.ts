@@ -27,6 +27,7 @@ export default class Store {
             console.log(response)
             localStorage.setItem('token', response.data.userData.accessToken);
             this.setAuth(true);
+            console.log("Stored token:", localStorage.getItem('token'));
             this.setUser(response.data.userData.user);
         } catch (e) {
             console.log(e)
@@ -34,7 +35,8 @@ export default class Store {
     }
     async registration(username:string,email: string, password: string, language:string, theme:string, role:string) {
         try {
-            const response = await AuthService.registration(username,email, password,language,theme,role);
+            const response = await AuthService.registration(username, email, password, language, theme, role);
+
             localStorage.setItem('token', response.data.userData.accessToken);
             this.setAuth(true);
             this.setUser(response.data.userData.user);
@@ -48,6 +50,7 @@ export default class Store {
     async logout() {
         try {
             const response = await $api.post('/logout');
+            console.log(response);
             localStorage.removeItem('token');
             this.setAuth(false);
             this.setUser({} as IUser);
@@ -58,18 +61,18 @@ export default class Store {
     }
     async checkAuth() {
         this.setLoading(true);
+
         try {
             const response = await axios.get<AuthResponse>(`${API_URL}/refresh`, {withCredentials: true})
             console.log(response);
-            console.log('true')
-            localStorage.setItem('token', response.data.userData.accessToken);
-            this.setAuth(true);
-            this.setUser(response.data.userData.user);
+            // localStorage.getItem('token')
+            // localStorage.setItem('token', response.data.userData.accessToken);
+            // console.log(localStorage)
+            // this.setAuth(true);
+            // this.setUser(response.data.userData.user);
         } catch (e) {
-            if (e instanceof Error) {
-                // e is narrowed to Error!
-                console.log(e.message);
-            }
+            console.error("checkAuth error:", e);
+            this.setAuth(false);
         } finally {
             this.setLoading(false);
         }
