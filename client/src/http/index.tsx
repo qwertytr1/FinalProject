@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = `https://final-project-khaki-gamma.vercel.app/api`;
+export const API_URL = `https://final-project-khaki-gamma.vercel.app/api`;
 
 const $api = axios.create({
     withCredentials: true,
@@ -9,8 +9,12 @@ const $api = axios.create({
 
 
 
+
 $api.interceptors.request.use((config) => {
-    console.log('Request Config:', config);
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
 });
 

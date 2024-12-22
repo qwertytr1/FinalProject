@@ -1,10 +1,13 @@
+import axios from "axios";
 import { makeAutoObservable } from "mobx";
 import { IUser } from "../models/IUser";
+import { AuthResponse } from "../models/response/AuthResponce";
 import AuthService from "../services/AuthService";
-
+import $api, {API_URL} from "../http";
 export default class Store {
     user = {} as IUser;
     isAuth = false;
+    isLoading = false;
 
     constructor() {
         makeAutoObservable(this)
@@ -15,26 +18,26 @@ export default class Store {
     setUser(user:IUser){
         this.user = user;
     }
+    setLoading(bool: boolean) {
+        this.isLoading = bool;
+    }
     async login(email: string, password: string) {
         try {
             const response = await AuthService.login(email, password);
             console.log(response)
-            localStorage.setItem('token', `${response.data.accessToken}`);
+            localStorage.setItem('token', response.data.userData.accessToken);
             this.setAuth(true);
-            this.setUser(response.data.user);
+            this.setUser(response.data.userData.user);
         } catch (e) {
             console.log(e)
         }
     }
-    private isAxiosError(error: unknown): error is import("axios").AxiosError {
-        return (error as import("axios").AxiosError).isAxiosError !== undefined;
-    }
-    async registration(email: string, password: string) {
+    async registration(username:string,email: string, password: string, language:string, theme:string, role:string) {
         try {
-            const response = await AuthService.registration(email, password);
-            localStorage.setItem('token', response.data.accessToken);
+            const response = await AuthService.registration(username,email, password,language,theme,role);
+            localStorage.setItem('token', response.data.userData.accessToken);
             this.setAuth(true);
-            this.setUser(response.data.user);
+            this.setUser(response.data.userData.user);
         } catch (e) {
             if (e instanceof Error) {
                 // e is narrowed to Error!
@@ -44,15 +47,31 @@ export default class Store {
     }
     async logout() {
         try {
-            const response = await AuthService.logout();
+            const response = await $api.post('/logout');
             localStorage.removeItem('token');
             this.setAuth(false);
             this.setUser({} as IUser);
+            console.log("Logout response:", response.data);
+        } catch (e) {
+            console.error("Logout error:", e);
+        }
+    }
+    async checkAuth() {
+        this.setLoading(true);
+        try {
+            const response = await axios.get<AuthResponse>(`${API_URL}/refresh`, {withCredentials: true})
+            console.log(response);
+            console.log('true')
+            localStorage.setItem('token', response.data.userData.accessToken);
+            this.setAuth(true);
+            this.setUser(response.data.userData.user);
         } catch (e) {
             if (e instanceof Error) {
                 // e is narrowed to Error!
                 console.log(e.message);
             }
+        } finally {
+            this.setLoading(false);
         }
     }
 }

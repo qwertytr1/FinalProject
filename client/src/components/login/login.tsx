@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"; // Для перенаправл
 import axios from "axios";
 import "./login.css";
 import { Context } from "../../index";
-const API_URL = process.env.REACT_APP_API_URL;
+import { observer } from 'mobx-react-lite';
 const { Title, Text } = Typography;
 
 function Login() {
@@ -54,4 +54,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default observer(Login);
