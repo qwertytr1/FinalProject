@@ -7,7 +7,7 @@ import Context from '../..';
 const { Panel } = Collapse;
 
 const AdminPanel: React.FC = () => {
-  const [users, setUsers] = useState<IUser[]>([]); // Управляем состоянием пользователей внутри компонента
+  const [users, setUsers] = useState<IUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { store } = useContext(Context);
   const handleBlockUser = async (userId: number) => {
@@ -46,9 +46,18 @@ const AdminPanel: React.FC = () => {
       setIsLoading(false);
     }
   };
-  const handleGetUsers = async () => {};
+  const getUsers = async () => {
+    try {
+      const response = await UserService.fetchUsers();
+      console.log('Fetched users:', response.data);
+      setUsers(response.data); // Update the state with fetched users
+    } catch (e) {
+      console.error('Error fetching users:', e);
+    }
+  };
+
   useEffect(() => {
-    store.getUsers();
+    getUsers();
   }, [store]);
 
   return (
@@ -57,7 +66,9 @@ const AdminPanel: React.FC = () => {
         <Panel header="User List" key="1">
           <Button
             type="primary"
-            onClick={handleGetUsers}
+            onClick={() => {
+              getUsers();
+            }}
             className="mb-3"
             loading={isLoading}
           >

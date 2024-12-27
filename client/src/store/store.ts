@@ -148,14 +148,4 @@ export default class Store {
       alert('Failed to save changes. Please try again.');
     }
   }
-
-  async getUsers() {
-    try {
-      const response = await UserService.fetchUsers();
-      console.log('Fetched users:', response.data);
-      this.setUsers(response.data);
-    } catch (e) {
-      console.error('Error fetching users:', e);
-    }
-  }
 }
