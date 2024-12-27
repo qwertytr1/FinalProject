@@ -1,22 +1,12 @@
-import React, { useCallback, useContext, useState } from "react";
-import { Typography, Form, Input, Button, Select, message } from "antd";
-import { useNavigate } from "react-router-dom";
-import "./register.css";
-import { Context } from "../../index";
-import { observer } from "mobx-react-lite";
+import React, { useCallback, useContext, useState } from 'react';
+import { Typography, Form, Input, Button, Select, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import './register.css';
+import { observer } from 'mobx-react-lite';
+import Context from '../../index';
 
-const API_URL = process.env.REACT_APP_API_URL;
 const { Title, Text } = Typography;
 const { Option } = Select;
-
-interface RegisterFormValues {
-  username: string;
-  email: string;
-  password: string;
-  language: string;
-  theme: string;
-  role: string;
-}
 
 function Register() {
   const [username, setUsername] = useState<string>('');
@@ -28,18 +18,26 @@ function Register() {
   const { store } = useContext(Context);
   const navigate = useNavigate();
 
+  const handleUsernameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setUsername(e.target.value);
+    },
+    [],
+  );
 
-  const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value);
-  }, []);
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setEmail(e.target.value);
+    },
+    [],
+  );
 
-  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  }, []);
-
-  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  }, []);
+  const handlePasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setPassword(e.target.value);
+    },
+    [],
+  );
 
   const handleLanguageChange = useCallback((value: string) => {
     setLanguage(value);
@@ -53,14 +51,13 @@ function Register() {
     setRole(value);
   }, []);
 
-
   const handleRegister = useCallback(async () => {
     try {
       await store.register(username, email, password, language, theme, role);
-      message.success("Registration successful");
-      navigate("/login");
+      message.success('Registration successful');
+      navigate('/login');
     } catch (error) {
-      message.error("Registration failed, please try again");
+      message.error('Registration failed, please try again');
     }
   }, [username, email, password, language, theme, role, store, navigate]);
 
@@ -70,14 +67,12 @@ function Register() {
         <Title level={3} className="form-title">
           Register
         </Title>
-        <Text className="form-text">
-          Create an account to get started.
-        </Text>
+        <Text className="form-text">Create an account to get started.</Text>
         <Form name="registerForm" layout="vertical" onFinish={handleRegister}>
           <Form.Item
             label="Username"
             name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
+            rules={[{ required: true, message: 'Please input your username!' }]}
           >
             <Input
               className="register-input"
@@ -91,8 +86,8 @@ function Register() {
             label="Email"
             name="email"
             rules={[
-              { required: true, message: "Please input your email!" },
-              { type: "email", message: "Please enter a valid email!" },
+              { required: true, message: 'Please input your email!' },
+              { type: 'email', message: 'Please enter a valid email!' },
             ]}
           >
             <Input
@@ -106,7 +101,7 @@ function Register() {
           <Form.Item
             label="Password"
             name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            rules={[{ required: true, message: 'Please input your password!' }]}
           >
             <Input.Password
               className="register-input"
@@ -119,7 +114,9 @@ function Register() {
           <Form.Item
             label="Language"
             name="language"
-            rules={[{ required: true, message: "Please select your language!" }]}
+            rules={[
+              { required: true, message: 'Please select your language!' },
+            ]}
           >
             <Select
               className="register-input"
@@ -136,7 +133,7 @@ function Register() {
           <Form.Item
             label="Theme"
             name="theme"
-            rules={[{ required: true, message: "Please select your theme!" }]}
+            rules={[{ required: true, message: 'Please select your theme!' }]}
           >
             <Select
               className="register-input"
@@ -152,7 +149,7 @@ function Register() {
           <Form.Item
             label="Role"
             name="role"
-            rules={[{ required: true, message: "Please select your role!" }]}
+            rules={[{ required: true, message: 'Please select your role!' }]}
           >
             <Select
               className="register-input"
@@ -166,11 +163,7 @@ function Register() {
           </Form.Item>
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-            >
+            <Button type="primary" htmlType="submit" block>
               Register
             </Button>
           </Form.Item>

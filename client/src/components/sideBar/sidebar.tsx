@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Layout, Menu, Typography, Card } from 'antd';
 import {
   UserOutlined,
-  SettingOutlined,
   TeamOutlined,
   BarChartOutlined,
 } from '@ant-design/icons';
@@ -10,7 +9,7 @@ import ProfilePage from '../profile/profile';
 import AdminPanel from '../admin/admin';
 import './sideBar.css';
 
-const { Sider, Content, Header } = Layout;
+const { Sider, Content } = Layout;
 const { SubMenu } = Menu;
 const { Title } = Typography;
 
@@ -18,7 +17,9 @@ const SidebarMenu: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState('profile');
 
-  const toggleSidebar = () => setCollapsed(!collapsed);
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed);
+  };
 
   const renderContent = () => {
     switch (selectedMenu) {
@@ -61,14 +62,14 @@ const SidebarMenu: React.FC = () => {
           onCollapse={toggleSidebar}
           className="layout-sider"
         >
-          <div className="layout-logo">
-
-          </div>
+          <div className="layout-logo" />
           <Menu
             theme="dark"
             mode="inline"
             defaultSelectedKeys={['profile']}
-            onClick={(e) => setSelectedMenu(e.key)}
+            onClick={(e) => {
+              setSelectedMenu(e.key);
+            }}
           >
             <Menu.Item key="profile" icon={<UserOutlined />}>
               Профиль
@@ -77,11 +78,11 @@ const SidebarMenu: React.FC = () => {
               <Menu.Item key="admin-panel">Пользователи</Menu.Item>
               <Menu.Item key="statistics" icon={<BarChartOutlined />}>
                 Статистика
-                          </Menu.Item>
-                          <Menu.Item key="templates" icon={<BarChartOutlined />}>
+              </Menu.Item>
+              <Menu.Item key="templates" icon={<BarChartOutlined />}>
                 Шаблоны
-                          </Menu.Item>
-                          <Menu.Item key="tags" icon={<BarChartOutlined />}>
+              </Menu.Item>
+              <Menu.Item key="tags" icon={<BarChartOutlined />}>
                 Тэги
               </Menu.Item>
             </SubMenu>

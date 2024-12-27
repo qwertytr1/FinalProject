@@ -1,9 +1,10 @@
-import React, { useCallback, useContext, useState } from "react";
-import { Typography, Form, Input, Button, message } from "antd";
-import "./login.css";
-import { Context } from "../../index";
-import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router-dom";
+import React, { useCallback, useContext, useState } from 'react';
+import { Typography, Form, Input, Button, message } from 'antd';
+import './login.css';
+import { observer } from 'mobx-react-lite';
+import { useNavigate } from 'react-router-dom';
+import Context from '../..';
+
 const { Title, Text } = Typography;
 
 function Login() {
@@ -12,26 +13,32 @@ function Login() {
   const { store } = useContext(Context);
   const navigate = useNavigate();
 
-  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  }, []);
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setEmail(e.target.value);
+    },
+    [],
+  );
 
-  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  }, []);
+  const handlePasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setPassword(e.target.value);
+    },
+    [],
+  );
 
   const handleLogin = async () => {
     try {
       await store.login(email, password);
-      message.success("Login successful");
-      navigate("/Profile");
+      message.success('Login successful');
+      navigate('/Profile');
     } catch (error) {
-      message.error("Login failed. Please check your credentials.");
+      message.error('Login failed. Please check your credentials.');
     }
   };
 
   const handleRegistrationRedirect = () => {
-    navigate("/register");
+    navigate('/register');
   };
 
   return (
@@ -39,17 +46,13 @@ function Login() {
       <div className="login-box">
         <Title level={3}>Welcome Back</Title>
         <Text>Please login to your account</Text>
-        <Form
-          name="loginForm"
-          layout="vertical"
-          onFinish={handleLogin}
-        >
+        <Form name="loginForm" layout="vertical" onFinish={handleLogin}>
           <Form.Item
             label="Email"
             name="email"
             rules={[
-              { required: true, message: "Please input your email!" },
-              { type: "email", message: "Please enter a valid email!" },
+              { required: true, message: 'Please input your email!' },
+              { type: 'email', message: 'Please enter a valid email!' },
             ]}
           >
             <Input
@@ -63,7 +66,7 @@ function Login() {
           <Form.Item
             label="Password"
             name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            rules={[{ required: true, message: 'Please input your password!' }]}
           >
             <Input.Password
               className="login-input"
@@ -74,18 +77,14 @@ function Login() {
           </Form.Item>
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-            >
+            <Button type="primary" htmlType="submit" block>
               Login
             </Button>
           </Form.Item>
         </Form>
 
         <div className="registration-link">
-          <Text>Don't have an account? </Text>
+          <Text>Don&apos;t have an account?</Text>
           <Button type="link" onClick={handleRegistrationRedirect}>
             Register here
           </Button>
