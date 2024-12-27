@@ -1,6 +1,7 @@
 const express = require('express');
-const router = express.Router();
+const router = express();
 const authController = require('../controllers/authController.js'); // Предположим, что ваши контроллеры здесь
+const userController = require('../controllers/userController.js'); // Предположим, что ваши контроллеры здесь
 const {
   getTemplates,
   getTemplateById,
@@ -28,14 +29,13 @@ router.post('/register', body('email').isEmail(), authController.register);
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
 router.get('/refresh', authController.refresh);
-
 //Users//+
-router.get('/getUsers',checkAdmin, authController.getAllUsers);
-router.get('/getUsers/:id?',checkAdmin, authController.getUser);
-router.put('/user/:id',checkAdmin, authController.editUser);
-router.post('/user/block/:id',checkAdmin, authController.toggleBlock);
-router.post('/user/unblock/:id',checkAdmin, authController.toggleUnblock);
-router.delete('/users/:id',checkAdmin, authController.deleteUser);
+router.get('/getUsers', userController.getAllUsers);
+router.get('/getUsers/:id?', userController.getUser);
+router.put('/user/:id', userController.editUser);
+router.post('/user/block/:id', userController.toggleBlockUser);
+router.post('/user/unblock/:id', userController.toggleUnblockUser);
+router.delete('/users/:id',checkAdmin, userController.deleteUser);
 
 //templates
 router.get('/templates',authMiddleware, getTemplates);

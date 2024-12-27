@@ -1,34 +1,32 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './components/login/login';
-import Register from "./components/register/register";
+
 import { Context } from '.';
 import { observer } from 'mobx-react-lite';
+import UserService from './services/UserService';
+import { IUser } from './models/IUser';
+import ProfilePage from './components/profile/profile';
+import Register from './components/register/register';
+import SidebarMenu from './components/sideBar/sidebar';
+import AdminPanel from './components/admin/admin';
 
 
 function App() {
-  const {store } = useContext(Context)
-
-  useEffect(() => {
-    if (localStorage.getItem('token')) {
-      console.log('ss')
-        store.checkAuth();
-    }
-}, []);
-
-if (!store.isAuth) {
   return (
-      <div>
-          <Login/>
-      </div>
-  );
-}
-  return (
-    <div className="App">
-        <h1>{store.isAuth ? `Пользователь авторизован ${store.user.email}` : 'АВТОРИЗУЙТЕСЬ'}</h1>
-      <button onClick={() => store.logout()}>exit</button>
-      </div>
+      <Routes>
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
+    <Route path="/" element={<SidebarMenu />}>
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/admin" element={<AdminPanel />} />
+          <Route
+            path="/statistics"
+            element={<div>Здесь будет страница статистики</div>}
+          />
+        </Route>
+  </Routes>
   );
 }
 

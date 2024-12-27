@@ -1,16 +1,20 @@
 {
     "version": 2,
-    "builds": [
-      {
-        "src": "app.js",
-        "use": "@vercel/node"
+    "functions":{
+      "api/app.js":{
+"memory":1024,
+"maxDuration":60
       }
-    ],
+    },
     "routes": [
       {
+        "handle":"filesystem"
+      },
+      {
         "src": "/(.*)",
-        "dest": "app.js"
+        "dest": "api/app.js"
       }
     ],
+    "regions": ["cdg1"],
     "installCommand": "npm install"
   }
