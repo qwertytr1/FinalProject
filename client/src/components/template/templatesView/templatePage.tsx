@@ -52,7 +52,6 @@ const TemplatesPage = observer(() => {
     );
   }
   if (currentTemplateId !== null) {
-    // Отображение TemplateDetailsPage при выборе шаблона
     return <TemplateDetailsPage />;
   }
   if (error) {
@@ -88,9 +87,8 @@ const TemplatesPage = observer(() => {
                 />
               }
               onClick={() => {
-                console.log('gg');
                 handleCardClick(template.id);
-              }} // Use the correct handler
+              }}
             >
               <Meta
                 title={template.title}

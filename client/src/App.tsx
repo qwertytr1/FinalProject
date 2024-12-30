@@ -7,6 +7,8 @@ import Register from './components/register/register';
 import SidebarMenu from './components/sideBar/sidebar';
 import AdminPanel from './components/admin/admin';
 import TemplateDetailsPage from './components/template/templateDetailsPage';
+import TemplatesPage from './components/template/templatesView/templatePage';
+import CreateTemplateModal from './components/template/addTemplate/addTemplateParts/addtemplate';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
       <Route path="/" element={<SidebarMenu />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/templates/create" element={<CreateTemplateModal />} />
+        <Route path="/templates" element={<TemplatesPage />} />
         <Route path="/templates/:id" element={<TemplateDetailsPage />} />
         <Route
           path="/statistics"

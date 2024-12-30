@@ -5,21 +5,19 @@ class QuestionService {
     async GetAllQuestion(templateId) {
         const template = await Template.findByPk(templateId);
         if (!template) {
-            return { status: 404, json: { error: 'Template not found' } };
+          return { status: 404, json: { error: 'Template not found' } };
         }
 
-        // Check if the question exists
-        const question = await Question.findAll({
-            where: {
-                templates_id: templateId,
-            },
+        const questions = await Question.findAll({
+          where: { templates_id: templateId },
         });
 
-        if (!question) {
-            return { status: 404, json: { error: 'Question not found' } };
+        if (!questions || questions.length === 0) {
+          return { status: 404, json: { error: 'Questions not found' } };
         }
-        return { status: 201, json: { ...question } };
-    }
+
+        return { status: 200, json: questions }; // Вернуть массив вопросов напрямую
+      }
     async AddQuestion(templateId, type, title, description, order, showInResults, correct_answer) {
         // Check if the template exists
         const template = await Template.findByPk(templateId);

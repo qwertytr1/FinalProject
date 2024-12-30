@@ -113,7 +113,7 @@ export default class Store {
     },
   ) {
     try {
-      const response = await UserService.edit(id, userData);
+      const response = await UserService.editUsers(id, userData);
       if (response && response.data) {
         this.setUser(response.data);
         return response.data;

@@ -7,7 +7,7 @@ export default class UserService {
     return $api.get<IUser[]>('/getUsers');
   }
 
-  static async edit(
+  static async editUsers(
     id: number,
     userData: {
       username: string;

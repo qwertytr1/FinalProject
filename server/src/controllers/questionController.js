@@ -2,16 +2,14 @@ const { Template, User, Tag, Question, Answer } = require("../models/index");
 const QuestionService = require("../services/question-service.js")
 exports.getAllQuestions = async (req, res, next) => {
   const templateId = req.params.id;
-  try {
-    // Await the async function to ensure it resolves before accessing its properties
-    const question = await QuestionService.GetAllQuestion(templateId);
 
-    // Use the resolved status and json properties correctly
-    res.status(question.status).json(question.json);
-} catch (error) {
+  try {
+    const questionResult = await QuestionService.GetAllQuestion(templateId);
+    res.status(questionResult.status).json(questionResult.json);
+  } catch (error) {
     next(error);
-}
-}
+  }
+};
 exports.addQuestions = async (req, res, next) => {
   const templateId = req.params.id;
   const { title, description, order, type, showInResults, correct_answer} = req.body;

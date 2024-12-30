@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Form, Input, Select, Spin, Alert, Checkbox } from 'antd';
-import { useParams } from 'react-router-dom'; // Use this to get the URL params
+import { Card, Button, Form, Input, Select, Spin, Alert, List } from 'antd';
+import { useParams } from 'react-router-dom';
 import TemplateService from '../../services/templateService';
 import QuestionService from '../../services/questionService';
 import { Templates } from '../../models/templates';
@@ -15,6 +15,12 @@ const TemplateDetailsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Questions[]>([]);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
+  const [questionDetails, setQuestionDetails] = useState({
+    title: '',
+    type: '',
+    description: '',
+    correctAnswer: '',
+  });
 
   useEffect(() => {
     const fetchTemplate = async () => {
@@ -36,20 +42,61 @@ const TemplateDetailsPage = () => {
     }
   }, [id]);
 
-  const handleAddQuestion = async (values: Questions) => {
+  const handleAddQuestionClick = () => {
+    setShowQuestionForm(true);
+  };
+
+  const handleSaveQuestion = async () => {
+    if (!questionDetails.title || !questionDetails.type) {
+      setError('Please provide a question title and select a type.');
+      return;
+    }
+
     try {
-      await QuestionService.addQuestion(Number(id), values);
-      setQuestions((prev) => [...prev, values]);
+      const newQuestion: Questions = {
+        title: questionDetails.title,
+        type: questionDetails.type,
+        description: questionDetails.description,
+        correctAnswer: questionDetails.correctAnswer,
+      };
+
+      const response = await QuestionService.addQuestion(
+        Number(id),
+        newQuestion,
+      );
+      setQuestions((prevQuestions) => [...prevQuestions, response.data]);
+
+      setQuestionDetails({
+        title: '',
+        type: '',
+        description: '',
+        correctAnswer: '',
+      });
       setShowQuestionForm(false);
     } catch (err) {
       setError('Failed to add question.');
     }
   };
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await QuestionService.getQuestion(Number(id));
+        setQuestions(response.data || []); // Устанавливаем все вопросы
+        console.log('Questions:', response);
+      } catch (err) {
+        setError('Failed to load questions.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleAddQuestionClick = () => {
-    setShowQuestionForm(true);
-  };
-
+    if (id) {
+      fetchQuestions();
+    }
+  }, [id]);
+  console.log('Questions State:', questions);
   if (loading) {
     return (
       <div style={{ padding: '20px' }}>
@@ -91,70 +138,90 @@ const TemplateDetailsPage = () => {
         <p>Category: {template.category}</p>
       </Card>
 
-      <h3>Questions</h3>
-      {questions.length === 0 ? (
-        <div style={{ textAlign: 'center' }}>
-          <Button type="primary" onClick={handleAddQuestionClick}>
-            Add Question
-          </Button>
-        </div>
+      <h3>Questions ({questions.length})</h3>
+      {questions.length > 0 ? (
+        <List
+          dataSource={questions}
+          renderItem={(question) => (
+            <List.Item>
+              <Card title={question.title}>
+                <p>Type: {question.type}</p>
+                <p>Description: {question.description || 'No description'}</p>
+                {question.correctAnswer && (
+                  <p>Correct Answer: {question.correctAnswer}</p>
+                )}
+              </Card>
+            </List.Item>
+          )}
+        />
       ) : (
-        <ul>
-          {questions.map((question) => (
-            <li key={question.id}>{question.title}</li>
-          ))}
-        </ul>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <Alert message="No questions available." type="info" showIcon />
+        </div>
       )}
 
+      <Button
+        type="primary"
+        onClick={handleAddQuestionClick}
+        style={{ marginBottom: '20px' }}
+      >
+        Add Question
+      </Button>
+
       {showQuestionForm && (
-        <Form
-          onFinish={handleAddQuestion}
-          layout="vertical"
-          style={{ marginTop: '20px' }}
-        >
-          <Form.Item
-            name="title"
-            label="Question Title"
-            rules={[
-              { required: true, message: 'Please enter the question title' },
-            ]}
-          >
-            <Input />
+        <Form layout="vertical" style={{ marginTop: '20px' }}>
+          <Form.Item label="Question Title" required>
+            <Input
+              value={questionDetails.title}
+              onChange={(e) =>
+                setQuestionDetails({
+                  ...questionDetails,
+                  title: e.target.value,
+                })
+              }
+              placeholder="Enter question title"
+            />
           </Form.Item>
-          <Form.Item name="description" label="Description">
-            <Input.TextArea />
-          </Form.Item>
-          <Form.Item
-            name="type"
-            label="Question Type"
-            rules={[{ required: true, message: 'Please select question type' }]}
-          >
-            <Select>
+          <Form.Item label="Question Type" required>
+            <Select
+              value={questionDetails.type}
+              onChange={(value) =>
+                setQuestionDetails({ ...questionDetails, type: value })
+              }
+              placeholder="Select question type"
+            >
               <Option value="single-line">Single Line</Option>
               <Option value="multi-line">Multi-Line</Option>
               <Option value="integer">Integer</Option>
               <Option value="checkbox">Checkbox</Option>
             </Select>
           </Form.Item>
-          <Form.Item
-            name="order"
-            label="Order"
-            rules={[{ required: true, message: 'Please specify the order' }]}
-          >
-            <Input />
+          <Form.Item label="Question Description">
+            <Input.TextArea
+              value={questionDetails.description}
+              onChange={(e) =>
+                setQuestionDetails({
+                  ...questionDetails,
+                  description: e.target.value,
+                })
+              }
+              placeholder="Enter question description (optional)"
+            />
           </Form.Item>
-          <Form.Item
-            name="showInResults"
-            label="Show in Results"
-            valuePropName="checked"
-          >
-            <Checkbox />
+          <Form.Item label="Correct Answer">
+            <Input
+              value={questionDetails.correctAnswer}
+              onChange={(e) =>
+                setQuestionDetails({
+                  ...questionDetails,
+                  correctAnswer: e.target.value,
+                })
+              }
+              placeholder="Enter correct answer (optional)"
+            />
           </Form.Item>
-          <Form.Item name="correct_answer" label="Correct Answer">
-            <Input />
-          </Form.Item>
-          <Button type="primary" htmlType="submit">
-            Add Question
+          <Button type="primary" onClick={handleSaveQuestion}>
+            Save Question
           </Button>
         </Form>
       )}

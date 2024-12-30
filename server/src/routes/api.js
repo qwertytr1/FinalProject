@@ -48,7 +48,7 @@ router.delete('/templates/:id',checkTemplates, deleteTemplate);//??
 
 //questions//+
 router.get('/templates/:id/questions', authMiddleware,questionController.getAllQuestions);
-router.post('/templates/:id',authMiddleware, questionController.addQuestions);
+router.post('/templates/:id/questions',authMiddleware, questionController.addQuestions);
 router.patch('/templates/:id/questions/:questionId',checkAdmin, questionController.editQuestions);
 router.delete('/templates/:id/questions/:questionId',checkAdmin, questionController.deleteQuestions);
 

@@ -21,4 +21,19 @@ export default class TemplateService {
   static async getTemplateById(id: number) {
     return $api.get(`/templates/${id}`);
   }
+
+  static async editTemplate(
+    id: number,
+    templateData: {
+      title: string;
+      description?: string;
+      category?: string;
+    },
+  ) {
+    return $api.patch(`/templates/${id}`, templateData);
+  }
+
+  static async deleteTemplate(id: number) {
+    return $api.delete(`/templates/${id}`);
+  }
 }
