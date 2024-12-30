@@ -181,6 +181,7 @@ const Like = sequelize.define("likes", {
   timestamps: false,
 });
 const TemplatesAccess = sequelize.define("template_access", {
+  id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
   templates_id: {
     type: Sequelize.INTEGER,
     allowNull: false,
@@ -199,6 +200,7 @@ const TemplatesAccess = sequelize.define("template_access", {
   },
 }, {
   timestamps: false,
+  tableName: "template_access",
 });
 
 Template.hasMany(Like, { foreignKey: 'templates_id', onDelete: 'CASCADE' });
@@ -212,10 +214,7 @@ Template.belongsToMany(Tag, {
   onDelete: "CASCADE"
 });
 User.hasMany(TokenSchema, { foreignKey: 'user_id' });
-TokenSchema.belongsTo(User, { foreignKey: 'user_id' });
-Template.belongsTo(User, { foreignKey: 'users_id' });
 Question.hasMany(Answer, { foreignKey: 'questions_id' });
-User.hasMany(Template, { foreignKey: 'users_id' });
 Template.belongsToMany(Tag, {
   through: TemplatesTag,
   foreignKey: "templates_id",
@@ -236,8 +235,18 @@ Comment.belongsTo(Template, { foreignKey: "templates_id" });
 Comment.belongsTo(User, { foreignKey: "users_id" });
 Like.belongsTo(Template, { foreignKey: "templates_id" });
 Like.belongsTo(User, { foreignKey: "users_id" });
-
-// Экспорт моделей
+Template.hasMany(TemplatesAccess, {
+  foreignKey: "templates_id",
+  as: "templateAccesses",
+});
+TemplatesAccess.belongsTo(Template, {
+  foreignKey: "templates_id",
+  as: "template",
+});
+User.hasMany(TemplatesAccess, {
+  foreignKey: "users_id",
+  as: "userTemplateAccesses",
+});
 module.exports = {
   sequelize,
   User,

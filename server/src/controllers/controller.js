@@ -1,5 +1,7 @@
 const {sequelize, Template, User, Tag, Question, TemplatesAccess, Like, Comment, Form, TemplatesTag} = require("../models/index");
 const cloudinary = require('../config/cloudinary');
+const tokenService = require('../services/token-service.js');
+const ApiError = require('../exceptions/api-error.js')
 const jwt = require('jsonwebtoken'); // Для работы с токенами
 // шаблоны
 exports.createTemplate = async (req, res) => {
@@ -27,7 +29,6 @@ exports.createTemplate = async (req, res) => {
       category,
       image_url: result.secure_url, // Ссылка на изображение из Cloudinary
       is_public: is_public || false,
-      users_id: userId,
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -71,11 +72,36 @@ exports.createTemplate = async (req, res) => {
     });
   }
 };
+exports.getTemplatesByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const templates = await Template.findAll({
+      include: {
+        model: TemplatesAccess,
+        as: "templateAccesses", // используем псевдоним из ассоциации
+        where: { users_id: userId },
+        required: true, // только те шаблоны, которые связаны с данным пользователем
+      },
+    });
+
+    // Если шаблонов не найдено
+    if (templates.length === 0) {
+      return res.status(200).json({ message: "No templates found for this user." });
+    }
+
+    // Возвращаем найденные шаблоны
+    res.status(200).json(templates);
+  } catch (err) {
+    console.error("Error fetching templates by user:", err);
+    res.status(500).json({ error: "Failed to fetch templates by user." });
+  }
+};
 
 
 exports.getTemplates = async (req, res) => {
   try {
-    const templates = await Template.findAll({ include: User });
+    const templates = await Template.findAll();//include User
     if (templates.length === 0) {
       return res.status(200).json({ message: "No templates found." });
     }
@@ -111,8 +137,7 @@ exports.getTemplateById = async (req, res) => {
   try {
     const { id } = req.params;
     const template = await Template.findOne({
-      where: { id },
-      include: User,
+      where: { id }
     });
 
     if (!template) {

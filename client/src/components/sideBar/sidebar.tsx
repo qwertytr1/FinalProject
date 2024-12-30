@@ -4,10 +4,13 @@ import {
   UserOutlined,
   TeamOutlined,
   BarChartOutlined,
+  BookOutlined,
 } from '@ant-design/icons';
 import ProfilePage from '../profile/profile';
 import AdminPanel from '../admin/admin';
 import './sideBar.css';
+import CreateTemplateModal from '../template/addTemplate/addTemplateParts/addtemplate';
+import TemplatesPage from '../template/templatesView/templatePage';
 
 const { Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -23,6 +26,24 @@ const SidebarMenu: React.FC = () => {
 
   const renderContent = () => {
     switch (selectedMenu) {
+      case 'main':
+        return (
+          <Card bordered={false} className="content-card">
+            {/* <CreateTemplateModal /> */}
+          </Card>
+        );
+      case 'templates':
+        return (
+          <Card bordered={false} className="content-card">
+            <TemplatesPage />
+          </Card>
+        );
+      case 'addTemplate':
+        return (
+          <Card bordered={false} className="content-card">
+            <CreateTemplateModal />
+          </Card>
+        );
       case 'profile':
         return (
           <Card bordered={false} className="content-card">
@@ -71,6 +92,15 @@ const SidebarMenu: React.FC = () => {
               setSelectedMenu(e.key);
             }}
           >
+            <Menu.Item key="Main" icon={<UserOutlined />}>
+              Главная
+            </Menu.Item>
+            <Menu.Item key="addTemplate" icon={<UserOutlined />}>
+              Добавить Форму
+            </Menu.Item>
+            <Menu.Item key="templates" icon={<BookOutlined />}>
+              Созданные формы
+            </Menu.Item>
             <Menu.Item key="profile" icon={<UserOutlined />}>
               Профиль
             </Menu.Item>
@@ -79,7 +109,7 @@ const SidebarMenu: React.FC = () => {
               <Menu.Item key="statistics" icon={<BarChartOutlined />}>
                 Статистика
               </Menu.Item>
-              <Menu.Item key="templates" icon={<BarChartOutlined />}>
+              <Menu.Item key="admin-templates" icon={<BarChartOutlined />}>
                 Шаблоны
               </Menu.Item>
               <Menu.Item key="tags" icon={<BarChartOutlined />}>

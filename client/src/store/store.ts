@@ -1,19 +1,19 @@
 import { makeAutoObservable } from 'mobx';
-import { type IUser } from '../models/IUser';
-import AuthService from '../services/AuthService';
+import { type IUser } from '../models/iUser';
+import AuthService from '../services/authService';
 import $api from '../http';
-import UserService from '../services/UserService';
+import UserService from '../services/userService';
 
 export default class Store {
-  user: Partial<IUser> = {}; // Используем Partial для необязательных полей
+  user: Partial<IUser> = {};
 
-  users: IUser[] = []; // Хранение списка пользователей
+  users: IUser[] = [];
 
   isAuth = false;
 
   isLoading = false;
 
-  isCheckedAuth = false; // Новый флаг для отслеживания состояния проверки аутентификации
+  isCheckedAuth = false;
 
   constructor() {
     makeAutoObservable(this);

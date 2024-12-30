@@ -8,6 +8,7 @@ const {
   createTemplate,
   updateTemplate,
   deleteTemplate,
+  getTemplatesByUser,
 } = require('../controllers/controller.js');
 const searchController = require('../controllers/searchController');
 const { body } = require('express-validator');
@@ -38,7 +39,8 @@ router.post('/user/unblock/:id', userController.toggleUnblockUser);
 router.delete('/users/:id',checkAdmin, userController.deleteUser);
 
 //templates
-router.get('/templates',authMiddleware, getTemplates);
+router.get('/templates', authMiddleware, getTemplates);
+router.get('/templates/user/:userId',authMiddleware, getTemplatesByUser);
 router.get('/templates/:id',authMiddleware, getTemplateById);
 router.post('/templates', upload.single('image'),authMiddleware, createTemplate);//++
 router.patch('/templates/:id',checkTemplates, updateTemplate);//++
@@ -46,7 +48,7 @@ router.delete('/templates/:id',checkTemplates, deleteTemplate);//??
 
 //questions//+
 router.get('/templates/:id/questions', authMiddleware,questionController.getAllQuestions);
-router.post('/templates/:id/questions',authMiddleware, questionController.addQuestions);
+router.post('/templates/:id',authMiddleware, questionController.addQuestions);
 router.patch('/templates/:id/questions/:questionId',checkAdmin, questionController.editQuestions);
 router.delete('/templates/:id/questions/:questionId',checkAdmin, questionController.deleteQuestions);
 

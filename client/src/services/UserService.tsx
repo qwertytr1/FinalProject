@@ -1,6 +1,6 @@
 import { type AxiosResponse } from 'axios';
 import $api from '../http';
-import { type IUser } from '../models/IUser';
+import { type IUser } from '../models/iUser';
 
 export default class UserService {
   static async fetchUsers(): Promise<AxiosResponse<IUser[]>> {
@@ -18,16 +18,7 @@ export default class UserService {
       role: string;
     },
   ): Promise<AxiosResponse<IUser>> {
-    try {
-      const response = await $api.put(`/user/${id}`, userData);
-      if (response.data) {
-        return response;
-      }
-      throw new Error('Invalid server response');
-    } catch (error) {
-      console.error('Error in UserService.edit:', error);
-      throw error;
-    }
+    return $api.put(`/user/${id}`, userData);
   }
 
   static async toggleBlockUser(userId: string) {

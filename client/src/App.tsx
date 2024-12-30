@@ -6,6 +6,7 @@ import ProfilePage from './components/profile/profile';
 import Register from './components/register/register';
 import SidebarMenu from './components/sideBar/sidebar';
 import AdminPanel from './components/admin/admin';
+import TemplateDetailsPage from './components/template/templateDetailsPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/" element={<SidebarMenu />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/templates/:id" element={<TemplateDetailsPage />} />
         <Route
           path="/statistics"
           element={<div>Здесь будет страница статистики</div>}

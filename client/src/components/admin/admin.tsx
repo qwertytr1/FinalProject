@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, Card, List, Collapse, message, Popconfirm } from 'antd';
-import UserService from '../../services/UserService';
-import { type IUser } from '../../models/IUser';
+import UserService from '../../services/userService';
+import { type IUser } from '../../models/iUser';
 import Context from '../..';
 
 const { Panel } = Collapse;
