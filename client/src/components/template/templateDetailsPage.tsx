@@ -9,7 +9,7 @@ import { Questions } from '../../models/questions';
 const { Option } = Select;
 
 const TemplateDetailsPage = () => {
-  const { id } = useParams(); // Get the template ID from the URL params
+  const { id } = useParams();
   const [template, setTemplate] = useState<Templates | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,9 +21,9 @@ const TemplateDetailsPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await TemplateService.getTemplateById(Number(id)); // Ensure that the ID is a number
+        const response = await TemplateService.getTemplateById(Number(id));
         setTemplate(response.data);
-        setQuestions(response.data.questions || []); // Ensure questions are set correctly
+        setQuestions(response.data.questions || []);
       } catch (err) {
         setError('Failed to load template details.');
       } finally {
@@ -39,8 +39,8 @@ const TemplateDetailsPage = () => {
   const handleAddQuestion = async (values: Questions) => {
     try {
       await QuestionService.addQuestion(Number(id), values);
-      setQuestions((prev) => [...prev, values]); // Add the new question
-      setShowQuestionForm(false); // Hide the form
+      setQuestions((prev) => [...prev, values]);
+      setShowQuestionForm(false);
     } catch (err) {
       setError('Failed to add question.');
     }

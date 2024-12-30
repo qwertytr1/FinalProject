@@ -1,4 +1,3 @@
-// Step1.tsx
 import React from 'react';
 import { Form, Input, Button, Select, Upload } from 'antd';
 import { Templates } from '../../../../models/templates';

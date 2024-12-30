@@ -141,7 +141,7 @@ export default class Store {
         theme: formData.theme || this.user.theme || '',
         role: this.user.role || 'user',
       };
-      const updatedUser = await this.edit(this.user.id!, userData); // Используем non-null assertion
+      const updatedUser = await this.edit(this.user.id!, userData);
       this.setUser(updatedUser);
     } catch (error) {
       console.error('Error saving profile changes:', error);
