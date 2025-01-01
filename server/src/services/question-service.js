@@ -12,7 +12,7 @@ class QuestionService {
           where: { templates_id: templateId },
         });
 
-        if (!questions || questions.length === 0) {
+        if (!questions) {
           return { status: 404, json: { error: 'Questions not found' } };
         }
 

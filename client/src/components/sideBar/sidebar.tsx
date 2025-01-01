@@ -6,17 +6,21 @@ import {
   BarChartOutlined,
   BookOutlined,
 } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import ProfilePage from '../profile/profile';
 import AdminPanel from '../admin/admin';
 import './sideBar.css';
 import CreateTemplateModal from '../template/addTemplate/addTemplateParts/addtemplate';
 import TemplatesPage from '../template/templatesView/templatePage';
+import AddTagPage from '../tags/addTagPage';
+import LanguageSelector from '../../localisation/languageSelector';
 
 const { Sider, Content } = Layout;
 const { SubMenu } = Menu;
 const { Title } = Typography;
 
 const SidebarMenu: React.FC = () => {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState('profile');
 
@@ -63,6 +67,12 @@ const SidebarMenu: React.FC = () => {
             <p>Здесь будет информация о статистике.</p>
           </Card>
         );
+      case 'tags':
+        return (
+          <Card bordered={false} className="content-card">
+            <AddTagPage />
+          </Card>
+        );
       default:
         return (
           <Card bordered={false} className="content-card">
@@ -75,7 +85,6 @@ const SidebarMenu: React.FC = () => {
 
   return (
     <Layout className="layout-container">
-      {/* Sidebar */}
       <Layout>
         <Sider
           collapsible
@@ -93,33 +102,40 @@ const SidebarMenu: React.FC = () => {
             }}
           >
             <Menu.Item key="Main" icon={<UserOutlined />}>
-              Главная
+              {t('sidebarMenu.main')}
             </Menu.Item>
             <Menu.Item key="addTemplate" icon={<UserOutlined />}>
-              Добавить Форму
+              {t('sidebarMenu.addTemplate')}
             </Menu.Item>
             <Menu.Item key="templates" icon={<BookOutlined />}>
-              Созданные формы
+              {t('sidebarMenu.templates')}
             </Menu.Item>
             <Menu.Item key="profile" icon={<UserOutlined />}>
-              Профиль
+              {t('sidebarMenu.profile')}
             </Menu.Item>
-            <SubMenu key="admin" icon={<TeamOutlined />} title="Администрация">
-              <Menu.Item key="admin-panel">Пользователи</Menu.Item>
+            <SubMenu
+              key="admin"
+              icon={<TeamOutlined />}
+              title={t('sidebarMenu.admin')}
+            >
+              <Menu.Item key="admin-panel">
+                {t('sidebarMenu.adminPanel')}
+              </Menu.Item>
               <Menu.Item key="statistics" icon={<BarChartOutlined />}>
-                Статистика
+                {t('sidebarMenu.statistics')}
               </Menu.Item>
               <Menu.Item key="admin-templates" icon={<BarChartOutlined />}>
-                Шаблоны
+                {t('sidebarMenu.templates')}
               </Menu.Item>
               <Menu.Item key="tags" icon={<BarChartOutlined />}>
-                Тэги
+                {t('sidebarMenu.tags')}
               </Menu.Item>
             </SubMenu>
           </Menu>
+          <div className="language-selector">
+            <LanguageSelector />
+          </div>
         </Sider>
-
-        {/* Content */}
         <Content className="layout-content">{renderContent()}</Content>
       </Layout>
     </Layout>

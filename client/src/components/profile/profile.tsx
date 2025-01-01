@@ -1,14 +1,25 @@
 import { useContext, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Button, Card, Form, Input, Typography, Descriptions } from 'antd';
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Typography,
+  Descriptions,
+  message,
+} from 'antd';
+import { useTranslation } from 'react-i18next';
 import Context from '../..';
 
 const { Title } = Typography;
 
 const ProfilePage = observer(() => {
+  const { t } = useTranslation();
   const { store } = useContext(Context);
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
+
   const initialValues = {
     username: store.user.username || '',
     email: store.user.email || '',
@@ -28,8 +39,14 @@ const ProfilePage = observer(() => {
   };
 
   const handleSaveChanges = async (values: typeof initialValues) => {
-    await store.saveEditUsers(values);
-    setIsEditing(false);
+    try {
+      await store.saveEditUsers(values);
+      message.success(t('profile.saveSuccess'));
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      message.error(t('profile.saveError'));
+    }
   };
 
   return (
@@ -43,7 +60,7 @@ const ProfilePage = observer(() => {
         }}
       >
         <Title level={3} className="text-center">
-          Profile Page
+          {t('profile.pageTitle')}
         </Title>
 
         {isEditing ? (
@@ -54,23 +71,21 @@ const ProfilePage = observer(() => {
             onFinish={handleSaveChanges}
           >
             <Form.Item
-              label="Username"
+              label={t('profile.usernameLabel')}
               name="username"
-              rules={[
-                { required: true, message: 'Please input your username!' },
-              ]}
+              rules={[{ required: true, message: t('profile.usernameError') }]}
             >
               <Input />
             </Form.Item>
 
             <Form.Item
-              label="Email"
+              label={t('profile.emailLabel')}
               name="email"
               rules={[
                 {
                   required: true,
                   type: 'email',
-                  message: 'Please input a valid email!',
+                  message: t('profile.emailError'),
                 },
               ]}
             >
@@ -78,58 +93,56 @@ const ProfilePage = observer(() => {
             </Form.Item>
 
             <Form.Item
-              label="Language"
+              label={t('profile.languageLabel')}
               name="language"
-              rules={[
-                { required: true, message: 'Please input your language!' },
-              ]}
+              rules={[{ required: true, message: t('profile.languageError') }]}
             >
               <Input />
             </Form.Item>
 
             <Form.Item
-              label="Theme"
+              label={t('profile.themeLabel')}
               name="theme"
-              rules={[{ required: true, message: 'Please input your theme!' }]}
+              rules={[{ required: true, message: t('profile.themeError') }]}
             >
               <Input />
             </Form.Item>
 
-            <Form.Item label="Password" name="password">
+            <Form.Item label={t('profile.passwordLabel')} name="password">
               <Input.Password />
             </Form.Item>
 
             <div className="text-center">
               <Button type="primary" htmlType="submit" className="me-2">
-                Save
+                {t('profile.saveButton')}
               </Button>
               <Button htmlType="button" onClick={handleCancelChanges}>
-                Cancel
+                {t('profile.cancelButton')}
               </Button>
             </div>
           </Form>
         ) : (
           <>
             <Descriptions bordered column={1} size="middle">
-              <Descriptions.Item label="Username">
+              <Descriptions.Item label={t('profile.descriptions.username')}>
                 {store.user.username}
               </Descriptions.Item>
-              <Descriptions.Item label="Email">
+              <Descriptions.Item label={t('profile.descriptions.email')}>
                 {store.user.email}
               </Descriptions.Item>
-              <Descriptions.Item label="Language">
+              <Descriptions.Item label={t('profile.descriptions.language')}>
                 {store.user.language}
               </Descriptions.Item>
-              <Descriptions.Item label="Theme">
+              <Descriptions.Item label={t('profile.descriptions.theme')}>
                 {store.user.theme}
               </Descriptions.Item>
-              <Descriptions.Item label="Role">
+              <Descriptions.Item label={t('profile.descriptions.role')}>
                 {store.user.role}
               </Descriptions.Item>
             </Descriptions>
             <div className="text-center mt-4">
               <Button type="primary" onClick={handleEditProfile}>
-                Edit Profile
+                {t('profile.editProfileButton')}
               </Button>
             </div>
           </>

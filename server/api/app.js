@@ -9,7 +9,7 @@ const app = express();
 
 app.use(cors({
   origin: 'http://localhost:3001',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
@@ -24,7 +24,6 @@ app.use(errorMiddleware);
 sequelize
   .sync({ force: false })
   .then(() => {
-    console.log("Database synced");
     app.listen(process.env.PORT || 3000, () => {
       console.log("Server running on port 3000");
     });

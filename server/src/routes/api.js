@@ -43,14 +43,14 @@ router.get('/templates', authMiddleware, getTemplates);
 router.get('/templates/user/:userId',authMiddleware, getTemplatesByUser);
 router.get('/templates/:id',authMiddleware, getTemplateById);
 router.post('/templates', upload.single('image'),authMiddleware, createTemplate);//++
-router.patch('/templates/:id',checkTemplates, updateTemplate);//++
-router.delete('/templates/:id',checkTemplates, deleteTemplate);//??
+router.patch('/templates/:id', updateTemplate);//++
+router.delete('/templates/:id', deleteTemplate);//??
 
 //questions//+
 router.get('/templates/:id/questions', authMiddleware,questionController.getAllQuestions);
 router.post('/templates/:id/questions',authMiddleware, questionController.addQuestions);
-router.patch('/templates/:id/questions/:questionId',checkAdmin, questionController.editQuestions);
-router.delete('/templates/:id/questions/:questionId',checkAdmin, questionController.deleteQuestions);
+router.patch('/templates/:id/questions/:questionId', questionController.editQuestions);
+router.delete('/templates/:id/questions/:questionId', questionController.deleteQuestions);
 
 //comments//+
 router.get('/templates/:id/comments',authMiddleware, commentsController.getCommentsByTemplates);
@@ -77,7 +77,7 @@ router.post('/templates/:id/like',authMiddleware, likeController.addLike);
 router.delete('/templates/:id/like',authMiddleware, likeController.removeLike);
 //Теги и темы //+
 router.get('/tags',authMiddleware, tagsController.getTags);
-router.post('/tags',checkAdmin, tagsController.createTag);
+router.post('/tags', tagsController.createTag);
 //Главная страница //+
 
 router.get("/latest-templates",authMiddleware, homeController.getLatestTemplates);

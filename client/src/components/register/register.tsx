@@ -3,6 +3,7 @@ import { Typography, Form, Input, Button, Select, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import './register.css';
 import { observer } from 'mobx-react-lite';
+import { useTranslation } from 'react-i18next';
 import Context from '../../index';
 
 const { Title, Text } = Typography;
@@ -17,6 +18,8 @@ function Register() {
   const [role, setRole] = useState<string>('');
   const { store } = useContext(Context);
   const navigate = useNavigate();
+
+  const { i18n, t } = useTranslation();
 
   const handleUsernameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,9 +42,13 @@ function Register() {
     [],
   );
 
-  const handleLanguageChange = useCallback((value: string) => {
-    setLanguage(value);
-  }, []);
+  const handleLanguageChange = useCallback(
+    (value: string) => {
+      setLanguage(value);
+      i18n.changeLanguage(value);
+    },
+    [i18n],
+  );
 
   const handleThemeChange = useCallback((value: string) => {
     setTheme(value);
@@ -54,117 +61,115 @@ function Register() {
   const handleRegister = useCallback(async () => {
     try {
       await store.register(username, email, password, language, theme, role);
-      message.success('Registration successful');
+      message.success(t('register.successMessage')); // Используем перевод для сообщения
       navigate('/login');
     } catch (error) {
-      message.error('Registration failed, please try again');
+      message.error(t('register.errorMessage'));
     }
-  }, [username, email, password, language, theme, role, store, navigate]);
+  }, [username, email, password, language, theme, role, store, navigate, t]);
 
   return (
     <div className="register-container">
       <div className="register-box">
         <Title level={3} className="form-title">
-          Register
+          {t('register.title')}
         </Title>
-        <Text className="form-text">Create an account to get started.</Text>
+        <Text className="form-text">{t('register.formText')}</Text>
         <Form name="registerForm" layout="vertical" onFinish={handleRegister}>
           <Form.Item
-            label="Username"
+            label={t('register.username')}
             name="username"
-            rules={[{ required: true, message: 'Please input your username!' }]}
+            rules={[{ required: true, message: t('register.messageUserName') }]}
           >
             <Input
               className="register-input"
-              placeholder="Enter your username"
+              placeholder={t('register.inputUsername')}
               onChange={handleUsernameChange}
               value={username}
             />
           </Form.Item>
 
           <Form.Item
-            label="Email"
+            label={t('register.emailLabel')}
             name="email"
             rules={[
-              { required: true, message: 'Please input your email!' },
-              { type: 'email', message: 'Please enter a valid email!' },
+              { required: true, message: t('register.emailMessage') },
+              { type: 'email', message: t('register.emailError') },
             ]}
           >
             <Input
               className="register-input"
-              placeholder="Enter your email"
+              placeholder={t('register.emailPlaceholder')}
               onChange={handleEmailChange}
               value={email}
             />
           </Form.Item>
 
           <Form.Item
-            label="Password"
+            label={t('register.passwordLabel')}
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: t('register.passwordMessage') }]}
           >
             <Input.Password
               className="register-input"
-              placeholder="Enter your password"
+              placeholder={t('register.passwordPlaceholder')}
               onChange={handlePasswordChange}
               value={password}
             />
           </Form.Item>
 
           <Form.Item
-            label="Language"
+            label={t('register.languageLabel')}
             name="language"
-            rules={[
-              { required: true, message: 'Please select your language!' },
-            ]}
+            rules={[{ required: true, message: t('register.languageMessage') }]}
           >
             <Select
               className="register-input"
-              placeholder="Select your language"
+              placeholder={t('register.languagePlaceholder')}
               onChange={handleLanguageChange}
               value={language}
             >
-              <Option value="ru">Russian</Option>
-              <Option value="en">English</Option>
-              <Option value="pl">Polish</Option>
+              <Option value="ru">{t('register.rus')}</Option>
+              <Option value="en">{t('register.en')}</Option>
+              <Option value="pl">{t('register.pl')}</Option>
             </Select>
           </Form.Item>
 
           <Form.Item
-            label="Theme"
+            label={t('register.themeLabel')}
             name="theme"
-            rules={[{ required: true, message: 'Please select your theme!' }]}
+            rules={[{ required: true, message: t('register.themeMessage') }]}
           >
             <Select
               className="register-input"
-              placeholder="Select your theme"
+              placeholder={t('register.themePlaceholder')}
               onChange={handleThemeChange}
               value={theme}
             >
-              <Option value="black">Black</Option>
-              <Option value="white">White</Option>
+              <Option value="black">{t('register.black')}</Option>
+              <Option value="white">{t('register.white')}</Option>
             </Select>
           </Form.Item>
 
           <Form.Item
-            label="Role"
+            label={t('register.RoleLabel')}
             name="role"
-            rules={[{ required: true, message: 'Please select your role!' }]}
+            rules={[{ required: true, message: t('register.RoleMessage') }]}
           >
             <Select
               className="register-input"
-              placeholder="Select your role"
+              placeholder={t('register.RolePlaceholder')}
               onChange={handleRoleChange}
               value={role}
             >
-              <Option value="user">User</Option>
-              <Option value="admin">Admin</Option>
+              <Option value="user">{t('register.user')}</Option>
+              <Option value="admin">{t('register.admin')}</Option>
             </Select>
           </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              Register
+              {t('register.register')}
             </Button>
           </Form.Item>
         </Form>

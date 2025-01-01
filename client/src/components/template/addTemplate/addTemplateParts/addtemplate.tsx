@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { message } from 'antd';
+import { useTranslation } from 'react-i18next';
 import TemplateDetails from './templateDetails';
 import TemplateService from '../../../../services/templateService';
 import { Templates } from '../../../../models/templates';
 
 const CreateTemplateModal: React.FC = () => {
+  const { t } = useTranslation();
   const [templateData, setTemplateData] = useState<Templates>({
     title: '',
     description: '',
@@ -40,15 +42,15 @@ const CreateTemplateModal: React.FC = () => {
         formData.append('image', imageFile);
       }
       await TemplateService.addTemplate(formData);
-      message.success('Template created successfully!');
+      message.success(t('addTemplates.successMessage'));
     } catch (error) {
-      message.error('Failed to create template!');
+      message.error(t('addTemplates.errorMessage'));
     }
   };
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Create Template</h1>
+      <h1>{t('addTemplates.title')}</h1>
       <div style={{ marginTop: 20 }}>
         <TemplateDetails
           templateData={templateData}

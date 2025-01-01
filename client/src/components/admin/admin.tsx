@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, Card, List, Collapse, message, Popconfirm } from 'antd';
+import { useTranslation } from 'react-i18next';
 import UserService from '../../services/userService';
 import { type IUser } from '../../models/iUser';
 import Context from '../..';
@@ -7,14 +8,16 @@ import Context from '../..';
 const { Panel } = Collapse;
 
 const AdminPanel: React.FC = () => {
+  const { t } = useTranslation();
   const [users, setUsers] = useState<IUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { store } = useContext(Context);
+
   const handleBlockUser = async (userId: number) => {
     setIsLoading(true);
     try {
       await UserService.toggleBlockUser(userId.toString());
-      message.success(`User ${userId} has been blocked`);
+      message.success(t('adminPanel.successBlockMessage', { id: userId }));
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.id === userId ? { ...user, isBlocked: true } : user,
@@ -22,18 +25,17 @@ const AdminPanel: React.FC = () => {
       );
     } catch (error) {
       console.error('Error blocking user:', error);
-      message.error('Failed to block user.');
+      message.error(t('adminPanel.errorBlockMessage'));
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Unblock user
   const handleUnblockUser = async (userId: number) => {
     setIsLoading(true);
     try {
       await UserService.toggleUnblockUSer(userId.toString());
-      message.success(`User ${userId} has been unblocked`);
+      message.success(t('adminPanel.successUnblockMessage', { id: userId }));
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.id === userId ? { ...user, isBlocked: false } : user,
@@ -41,16 +43,16 @@ const AdminPanel: React.FC = () => {
       );
     } catch (error) {
       console.error('Error unblocking user:', error);
-      message.error('Failed to unblock user.');
+      message.error(t('adminPanel.errorUnblockMessage'));
     } finally {
       setIsLoading(false);
     }
   };
+
   const getUsers = async () => {
     try {
       const response = await UserService.fetchUsers();
-      console.log('Fetched users:', response.data);
-      setUsers(response.data); // Update the state with fetched users
+      setUsers(response.data);
     } catch (e) {
       console.error('Error fetching users:', e);
     }
@@ -61,18 +63,16 @@ const AdminPanel: React.FC = () => {
   }, [store]);
 
   return (
-    <Card title="Admin Panel" className="mt-4">
+    <Card title={t('adminPanel.title')} className="mt-4">
       <Collapse defaultActiveKey={['1']}>
-        <Panel header="User List" key="1">
+        <Panel header={t('adminPanel.userListPanelHeader')} key="1">
           <Button
             type="primary"
-            onClick={() => {
-              getUsers();
-            }}
+            onClick={getUsers}
             className="mb-3"
             loading={isLoading}
           >
-            Refresh User List
+            {t('adminPanel.refreshUserListButton')}
           </Button>
           {users.length > 0 ? (
             <List
@@ -84,21 +84,21 @@ const AdminPanel: React.FC = () => {
                   <div style={{ marginLeft: 'auto' }}>
                     {user.isBlocked ? (
                       <Popconfirm
-                        title="Are you sure you want to unblock this user?"
-                        onConfirm={async () => {
-                          await handleUnblockUser(user.id);
-                        }}
+                        title={t('adminPanel.unblockConfirmationTitle')}
+                        onConfirm={() => handleUnblockUser(user.id)}
                       >
-                        <Button type="link">Unblock</Button>
+                        <Button type="link">
+                          {t('adminPanel.unblockButton')}
+                        </Button>
                       </Popconfirm>
                     ) : (
                       <Popconfirm
-                        title="Are you sure you want to block this user?"
-                        onConfirm={async () => {
-                          await handleBlockUser(user.id);
-                        }}
+                        title={t('adminPanel.blockConfirmationTitle')}
+                        onConfirm={() => handleBlockUser(user.id)}
                       >
-                        <Button type="link">Block</Button>
+                        <Button type="link">
+                          {t('adminPanel.blockButton')}
+                        </Button>
                       </Popconfirm>
                     )}
                   </div>
@@ -106,7 +106,7 @@ const AdminPanel: React.FC = () => {
               )}
             />
           ) : (
-            <div>No users available</div>
+            <div>{t('adminPanel.noUsersMessage')}</div>
           )}
         </Panel>
       </Collapse>

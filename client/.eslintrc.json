@@ -32,6 +32,15 @@
     "prettier/prettier": ["error"],
     "react/react-in-jsx-scope": "off",
     "react/function-component-definition": "off",
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": false,
+        "optionalDependencies": false,
+        "peerDependencies": false,
+        "bundledDependencies": false
+      }
+    ],
     "react/jsx-filename-extension": [1, { "extensions": [".tsx"] }],
     "import/extensions": [
       "error",

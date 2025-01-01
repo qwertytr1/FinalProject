@@ -1,14 +1,17 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { Card, Row, Col, Spin, Alert } from 'antd';
+import { Card, Row, Col, Spin, Alert, Button, Modal } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Context from '../../..';
 import TemplateService from '../../../services/templateService';
 import TemplateDetailsPage from '../templateDetailsPage';
 
 const { Meta } = Card;
+const { confirm } = Modal;
 
 const TemplatesPage = observer(() => {
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState<
     Array<{ id: number; title: string; image_url?: string; created_at: string }>
   >([]);
@@ -20,6 +23,7 @@ const TemplatesPage = observer(() => {
     null,
   );
   const navigate = useNavigate();
+
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -27,15 +31,42 @@ const TemplatesPage = observer(() => {
       const response = await TemplateService.getAllTemplatesByUsers(userId);
       setTemplates(response.data);
     } catch (err) {
-      setError('Failed to load templates.');
+      setError(t('templatePage.errorMessage'));
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, t]);
 
   const handleCardClick = (templateId: number) => {
     navigate(`/templates/${templateId}`);
     setCurrentTemplateId(templateId);
+  };
+
+  const handleDeleteTemplate = async (
+    templateId: number,
+    event: React.MouseEvent,
+  ) => {
+    event.stopPropagation(); // Prevent the card's click event
+    confirm({
+      title: t('templatePage.title'),
+      content: t('templatePage.content'),
+      okText: t('templatePage.okText'),
+      okType: 'danger',
+      cancelText: t('templatePage.cancelText'),
+      async onOk() {
+        try {
+          setLoading(true);
+          await TemplateService.deleteTemplate(templateId);
+          setTemplates((prevTemplates) =>
+            prevTemplates.filter((template) => template.id !== templateId),
+          );
+        } catch (err) {
+          setError(t('templatePage.errorMessage'));
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
   };
 
   useEffect(() => {
@@ -45,7 +76,7 @@ const TemplatesPage = observer(() => {
   if (loading) {
     return (
       <div style={{ padding: '20px' }}>
-        <Spin tip="Loading templates...">
+        <Spin tip={t('templatePage.spinTip')}>
           <div style={{ height: '200px' }} />
         </Spin>
       </div>
@@ -57,7 +88,7 @@ const TemplatesPage = observer(() => {
   if (error) {
     return (
       <div style={{ padding: '20px' }}>
-        <Alert message="Error" description={error} type="error" showIcon />
+        <Alert message={t('templatePage.errorMessage')} type="error" showIcon />
       </div>
     );
   }
@@ -65,7 +96,7 @@ const TemplatesPage = observer(() => {
   if (templates.length === 0) {
     return (
       <div style={{ padding: '20px' }}>
-        <Alert message="No templates found." type="info" showIcon />
+        <Alert message={t('templatePage.zeroTemplates')} type="info" showIcon />
       </div>
     );
   }
@@ -86,14 +117,21 @@ const TemplatesPage = observer(() => {
                   }
                 />
               }
-              onClick={() => {
-                handleCardClick(template.id);
-              }}
+              onClick={() => handleCardClick(template.id)}
             >
               <Meta
                 title={template.title}
-                description={`Created: ${new Date(template.created_at).toLocaleDateString()}`}
+                description={`${t('templatePage.createdAt')}: ${new Date(template.created_at).toLocaleDateString()}`}
               />
+              <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                <Button
+                  type="link"
+                  danger
+                  onClick={(event) => handleDeleteTemplate(template.id, event)}
+                >
+                  {t('templatePage.deleteButton')}
+                </Button>
+              </div>
             </Card>
           </Col>
         ))}
