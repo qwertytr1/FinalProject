@@ -10,14 +10,14 @@ exports.getTags = async (req, res, next) => {
 };
 
 exports.createTag = async (req, res) => {
-  const { name } = req.body;
+  const { value } = req.body;
 
-  if (!name) {
+  if (!value) {
     return res.status(400).json({ error: 'Поле name обязательно для создания тега.' });
   }
 
   try {
-    const newTag = await Tag.create({ name });
+    const newTag = await Tag.create({ value });
     return res.status(201).json(newTag);
   } catch (error) {
     console.error('Ошибка при создании тега:', error);

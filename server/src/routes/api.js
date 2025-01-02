@@ -1,12 +1,14 @@
 const express = require('express');
-const router = express.Router();
+const router = express();
 const authController = require('../controllers/authController.js'); // Предположим, что ваши контроллеры здесь
+const userController = require('../controllers/userController.js'); // Предположим, что ваши контроллеры здесь
 const {
   getTemplates,
   getTemplateById,
   createTemplate,
   updateTemplate,
   deleteTemplate,
+  getTemplatesByUser,
 } = require('../controllers/controller.js');
 const searchController = require('../controllers/searchController');
 const { body } = require('express-validator');
@@ -27,28 +29,28 @@ const homeController = require('../controllers/mainPageController.js')
 router.post('/register', body('email').isEmail(), authController.register);
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
-router.get('/refresh',authMiddleware, authController.refresh);
-
+router.get('/refresh', authController.refresh);
 //Users//+
-router.get('/getUsers',checkAdmin, authController.getAllUsers);
-router.get('/getUsers/:id?',checkAdmin, authController.getUser);
-router.put('/user/:id',checkAdmin, authController.editUser);
-router.post('/user/block/:id',checkAdmin, authController.toggleBlock);
-router.post('/user/unblock/:id',checkAdmin, authController.toggleUnblock);
-router.delete('/users/:id',checkAdmin, authController.deleteUser);
+router.get('/getUsers', userController.getAllUsers);
+router.get('/getUsers/:id?', userController.getUser);
+router.put('/user/:id', userController.editUser);
+router.post('/user/block/:id', userController.toggleBlockUser);
+router.post('/user/unblock/:id', userController.toggleUnblockUser);
+router.delete('/users/:id',checkAdmin, userController.deleteUser);
 
 //templates
-router.get('/templates',authMiddleware, getTemplates);
+router.get('/templates', authMiddleware, getTemplates);
+router.get('/templates/user/:userId',authMiddleware, getTemplatesByUser);
 router.get('/templates/:id',authMiddleware, getTemplateById);
 router.post('/templates', upload.single('image'),authMiddleware, createTemplate);//++
-router.patch('/templates/:id',checkTemplates, updateTemplate);//++
-router.delete('/templates/:id',checkTemplates, deleteTemplate);//??
+router.patch('/templates/:id', updateTemplate);//++
+router.delete('/templates/:id', deleteTemplate);//??
 
 //questions//+
 router.get('/templates/:id/questions', authMiddleware,questionController.getAllQuestions);
 router.post('/templates/:id/questions',authMiddleware, questionController.addQuestions);
-router.patch('/templates/:id/questions/:questionId',checkAdmin, questionController.editQuestions);
-router.delete('/templates/:id/questions/:questionId',checkAdmin, questionController.deleteQuestions);
+router.patch('/templates/:id/questions/:questionId', questionController.editQuestions);
+router.delete('/templates/:id/questions/:questionId', questionController.deleteQuestions);
 
 //comments//+
 router.get('/templates/:id/comments',authMiddleware, commentsController.getCommentsByTemplates);
@@ -75,7 +77,7 @@ router.post('/templates/:id/like',authMiddleware, likeController.addLike);
 router.delete('/templates/:id/like',authMiddleware, likeController.removeLike);
 //Теги и темы //+
 router.get('/tags',authMiddleware, tagsController.getTags);
-router.post('/tags',checkAdmin, tagsController.createTag);
+router.post('/tags', tagsController.createTag);
 //Главная страница //+
 
 router.get("/latest-templates",authMiddleware, homeController.getLatestTemplates);

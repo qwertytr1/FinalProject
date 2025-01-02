@@ -1,19 +1,9 @@
 const {sequelize, Template, User, Tag, Question, TemplatesAccess, Like, Comment, Form, TemplatesTag} = require("../models/index");
 const cloudinary = require('../config/cloudinary');
+const tokenService = require('../services/token-service.js');
+const ApiError = require('../exceptions/api-error.js')
 const jwt = require('jsonwebtoken'); // Для работы с токенами
 // шаблоны
-const getUserIdFromToken = (req) => {
-  const { refreshToken } = req.cookies; // Получаем токен из куки
-  if (!refreshToken) return null;
-
-  try {
-      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-      console.log(decoded);
-    return decoded.id; // Поле userId должно быть в payload токена
-  } catch (err) {
-    return null; // Невалидный токен
-  }
-};
 exports.createTemplate = async (req, res) => {
   try {
     const { title, description, category, image_url, is_public, tags } = req.body;
@@ -22,8 +12,24 @@ exports.createTemplate = async (req, res) => {
       return res.status(400).json({ error: "Файл изображения не был загружен" });
     }
 
-    const userId = getUserIdFromToken(req);
+    const accessToken = req.headers['authorization']?.split(' ')[1];
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Токен не предоставлен' });
+    }
 
+    let userData;
+    try {
+      userData = tokenService.validateAccessToken(accessToken);
+    } catch (error) {
+      return res.status(401).json({ error: 'Недействительный токен' });
+    }
+
+    if (!userData) {
+      return res.status(401).json({ error: 'Не удалось извлечь данные пользователя из токена' });
+    }
+
+    const userId = userData.id;
+    console.log(userId);
     // Загружаем изображение в Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path);
 
@@ -34,16 +40,20 @@ exports.createTemplate = async (req, res) => {
       category,
       image_url: result.secure_url, // Ссылка на изображение из Cloudinary
       is_public: is_public || false,
-      users_id: userId,
       created_at: new Date(),
       updated_at: new Date(),
     });
+    const tagIds = tags ? tags.split(',').map(tag => Number(tag.trim())) : [];
+    console.log('Converted tagIds:', tagIds); // Логируем преобразованные ID тегов
+    console.log('Request body:', req.body);
+    if (tagIds.length === 0) {
+      return res.status(400).json({ error: "Не указаны теги." });
+    }
 
-    // Проверяем наличие тегов
-    const tagIds = tags || []; // Передаётся массив ID тегов
     const existingTags = await Tag.findAll({
       where: { id: tagIds },
     });
+    console.log('Existing tags:', existingTags);
 
     if (existingTags.length !== tagIds.length) {
       return res.status(400).json({
@@ -51,14 +61,13 @@ exports.createTemplate = async (req, res) => {
       });
     }
 
-    // Создаём связи шаблона с тегами
+    // Создаем связи шаблона с тегами
     const templatesTagData = existingTags.map((tag) => ({
       templates_id: newTemplate.id,
       tags_id: tag.id,
     }));
 
     await TemplatesTag.bulkCreate(templatesTagData);
-
     // Создаём запись в таблице templates_access
     await TemplatesAccess.create({
       users_id: userId,
@@ -78,11 +87,36 @@ exports.createTemplate = async (req, res) => {
     });
   }
 };
+exports.getTemplatesByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const templates = await Template.findAll({
+      include: {
+        model: TemplatesAccess,
+        as: "templateAccesses", // используем псевдоним из ассоциации
+        where: { users_id: userId },
+        required: true, // только те шаблоны, которые связаны с данным пользователем
+      },
+    });
+
+    // Если шаблонов не найдено
+    if (templates.length === 0) {
+      return res.status(200).json({ message: "No templates found for this user." });
+    }
+
+    // Возвращаем найденные шаблоны
+    res.status(200).json(templates);
+  } catch (err) {
+    console.error("Error fetching templates by user:", err);
+    res.status(500).json({ error: "Failed to fetch templates by user." });
+  }
+};
 
 
 exports.getTemplates = async (req, res) => {
   try {
-    const templates = await Template.findAll({ include: User });
+    const templates = await Template.findAll();//include User
     if (templates.length === 0) {
       return res.status(200).json({ message: "No templates found." });
     }
@@ -118,8 +152,7 @@ exports.getTemplateById = async (req, res) => {
   try {
     const { id } = req.params;
     const template = await Template.findOne({
-      where: { id },
-      include: User,
+      where: { id }
     });
 
     if (!template) {

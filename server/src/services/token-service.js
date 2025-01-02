@@ -9,6 +9,10 @@ class TokenService{
         accessToken,
         refreshToken
     }
+    }
+    generateAccessToken(payload) {
+          const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+        return{accessToken}
 }
     validateAccessToken(token) {
         try {
@@ -18,13 +22,9 @@ class TokenService{
             return null;
     }
 }
-async validateRefreshToken(token) {
+ validateRefreshToken(token) {
     try {
         const userData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-        const refreshToken = await TokenSchema.findOne({ where: { refresh_token: token } });
-        if (!refreshToken) {
-            throw ApiError.BadRequest("Invalid or blocked refresh token");
-        }
         return userData;
     } catch (e) {
         console.error(e);
@@ -40,22 +40,6 @@ async saveToken(userId, refreshToken) {
     }
     const token = await TokenSchema.create({ user_id: userId, refresh_token: refreshToken });
     return token;
-}
-async removeToken(refreshToken) {
-    const tokenData = await TokenSchema.destroy({
-        where: {
-            refresh_token: refreshToken
-        }
-    });
-    return tokenData;
-}
-async removeTokenById(userId) {
-    const tokenData = await TokenSchema.destroy({
-        where: {
-            user_id: userId
-        }
-    });
-    return tokenData;
 }
 async findToken(refreshToken) {
     const tokenData = await TokenSchema.findOne({

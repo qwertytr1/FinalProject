@@ -50,11 +50,11 @@ exports.getLatestTemplates = async (req, res) => {
     try {
       const tagsCloud = await Tag.findAll({
         attributes: [
-          'name',
+          'value',
           [
             Sequelize.literal(`(
               SELECT COUNT(*)
-              FROM tempate_tags AS tt
+              FROM template_tags AS tt
               WHERE tt.tags_id = tags.id
             )`),
             'usageCount', // Подсчитываем использование каждого тега
