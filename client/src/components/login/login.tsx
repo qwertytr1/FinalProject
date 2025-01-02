@@ -30,7 +30,7 @@ function Login() {
   const handleLogin = async () => {
     await store.login(email, password);
     message.success('Login successful');
-    navigate('/menu');
+    navigate('/Profile');
   };
 
   const handleRegistrationRedirect = () => {
