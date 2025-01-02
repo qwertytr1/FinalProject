@@ -1,57 +1,34 @@
-import React, { useContext, useEffect, useState } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Login from './components/login/login';
-import Register from "./components/register/register";
-import { Context } from '.';
+import { Route, Routes } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import UserService from './services/UserService';
-import { IUser } from './models/IUser';
-
+import Login from './components/login/login';
+import ProfilePage from './components/profile/profile';
+import Register from './components/register/register';
+import SidebarMenu from './components/sideBar/sidebar';
+import AdminPanel from './components/admin/admin';
+import TemplateDetailsPage from './components/template/templateDetailsPage';
+import TemplatesPage from './components/template/templatesView/templatePage';
+import CreateTemplateModal from './components/template/addTemplate/addTemplateParts/addtemplate';
+import TestPage from './components/testPage/testPage';
 
 function App() {
-  const {store} = useContext(Context);
-  const [users, setUsers] = useState<IUser[]>([]);
-
-  useEffect(() => {
-      if (localStorage.getItem('token')) {
-          store.checkAuth()
-      }
-  }, [])
-
-
-  async function getUsers() {
-    try {
-        const response = await UserService.fetchUsers();
-        console.log("Fetched users:", response.data); // Для отладки
-        setUsers(response.data);
-    } catch (e) {
-        console.error("Error fetching users:", e);
-    }
-}
-  if (store.isLoading) {
-    return <div>Загрузка...</div>
-}
-
-if (!store.isAuth) {
-    return (
-        <div>
-            <Login/>
-            <button onClick={getUsers}>Получить пользователей</button>
-        </div>
-    );
-}
   return (
-    <div className="App">
-        <h1>{store.isAuth ? `Пользователь авторизован ${store.user.email}` : 'АВТОРИЗУЙТЕСЬ'}</h1>
-        <button onClick={() => store.logout()}>Выйти</button>
-            <div>
-                <button onClick={getUsers}>Получить пользователей</button>
-            </div>
-            {users.map(user =>
-                <div key={user.email}>{user.email}</div>
-            )}
-      </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/test/:id" element={<TestPage />} />
+      <Route path="/" element={<SidebarMenu />}>
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/templates/create" element={<CreateTemplateModal />} />
+        <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="/templates/:id" element={<TemplateDetailsPage />} />
+        <Route
+          path="/statistics"
+          element={<div>Здесь будет страница статистики</div>}
+        />
+      </Route>
+    </Routes>
   );
 }
 

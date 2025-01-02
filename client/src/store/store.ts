@@ -1,80 +1,158 @@
-import axios from "axios";
-import { makeAutoObservable } from "mobx";
-import { IUser } from "../models/IUser";
-import { AuthResponse } from "../models/response/AuthResponce";
-import AuthService from "../services/AuthService";
-import $api, {API_URL} from "../http";
+import { makeAutoObservable } from 'mobx';
+import { type IUser } from '../models/iUser';
+import AuthService from '../services/authService';
+import $api from '../http';
+import UserService from '../services/userService';
+import { Templates } from '../models/templates';
+
 export default class Store {
-    user = {} as IUser;
-    isAuth = false;
-    isLoading = false;
+  user: Partial<IUser> = {};
 
-    constructor() {
-        makeAutoObservable(this)
-    }
-    setAuth(bool: boolean) {
-        this.isAuth = bool;
-    }
-    setUser(user:IUser){
-        this.user = user;
-    }
-    setLoading(bool: boolean) {
-        this.isLoading = bool;
-    }
-    async login(email: string, password: string) {
-        try {
-            const response = await AuthService.login(email, password);
-            console.log(response)
-            localStorage.setItem('token', response.data.userData.accessToken);
-            this.setAuth(true);
-            console.log("Stored token:", localStorage.getItem('token'));
-            this.setUser(response.data.userData.user);
-        } catch (e) {
-            console.log(e)
-        }
-    }
-    async registration(username:string,email: string, password: string, language:string, theme:string, role:string) {
-        try {
-            const response = await AuthService.registration(username, email, password, language, theme, role);
+  users: IUser[] = [];
 
-            localStorage.setItem('token', response.data.userData.accessToken);
-            this.setAuth(true);
-            this.setUser(response.data.userData.user);
-        } catch (e) {
-            if (e instanceof Error) {
-                // e is narrowed to Error!
-                console.log(e.message);
-            }
-        }
-    }
-    async logout() {
-        try {
-            const response = await $api.post('/logout');
-            console.log(response);
-            localStorage.removeItem('token');
-            this.setAuth(false);
-            this.setUser({} as IUser);
-            console.log("Logout response:", response.data);
-        } catch (e) {
-            console.error("Logout error:", e);
-        }
-    }
-    async checkAuth() {
-        this.setLoading(true);
+  isAuth = false;
 
-        try {
-            const response = await axios.get<AuthResponse>(`${API_URL}/refresh`, {withCredentials: true})
-            console.log(response);
-            // localStorage.getItem('token')
-            localStorage.setItem('token', response.data.userData.accessToken);
-            console.log(localStorage)
-            this.setAuth(true);
-            this.setUser(response.data.userData.user);
-        } catch (e) {
-            console.error("checkAuth error:", e);
-            this.setAuth(false);
-        } finally {
-            this.setLoading(false);
-        }
+  isLoading = false;
+
+  templates: Templates[] = [];
+
+  isCheckedAuth = false;
+
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  setTemplate(templates: Templates[]) {
+    this.templates = templates;
+  }
+
+  setAuth(isAuth: boolean) {
+    this.isAuth = isAuth;
+  }
+
+  setUser(user: IUser) {
+    this.user = user;
+  }
+
+  setUsers(users: IUser[]) {
+    this.users = users;
+  }
+
+  setLoading(isLoading: boolean) {
+    this.isLoading = isLoading;
+  }
+
+  async login(email: string, password: string) {
+    try {
+      const response = await AuthService.login(email, password);
+      localStorage.setItem('token', response.data.accessToken);
+      this.setAuth(true);
+      this.setUser(response.data.user);
+    } catch (e) {
+      console.error('Login error:', e);
     }
+  }
+
+  async register(
+    username: string,
+    email: string,
+    password: string,
+    language: string,
+    theme: string,
+    role: string,
+  ) {
+    try {
+      const response = await AuthService.register(
+        username,
+        email,
+        password,
+        language,
+        theme,
+        role,
+      );
+      localStorage.setItem('token', response.data.accessToken);
+      this.setAuth(true);
+      this.setUser(response.data.user);
+    } catch (e) {
+      if (e instanceof Error) {
+        console.error('Registration error:', e.message);
+      }
+    }
+  }
+
+  async logout() {
+    try {
+      await $api.post('/logout');
+      localStorage.removeItem('token');
+      this.setAuth(false);
+      this.setUser({} as IUser);
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
+  }
+
+  async checkAuth() {
+    if (this.isCheckedAuth) return;
+
+    this.isLoading = true;
+    this.isCheckedAuth = true;
+    try {
+      const response = await $api.get('/refresh');
+      localStorage.setItem('token', response.data.accessToken);
+      this.setAuth(true);
+      this.setUser(response.data.user);
+    } catch (e) {
+      console.error('Check auth error:', e);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async edit(
+    id: number,
+    userData: {
+      username: string;
+      email: string;
+      password: string;
+      language: string;
+      theme: string;
+      role: string;
+    },
+  ) {
+    try {
+      const response = await UserService.editUsers(id, userData);
+      if (response && response.data) {
+        this.setUser(response.data);
+        return response.data;
+      }
+      throw new Error('Invalid response structure from server');
+    } catch (e) {
+      console.error('Error in edit method:', e);
+      throw e;
+    }
+  }
+
+  async saveEditUsers(formData: {
+    username: string;
+    email: string;
+    password: string;
+    language: string;
+    theme: string;
+  }) {
+    try {
+      const userData = {
+        username: formData.username || this.user.username || '',
+        email: formData.email || this.user.email || '',
+        password: formData.password || '',
+        language: formData.language || this.user.language || '',
+        theme: formData.theme || this.user.theme || '',
+        role: this.user.role || 'user',
+      };
+      const updatedUser = await this.edit(this.user.id!, userData);
+      this.setUser(updatedUser);
+    } catch (error) {
+      console.error('Error saving profile changes:', error);
+      alert('Failed to save changes. Please try again.');
+    }
+  }
 }

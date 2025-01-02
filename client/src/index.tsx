@@ -1,20 +1,28 @@
 import React, { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router } from 'react-router-dom'; // Импорт BrowserRouter
 import './index.css';
 import App from './App';
 import Store from './store/store';
+import AuthProvider from './provider/authProvider';
+import './localisation/i18n';
 
 interface State {
   store: Store;
 }
 
 const store = new Store();
-export const Context = createContext<State>({ store });
+const Context = createContext<State>({ store });
+export default Context;
 
-// Use ReactDOM.createRoot to render the app
 const root = ReactDOM.createRoot(document.getElementById('root')!);
+
 root.render(
-  <Context.Provider value={{ store }}>
-    <App />
-  </Context.Provider>
+  <Router>
+    <Context.Provider value={{ store }}>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </Context.Provider>
+  </Router>,
 );

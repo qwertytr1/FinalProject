@@ -1,9 +1,7 @@
-import { IUser } from "../IUser";
+import { type IUser } from '../iUser';
 
-export interface AuthResponse{
-    userData: {
-        accessToken: string;
-        refreshToken: string;
-        user: IUser;
-    };
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: IUser;
 }

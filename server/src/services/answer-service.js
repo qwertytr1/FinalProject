@@ -23,7 +23,10 @@ return { status: 201, json: {...answers}  };
           return { status: 404, json: { error: 'answers not found' } };
         }
 
-        const is_correct = question.correct_answer === answer;
+        const is_correct =
+        question.correct_answer != null && question.correct_answer !== ''
+          ? question.correct_answer === answer
+          : true;
       const newAnswer = await Answer.create({
           answer,
           forms_id,

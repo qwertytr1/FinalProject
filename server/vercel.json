@@ -1,7 +1,7 @@
 {
     "version": 2,
     "functions":{
-      "src/routes/api.js":{
+      "api/app.js":{
 "memory":1024,
 "maxDuration":60
       }
@@ -12,8 +12,9 @@
       },
       {
         "src": "/(.*)",
-        "dest": "app.js"
+        "dest": "api/app.js"
       }
     ],
+    "regions": ["cdg1"],
     "installCommand": "npm install"
   }
