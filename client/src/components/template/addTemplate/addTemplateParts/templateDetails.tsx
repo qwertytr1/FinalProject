@@ -9,11 +9,16 @@ interface TemplateDetailsInt {
     description: string;
     category: string;
     isPublic: boolean;
+    tags?: number[] | undefined;
   };
-  updateTemplateData: (key: keyof Templates, value: string | boolean) => void;
+  updateTemplateData: (
+    key: keyof Templates,
+    value: string | boolean | number[],
+  ) => void;
   handleImageUpload: (file: File) => boolean;
   handleSubmit: () => void;
   loading: boolean;
+  tags: { id: number; value: string }[];
 }
 
 const TemplateDetails: React.FC<TemplateDetailsInt> = ({
@@ -22,8 +27,10 @@ const TemplateDetails: React.FC<TemplateDetailsInt> = ({
   handleImageUpload,
   handleSubmit,
   loading,
+  tags,
 }) => {
   const { t } = useTranslation();
+  console.log(templateData.tags, tags);
   return (
     <Form layout="vertical">
       <Form.Item label={t('templateDetails.title')}>
@@ -122,6 +129,22 @@ const TemplateDetails: React.FC<TemplateDetailsInt> = ({
         <Upload beforeUpload={handleImageUpload} maxCount={1} name="image">
           <Button loading={loading}>{t('templateDetails.ButtonImage')}</Button>
         </Upload>
+      </Form.Item>
+      <Form.Item label={t('templateDetails.selectTags')}>
+        <Select
+          mode="multiple"
+          value={templateData.tags} // Передаем массив ID тегов
+          onChange={(ids: number[]) => {
+            updateTemplateData('tags', ids); // Передаем массив ID тегов
+          }}
+          placeholder={t('templateDetails.selectTags')}
+        >
+          {tags.map((tag) => (
+            <Select.Option key={tag.id} value={tag.id}>
+              {tag.value} {/* Отображаем значение тега, но передаем его ID */}
+            </Select.Option>
+          ))}
+        </Select>
       </Form.Item>
       <Form.Item label={t('templateDetails.makePublic')}>
         <Select

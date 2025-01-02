@@ -29,14 +29,18 @@ const TemplateDetailsPage = () => {
   const [questions, setQuestions] = useState<Questions[]>([]);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [showTemplateEditForm, setShowTemplateEditForm] = useState(false);
-  const [questionDetails, setQuestionDetails] = useState({
-    id: Number(id),
+  const [questionDetails, setQuestionDetails] = useState<Questions>({
+    id: 0,
     title: '',
     type: '',
     description: '',
-    correctAnswer: '',
+    correct_answer: '',
   });
-  const [templateDetails, setTemplateDetails] = useState({
+  const [templateDetails, setTemplateDetails] = useState<{
+    title: string;
+    description: string;
+    category: string;
+  }>({
     title: '',
     description: '',
     category: '',
@@ -75,7 +79,6 @@ const TemplateDetailsPage = () => {
       try {
         const response = await TemplateService.getTemplateById(Number(id));
         setTemplate(response.data);
-        setQuestions(response.data.questions || []);
         setTemplateDetails({
           title: response.data.title,
           description: response.data.description,
@@ -101,7 +104,7 @@ const TemplateDetailsPage = () => {
       title: '',
       type: '',
       description: '',
-      correctAnswer: '',
+      correct_answer: '',
     });
     setShowQuestionForm(true);
   };
@@ -137,7 +140,7 @@ const TemplateDetailsPage = () => {
         title: questionDetails.title,
         type: questionDetails.type,
         description: questionDetails.description,
-        correctAnswer: questionDetails.correctAnswer,
+        correct_answer: questionDetails.correct_answer,
       };
 
       const response = await QuestionService.addQuestion(
@@ -147,11 +150,11 @@ const TemplateDetailsPage = () => {
       setQuestions((prevQuestions) => [...prevQuestions, response.data]);
 
       setQuestionDetails({
-        id: Number(questionDetails.id),
+        id: 0,
         title: '',
         type: '',
         description: '',
-        correctAnswer: '',
+        correct_answer: '',
       });
       setShowQuestionForm(false);
     } catch (err) {
@@ -181,7 +184,7 @@ const TemplateDetailsPage = () => {
         title: questionDetails.title,
         type: questionDetails.type,
         description: questionDetails.description,
-        correctAnswer: questionDetails.correctAnswer,
+        correct_answer: questionDetails.correct_answer,
       };
 
       await QuestionService.editQuestion(
@@ -202,7 +205,7 @@ const TemplateDetailsPage = () => {
         title: '',
         type: '',
         description: '',
-        correctAnswer: '',
+        correct_answer: '',
       });
     } catch (err) {
       setError(t('templateDetailsPage.errorUpdateQuestion'));
@@ -216,7 +219,7 @@ const TemplateDetailsPage = () => {
       title: question.title,
       type: question.type,
       description: question.description || '',
-      correctAnswer: String(question.correctAnswer),
+      correct_answer: question.correct_answer || '',
     });
     setShowQuestionForm(true);
   };
@@ -242,6 +245,10 @@ const TemplateDetailsPage = () => {
     } catch (err) {
       setError(t('templateDetailsPage.errorUpdateTemplate'));
     }
+  };
+
+  const handleStartTest = () => {
+    navigate(`/test/${id}`); // Navigate to TestPage with template ID
   };
 
   const handleTemplateTitle = useCallback(
@@ -288,6 +295,7 @@ const TemplateDetailsPage = () => {
       </div>
     );
   }
+
   return (
     <div style={{ padding: '20px' }}>
       <Card
@@ -312,6 +320,13 @@ const TemplateDetailsPage = () => {
           onClick={(event) => handleDeleteTemplate(Number(id), event)}
         >
           {t('templateDetailsPage.deleteButton')}
+        </Button>
+        <Button
+          type="primary"
+          onClick={handleStartTest}
+          style={{ marginTop: '20px' }}
+        >
+          {t('templateDetailsPage.startTest')}
         </Button>
       </Card>
 
@@ -368,10 +383,10 @@ const TemplateDetailsPage = () => {
                   {t('templateDetailsPage.questionDescription')}{' '}
                   {question.description || 'No description'}
                 </p>
-                {question.correctAnswer && (
+                {question.correct_answer && (
                   <p>
                     {t('templateDetailsPage.correctAnswer')}{' '}
-                    {question.correctAnswer}
+                    {question.correct_answer}
                   </p>
                 )}
                 <Button
@@ -462,11 +477,11 @@ const TemplateDetailsPage = () => {
           </Form.Item>
           <Form.Item label={t('templateDetailsPage.correctAnswer')}>
             <Input
-              value={String(questionDetails.correctAnswer)}
+              value={String(questionDetails.correct_answer)}
               onChange={(e) =>
                 setQuestionDetails({
                   ...questionDetails,
-                  correctAnswer: e.target.value,
+                  correct_answer: e.target.value,
                 })
               }
               placeholder={t('templateDetailsPage.correctAnswerPlaceholder')}

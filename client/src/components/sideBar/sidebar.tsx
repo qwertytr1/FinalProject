@@ -14,6 +14,7 @@ import CreateTemplateModal from '../template/addTemplate/addTemplateParts/addtem
 import TemplatesPage from '../template/templatesView/templatePage';
 import AddTagPage from '../tags/addTagPage';
 import LanguageSelector from '../../localisation/languageSelector';
+import Main from '../home/main';
 
 const { Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -33,7 +34,7 @@ const SidebarMenu: React.FC = () => {
       case 'main':
         return (
           <Card bordered={false} className="content-card">
-            {/* <CreateTemplateModal /> */}
+            <Main />
           </Card>
         );
       case 'templates':
@@ -101,7 +102,7 @@ const SidebarMenu: React.FC = () => {
               setSelectedMenu(e.key);
             }}
           >
-            <Menu.Item key="Main" icon={<UserOutlined />}>
+            <Menu.Item key="main" icon={<UserOutlined />}>
               {t('sidebarMenu.main')}
             </Menu.Item>
             <Menu.Item key="addTemplate" icon={<UserOutlined />}>

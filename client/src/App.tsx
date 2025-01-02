@@ -9,12 +9,14 @@ import AdminPanel from './components/admin/admin';
 import TemplateDetailsPage from './components/template/templateDetailsPage';
 import TemplatesPage from './components/template/templatesView/templatePage';
 import CreateTemplateModal from './components/template/addTemplate/addTemplateParts/addtemplate';
+import TestPage from './components/testPage/testPage';
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/test/:id" element={<TestPage />} />
       <Route path="/" element={<SidebarMenu />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/admin" element={<AdminPanel />} />

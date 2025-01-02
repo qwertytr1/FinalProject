@@ -3,6 +3,7 @@ import { type IUser } from '../models/iUser';
 import AuthService from '../services/authService';
 import $api from '../http';
 import UserService from '../services/userService';
+import { Templates } from '../models/templates';
 
 export default class Store {
   user: Partial<IUser> = {};
@@ -13,10 +14,16 @@ export default class Store {
 
   isLoading = false;
 
+  templates: Templates[] = [];
+
   isCheckedAuth = false;
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  setTemplate(templates: Templates[]) {
+    this.templates = templates;
   }
 
   setAuth(isAuth: boolean) {

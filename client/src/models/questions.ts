@@ -5,5 +5,5 @@ export interface Questions {
   order?: string;
   type: string;
   showInResults?: string;
-  correctAnswer: string | number;
+  correct_answer: string | number;
 }

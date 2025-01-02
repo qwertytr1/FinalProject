@@ -14,11 +14,22 @@ exports.createTemplate = async (req, res) => {
 
     const accessToken = req.headers['authorization']?.split(' ')[1];
     if (!accessToken) {
-        throw ApiError.UnauthorizedError();
+      return res.status(400).json({ error: 'Токен не предоставлен' });
     }
-    const userData = tokenService.validateAccessToken(accessToken);
-    const userId = userData.id;
 
+    let userData;
+    try {
+      userData = tokenService.validateAccessToken(accessToken);
+    } catch (error) {
+      return res.status(401).json({ error: 'Недействительный токен' });
+    }
+
+    if (!userData) {
+      return res.status(401).json({ error: 'Не удалось извлечь данные пользователя из токена' });
+    }
+
+    const userId = userData.id;
+    console.log(userId);
     // Загружаем изображение в Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path);
 
@@ -32,12 +43,17 @@ exports.createTemplate = async (req, res) => {
       created_at: new Date(),
       updated_at: new Date(),
     });
+    const tagIds = tags ? tags.split(',').map(tag => Number(tag.trim())) : [];
+    console.log('Converted tagIds:', tagIds); // Логируем преобразованные ID тегов
+    console.log('Request body:', req.body);
+    if (tagIds.length === 0) {
+      return res.status(400).json({ error: "Не указаны теги." });
+    }
 
-    // Проверяем наличие тегов
-    const tagIds = tags || []; // Передаётся массив ID тегов
     const existingTags = await Tag.findAll({
       where: { id: tagIds },
     });
+    console.log('Existing tags:', existingTags);
 
     if (existingTags.length !== tagIds.length) {
       return res.status(400).json({
@@ -45,14 +61,13 @@ exports.createTemplate = async (req, res) => {
       });
     }
 
-    // Создаём связи шаблона с тегами
+    // Создаем связи шаблона с тегами
     const templatesTagData = existingTags.map((tag) => ({
       templates_id: newTemplate.id,
       tags_id: tag.id,
     }));
 
     await TemplatesTag.bulkCreate(templatesTagData);
-
     // Создаём запись в таблице templates_access
     await TemplatesAccess.create({
       users_id: userId,

@@ -4,7 +4,7 @@ const TokenSchema = require("./token-model.js");
 
 const Tag = sequelize.define("tags", {
   id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-  name: { type: Sequelize.STRING, allowNull: false },
+  value: { type: Sequelize.STRING, allowNull: false },
 }, {
   timestamps: false,
   tableName: 'tags',
@@ -137,7 +137,7 @@ const Comment = sequelize.define("comments", {
   timestamps: false,
 });
 
-const TemplatesTag = sequelize.define("template_tag", {
+const TemplatesTag = sequelize.define("template_tags", {
   templates_id: {
     type: Sequelize.INTEGER,
     allowNull: false,

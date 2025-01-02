@@ -15,16 +15,17 @@ class QuestionService {
         if (!questions) {
           return { status: 404, json: { error: 'Questions not found' } };
         }
-
+console.log(questions)
         return { status: 200, json: questions }; // Вернуть массив вопросов напрямую
       }
-    async AddQuestion(templateId, type, title, description, order, showInResults, correct_answer) {
+    async AddQuestion(templateId, type, title, description, order, showInResults, correctAnswer) {
         // Check if the template exists
         const template = await Template.findByPk(templateId);
         if (!template) {
             return { status: 404, json: { error: 'Template not found' } };
         }
-
+        const correct_answer = correctAnswer;
+        console.log(correct_answer)
         // Check type limits
         const questionCount = await Question.count({
             where: { templates_id: templateId, type: type }
@@ -47,7 +48,7 @@ class QuestionService {
         const newQuestions = new QuestionsDto(question);
         return { status: 201, json: { ...newQuestions } };
     }
-    async editQuestion(id,templateId, type, title, description, order, showInResults) {
+    async editQuestion(id,templateId, type, title, description, order, showInResults, correctAnswer) {
         const template = await Template.findByPk(templateId);
         if (!template) {
             return { status: 404, json: { error: 'Template not found' } };
@@ -64,7 +65,7 @@ class QuestionService {
         if (!question) {
             return { status: 404, json: { error: 'Question not found' } };
         }
-
+        const correct_answer = correctAnswer;
         // Update the question with new values
         const updatedQuestion = await question.update({
             title: title ?? question.title,
@@ -72,6 +73,7 @@ class QuestionService {
             order: order ?? question.order,
             type: type ?? question.type,
             showInResults: showInResults ?? question.showInResults,
+            correct_answer: correct_answer ?? question.correct_answer
         });
 
         return { status: 201, json: { question:updatedQuestion } };

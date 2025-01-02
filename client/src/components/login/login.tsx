@@ -28,13 +28,9 @@ function Login() {
   );
 
   const handleLogin = async () => {
-    try {
-      await store.login(email, password);
-      message.success('Login successful');
-      navigate('/Profile');
-    } catch (error) {
-      message.error('Login failed. Please check your credentials.');
-    }
+    await store.login(email, password);
+    message.success('Login successful');
+    navigate('/Profile');
   };
 
   const handleRegistrationRedirect = () => {
