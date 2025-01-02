@@ -17,7 +17,8 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/test/:id" element={<TestPage />} />
-      <Route path="/" element={<SidebarMenu />}>
+      <Route path="/" element={<Login />} />
+      <Route path="/menu" element={<SidebarMenu />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/templates/create" element={<CreateTemplateModal />} />
