@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom'; // Импорт Brow
 import './index.css';
 import App from './App';
 import Store from './store/store';
-import AuthProvider from './provider/authProvider';
+import AuthProvider from './Provider/authProvider';
 import './localisation/i18n';
 
 interface State {
