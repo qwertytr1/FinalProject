@@ -42,8 +42,14 @@ const TestPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [template, setTemplate] = useState<TemplateDetails | null>(null);
   const [questions, setQuestions] = useState<QuestionDetails[]>([]);
-  const [answer, setAnswer] = useState('');
-
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  //   const submitAnswer = async () => {
+  //     setLoading(true);
+  //     setError(null);
+  //       try {
+  //         const response = await
+  //     } catch (e) {}
+  //   };
   useEffect(() => {
     const fetchTemplateAndQuestions = async () => {
       setLoading(true);
@@ -68,22 +74,31 @@ const TestPage: React.FC = () => {
       fetchTemplateAndQuestions();
     }
   }, [id]);
-  console.log(template, questions);
+
+  const handleAnswerChange = (questionId: number, value: string) => {
+    setAnswers((prevAnswers) => ({
+      ...prevAnswers,
+      [questionId]: value,
+    }));
+  };
+
   const renderAnswerField = (question: QuestionDetails) => {
+    const currentAnswer = answers[question.id] || ''; // Get the answer for the specific question
+
     switch (question.type) {
       case 'single-line':
         return (
           <Input
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
+            value={currentAnswer}
+            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
             placeholder="Enter your answer"
           />
         );
       case 'multi-line':
         return (
           <TextArea
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
+            value={currentAnswer}
+            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
             placeholder="Enter your answer"
             rows={4}
           />
@@ -92,16 +107,21 @@ const TestPage: React.FC = () => {
         return (
           <Input
             type="number"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
+            value={currentAnswer}
+            onChange={(e) => handleAnswerChange(question.id, e.target.value)}
             placeholder="Enter a number"
           />
         );
       case 'checkbox':
         return (
           <Checkbox
-            checked={answer === 'true'}
-            onChange={(e) => setAnswer(e.target.checked ? 'true' : 'false')}
+            checked={currentAnswer === 'true'}
+            onChange={(e) =>
+              handleAnswerChange(
+                question.id,
+                e.target.checked ? 'true' : 'false',
+              )
+            }
           >
             Select this option
           </Checkbox>
@@ -110,6 +130,7 @@ const TestPage: React.FC = () => {
         return null;
     }
   };
+
   if (loading) {
     return (
       <div className="test-page-spinner">
@@ -172,6 +193,9 @@ const TestPage: React.FC = () => {
             <Text>No questions available.</Text>
           )}
         </Space>
+        <Button type="primary" style={{ marginTop: '10px' }}>
+          Submit
+        </Button>
       </Content>
     </Layout>
   );
