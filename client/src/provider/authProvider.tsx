@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import { observer } from 'mobx-react-lite';
-import Context from '.';
+import Context from '..';
 
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
