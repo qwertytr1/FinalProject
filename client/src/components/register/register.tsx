@@ -20,7 +20,7 @@ function Register() {
   const navigate = useNavigate();
 
   const { i18n, t } = useTranslation();
-
+  console.log(store);
   const handleUsernameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setUsername(e.target.value);

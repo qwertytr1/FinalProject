@@ -24,7 +24,8 @@ const tagsController = require('../controllers/tagsController.js');
 const upload = require('../middleware/upload.js');
 const statisticController = require('../controllers/statisticController.js');
 const checkTemplates = require('../middleware/templates-middleware.js')
-const homeController = require('../controllers/mainPageController.js')
+const homeController = require('../controllers/mainPageController.js');
+const resultController = require('../controllers/resultsController.js')
 //auth//+
 router.post('/register', body('email').isEmail(), authController.register);
 router.post('/login', authController.login);
@@ -36,11 +37,11 @@ router.get('/getUsers/:id?', userController.getUser);
 router.put('/user/:id', userController.editUser);
 router.post('/user/block/:id', userController.toggleBlockUser);
 router.post('/user/unblock/:id', userController.toggleUnblockUser);
-router.delete('/users/:id',checkAdmin, userController.deleteUser);
+router.delete('/users/:id', userController.deleteUser);
 
 //templates
 router.get('/templates', authMiddleware, getTemplates);
-router.get('/templates/user/:userId',authMiddleware, getTemplatesByUser);
+router.get('/templates/user',authMiddleware, getTemplatesByUser);
 router.get('/templates/:id',authMiddleware, getTemplateById);
 router.post('/templates', upload.single('image'),authMiddleware, createTemplate);//++
 router.patch('/templates/:id', updateTemplate);//++
@@ -61,7 +62,7 @@ router.post('/templates/:id/comments',authMiddleware, commentsController.addComm
 router.get('/forms',authMiddleware, formsController.getAllForms);
 router.get('/forms/:id',authMiddleware, formsController.getFormsById);
 router.patch('/forms/:id',checkAdmin, formsController.updateForms);
-router.post('/forms', checkAdmin,formsController.createForms);
+router.post('/forms',formsController.createForms);
 router.delete('/forms/:id',checkAdmin, formsController.deleteForms);
 
 //answers+
@@ -79,6 +80,9 @@ router.delete('/templates/:id/like',authMiddleware, likeController.removeLike);
 router.get('/tags',authMiddleware, tagsController.getTags);
 router.post('/tags', tagsController.createTag);
 //Главная страница //+
+
+router.post('/forms/:id/result', resultController.addResults);
+router.get('/results', resultController.getAllResults);
 
 router.get("/latest-templates",authMiddleware, homeController.getLatestTemplates);
 router.get("/top-templates",authMiddleware, homeController.getTopTemplates);

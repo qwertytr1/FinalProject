@@ -44,3 +44,9 @@
     align-items: center;
     min-height: 100vh;
   }
+  .question-container.correct {
+    border: 2px solid green;
+  }
+  .question-container.incorrect {
+    border: 2px solid red;
+  }

@@ -21,7 +21,7 @@ exports.addQuestions = async (req, res, next) => {
   try {
       const question = await QuestionService.AddQuestion(templateId, type, title, description, order, showInResults, correctAnswer);
     res.status(question.status).json(question.json);
-    console.log(req.body)
+
   } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal server error' });
@@ -31,7 +31,7 @@ exports.addQuestions = async (req, res, next) => {
 exports.editQuestions = async (req, res, next) => {
   const  templateId  = req.params.id;
   const questionId  = req.params.questionId;
-  console.log(templateId,questionId);
+
   const { title, description, order, type, showInResults, correctAnswer } = req.body;
   const allowedTypes = ['single-line', 'multi-line', 'integer', 'checkbox'];
   if (type && !allowedTypes.includes(type)) {
@@ -48,7 +48,7 @@ exports.editQuestions = async (req, res, next) => {
 exports.deleteQuestions = async (req, res, next) => {
   const  templateId  = req.params.id;
   const questionId  = req.params.questionId;
-  console.log(templateId,questionId);
+
   try {
    await QuestionService.deleteQuestion(questionId, templateId);
     res.status(200).json({ message: 'Question deleted successfully' });

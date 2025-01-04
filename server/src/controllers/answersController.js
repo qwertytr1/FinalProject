@@ -10,6 +10,7 @@ exports.addAnswer = async (req, res, next) => {
   if (!accessToken) {
       throw ApiError.UnauthorizedError();
   }
+  console.log('Access Token:', accessToken);
   const userData = tokenService.validateAccessToken(accessToken);
   const users_id = userData.id;
     // Проверка на наличие обязательных данных

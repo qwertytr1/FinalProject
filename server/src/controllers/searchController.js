@@ -39,7 +39,7 @@ exports.searchTemplates = async (req, res) => {
         value: { [Op.like]: `%${query}%` }
       }
     });
-    console.log('Tags found:', tags);
+
     const templateTagData = await TemplatesTag.findAll({
       where: {
         tags_id: {
@@ -49,10 +49,8 @@ exports.searchTemplates = async (req, res) => {
       attributes: ['templates_id', 'tags_id']
     });
 
-    console.log('TemplateTags Data:', templateTagData);
 
     const templateIds = templateTagData.length > 0 ? templateTagData.map(item => item.templates_id) : [];
-    console.log('Template IDs by Tags:', templateIds);
 
     const templatesByTags = templateIds.length > 0 ? await Template.findAll({
       where: {

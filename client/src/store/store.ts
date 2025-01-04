@@ -1,4 +1,5 @@
 import { makeAutoObservable } from 'mobx';
+import { message } from 'antd';
 import { type IUser } from '../models/iUser';
 import AuthService from '../services/authService';
 import $api from '../http';
@@ -14,9 +15,17 @@ export default class Store {
 
   isLoading = false;
 
+  correctAnswersCount = 0;
+
+  answeredQuestionsCount = 0;
+
   templates: Templates[] = [];
 
   isCheckedAuth = false;
+
+  formId: number | null = null;
+
+  isFormCreated: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -26,12 +35,30 @@ export default class Store {
     this.templates = templates;
   }
 
+  setFormId(id: number) {
+    this.formId = id;
+    this.isFormCreated = true;
+  }
+
   setAuth(isAuth: boolean) {
     this.isAuth = isAuth;
   }
 
   setUser(user: IUser) {
     this.user = user;
+  }
+
+  incrementCorrectAnswers() {
+    this.correctAnswersCount += 1;
+  }
+
+  incrementAnsweredQuestions() {
+    this.answeredQuestionsCount += 1;
+  }
+
+  resetCounts() {
+    this.correctAnswersCount = 0;
+    this.answeredQuestionsCount = 0;
   }
 
   setUsers(users: IUser[]) {
@@ -45,11 +72,16 @@ export default class Store {
   async login(email: string, password: string) {
     try {
       const response = await AuthService.login(email, password);
+      if (response.data.user.isBlocked) {
+        message.error('Your account is blocked. Please contact support.');
+        this.setAuth(false);
+        return; // Exit the function to prevent further actions
+      }
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
-    } catch (e) {
-      console.error('Login error:', e);
+    } catch (error) {
+      console.error('Login error:', error);
     }
   }
 

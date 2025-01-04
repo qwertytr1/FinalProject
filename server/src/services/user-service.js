@@ -1,6 +1,6 @@
 const UserDto = require('../dtos/user-dto.js');
-const { User } = require('../models/index.js');
-const {TokenSchema} = require('../models/token-model.js');
+const { User, Answer } = require('../models/index.js');
+const TokenSchema = require('../models/token-model.js');
 const TokenService = require('./token-service.js');
 const bcrypt = require('bcryptjs');
 const tokenService = require('./token-service.js');
@@ -53,10 +53,17 @@ class UserService {
 
          }
 
-    async deleteUser(userId) {
-            const delUser = await User.destroy({ where: { id: userId } });
-            return delToken, delUser;
-    }
+         async deleteUser(userId) {
+            console.log("Deleting answers for user:", userId);
+            await Answer.destroy({ where: { users_id: userId } });
+
+            console.log("Deleting tokens for user:", userId);
+            await TokenSchema.destroy({ where: { user_id: userId } });
+
+            console.log("Deleting user:", userId);
+          await User.destroy({ where: { id: userId } });
+
+        }
 }
 
 

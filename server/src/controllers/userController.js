@@ -56,6 +56,7 @@ exports.toggleUnblockUser = async (req, res, next) => {
 exports.deleteUser = async (req, res, next) => {
     try {
         const userId = req.params.id;
+        console.log(userId)
         const accessToken = req.headers['authorization']?.split(' ')[1];
         if (!accessToken) {
             throw ApiError.UnauthorizedError();

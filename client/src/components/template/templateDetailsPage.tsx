@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Card,
   Button,
@@ -12,14 +12,18 @@ import {
 } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { observer } from 'mobx-react-lite';
 import TemplateService from '../../services/templateService';
 import QuestionService from '../../services/questionService';
 import { Templates } from '../../models/templates';
 import { Questions } from '../../models/questions';
+import FormService from '../../services/formService';
+import Context from '../..';
 
 const { Option } = Select;
 
-const TemplateDetailsPage = () => {
+const TemplateDetailsPage = observer(() => {
+  const { store } = useContext(Context);
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -247,10 +251,24 @@ const TemplateDetailsPage = () => {
     }
   };
 
-  const handleStartTest = () => {
-    navigate(`/test/${id}`); // Navigate to TestPage with template ID
+  const handleStartTest = async () => {
+    if (id) {
+      setLoading(true);
+      setError(null);
+      try {
+        store.resetCounts();
+        const response = await FormService.formPost(Number(id));
+        store.setFormId(response.data.form.id);
+        navigate(`/test/${id}`);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load the form data.');
+      } finally {
+        setLoading(false);
+      }
+    }
   };
-
+  console.log(store.formId);
   const handleTemplateTitle = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setTemplateDetails({
@@ -491,6 +509,6 @@ const TemplateDetailsPage = () => {
       )}
     </div>
   );
-};
+});
 
 export default TemplateDetailsPage;

@@ -9,7 +9,7 @@ exports.register = async (req, res, next) => {
         if (!errors.isEmpty()) {
             return next(ApiError.BadRequest('Error in validation', errors.array()));
         }
-        console.log(req.body);
+
         const { username, email, password, language, theme, role, isBlocked } = req.body;
         const userData = await authService.register(username, email, password, language, theme, role, isBlocked);
         return res.status(201).json(
@@ -23,7 +23,7 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        console.log(req.body);
+
         const userData = await authService.login( email, password);
         return res.status(201).json(userData);
     } catch (error) {

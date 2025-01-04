@@ -2,10 +2,9 @@ const tokenService = require('../services/token-service');
 const ApiError = require('../exceptions/api-error');
 const jwt = require('jsonwebtoken')
 module.exports = (req, res, next) => {
-    const { refreshToken } = req.cookies; // Получаем токен из куки
-    if (!refreshToken) return null;
+    const accessToken = req.headers['authorization']?.split(' ')[1];
     try {
-        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
         console.log('Decoded token:', decoded);
         const role = decoded.role;
         if (role !== 'admin') {

@@ -29,7 +29,6 @@ exports.createTemplate = async (req, res) => {
     }
 
     const userId = userData.id;
-    console.log(userId);
     // Загружаем изображение в Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path);
 
@@ -44,8 +43,7 @@ exports.createTemplate = async (req, res) => {
       updated_at: new Date(),
     });
     const tagIds = tags ? tags.split(',').map(tag => Number(tag.trim())) : [];
-    console.log('Converted tagIds:', tagIds); // Логируем преобразованные ID тегов
-    console.log('Request body:', req.body);
+
     if (tagIds.length === 0) {
       return res.status(400).json({ error: "Не указаны теги." });
     }
@@ -53,7 +51,6 @@ exports.createTemplate = async (req, res) => {
     const existingTags = await Tag.findAll({
       where: { id: tagIds },
     });
-    console.log('Existing tags:', existingTags);
 
     if (existingTags.length !== tagIds.length) {
       return res.status(400).json({
@@ -89,14 +86,30 @@ exports.createTemplate = async (req, res) => {
 };
 exports.getTemplatesByUser = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const accessToken = req.headers['authorization']?.split(' ')[1];
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Токен не предоставлен' });
+    }
+
+    let userData;
+    try {
+      userData = tokenService.validateAccessToken(accessToken);
+    } catch (error) {
+      return res.status(401).json({ error: 'Недействительный токен' });
+    }
+
+    if (!userData) {
+      return res.status(401).json({ error: 'Не удалось извлечь данные пользователя из токена' });
+    }
+
+    const userId = userData.id;
 
     const templates = await Template.findAll({
       include: {
         model: TemplatesAccess,
-        as: "templateAccesses", // используем псевдоним из ассоциации
+        as:"templateAccesses",
         where: { users_id: userId },
-        required: true, // только те шаблоны, которые связаны с данным пользователем
+        required: true,
       },
     });
 

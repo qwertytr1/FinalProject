@@ -10,6 +10,7 @@ const TokenSchema = sequelize.define("TokenSchema", {
             key: 'id',
         },
         field: 'users_id',
+        onDelete: 'CASCADE',
     },
     refresh_token: {
         type: DataTypes.STRING,

@@ -1,7 +1,7 @@
 const FormService = require('../services/forms-service.js');
 const { Template, Form, User} = require("../models/index");
 const jwt = require('jsonwebtoken');
-
+const tokenService = require('../services/token-service.js')
 exports.getAllForms = async (req, res, next) => {
     try {
         const forms = await FormService.getAllForms();
@@ -14,7 +14,7 @@ exports.getAllForms = async (req, res, next) => {
 }
 exports.getFormsById = async (req, res, next) => {
     const { id: id } = req.params;
-    console.log(id)
+
     try {
         const forms = await FormService.getFormsById(id);
         res.status(forms.status).json(forms.json);
@@ -37,46 +37,48 @@ exports.getFormsById = async (req, res, next) => {
             }
         }
         exports.createForms = async (req, res, next) => {
-            const accessToken = req.headers['authorization']?.split(' ')[1];
-  if (!accessToken) {
-      throw ApiError.UnauthorizedError();
-  }
-  const userData = tokenService.validateAccessToken(accessToken);
-  const userId = userData.id;
+          const accessToken = req.headers['authorization']?.split(' ')[1];
+          if (!accessToken) {
+              return res.status(401).json({ error: 'Access token missing' }); // Improved error message
+          }
 
+          let userData;
+          try {
+              userData = tokenService.validateAccessToken(accessToken);
+          } catch (error) {
+              return res.status(401).json({ error: 'Invalid or expired token' }); // Handle token errors
+          }
+console.log(userData)
+          const userId = userData.id;
             if (!userId) {
-                return res.status(401).json({ error: 'User is not authorized' }); // Проверка на авторизацию
+              return res.status(401).json({ error: 'User is not authorized' });
             }
 
-            const { templates_id: template_id } = req.body;
+            const { templates_id } = req.body;
 
             try {
-                // Проверка существования шаблона
-                const template = await Template.findByPk(template_id);
-                if (!template) {
-                    return res.status(404).json({ error: 'Template not found' }); // Шаблон не найден
-                }
+              const template = await Template.findByPk(templates_id);
+              if (!template) {
+                return res.status(404).json({ error: 'Template not found' });
+              }
 
-                // Проверка существования пользователя
-                const user = await User.findByPk(userId);
-                if (!user) {
-                    return res.status(404).json({ error: 'User not found' }); // Пользователь не найден
-                }
+              const user = await User.findByPk(userId);
+              if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+              }
 
-                // Создание формы
-                const form = await Form.create({
-                    templates_id: template_id,
-                    users_id: userId,
-                    submitted_at: new Date()
-                });
+              const form = await Form.create({
+                templates_id,
+                users_id: userId,
+                submitted_at: new Date(),
+              });
 
-                res.status(201).json({ message: 'Form created successfully', form });
+              res.status(201).json({ message: 'Form created successfully', form });
             } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+              console.error(error);
+              res.status(500).json({ error: 'Internal server error' });
             }
-        };
-
+          };
         exports.deleteForms = async (req, res, next) => {
             const { id: id } = req.params;
             try {

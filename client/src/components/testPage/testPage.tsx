@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Layout,
@@ -10,10 +10,17 @@ import {
   Button,
   Input,
   Checkbox,
+  Modal,
 } from 'antd';
+
+import { observer } from 'mobx-react-lite';
 import TemplateService from '../../services/templateService';
 import QuestionService from '../../services/questionService';
+import AnswerService from '../../services/answerService';
 import './testPage.css';
+import Context from '../..';
+import ResultService from '../../services/resultsService';
+import FormService from '../../services/formService';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -28,14 +35,15 @@ interface QuestionDetails {
 }
 
 interface TemplateDetails {
-  id: number;
+  id: number | undefined;
   title: string;
   description: string;
   category: string;
   imageUrl: string;
 }
 
-const TestPage: React.FC = () => {
+const TestPage: React.FC = observer(() => {
+  const { store } = useContext(Context);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -43,13 +51,36 @@ const TestPage: React.FC = () => {
   const [template, setTemplate] = useState<TemplateDetails | null>(null);
   const [questions, setQuestions] = useState<QuestionDetails[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  //   const submitAnswer = async () => {
-  //     setLoading(true);
-  //     setError(null);
-  //       try {
-  //         const response = await
-  //     } catch (e) {}
-  //   };
+  const [answerStatus, setAnswerStatus] = useState<
+    Record<number, boolean | null>
+  >({});
+  const [disabledButtons, setDisabledButtons] = useState<
+    Record<number, boolean>
+  >({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [percentage, setPercentage] = useState<number | null>(null);
+  const handleStartTest = async () => {
+    if (id) {
+      setLoading(true);
+      setError(null);
+      try {
+        store.resetCounts();
+        const response = await FormService.formPost(Number(id));
+        store.setFormId(response.data.form.id);
+        navigate(`/test/${id}`);
+        setIsModalVisible(false);
+        setAnswers({});
+        setAnswerStatus({});
+        setDisabledButtons({});
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load the form data.');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+  console.log(store.formId);
   useEffect(() => {
     const fetchTemplateAndQuestions = async () => {
       setLoading(true);
@@ -82,8 +113,69 @@ const TestPage: React.FC = () => {
     }));
   };
 
+  const handleSubmitAnswer = async (
+    questionId: number,
+    e: React.MouseEvent,
+  ) => {
+    e.preventDefault();
+    if (!answers[questionId] || !store.formId) return;
+
+    try {
+      setError(null);
+      const response = await AnswerService.answerPost({
+        answer: answers[questionId],
+        forms_id: store.formId,
+        questions_id: questionId,
+      });
+      const { is_correct: isCorrect } = response.data.dataValues;
+
+      setAnswerStatus((prevStatus) => ({
+        ...prevStatus,
+        [questionId]: isCorrect,
+      }));
+
+      store.incrementAnsweredQuestions();
+      if (isCorrect) {
+        store.incrementCorrectAnswers();
+      }
+      console.log(store.answeredQuestionsCount, store.correctAnswersCount);
+      // Disable the button after answering
+      setDisabledButtons((prev) => ({
+        ...prev,
+        [questionId]: true,
+      }));
+    } catch (err) {
+      console.error('Error submitting answer:', err);
+      setError('Failed to submit the answer.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleFinishTest = async () => {
+    // Calculate the percentage
+    const totalQuestions = questions.length;
+    const correctAnswers = store.correctAnswersCount;
+    const calculatedPercentage = Math.round(
+      (correctAnswers / totalQuestions) * 100,
+    );
+    setPercentage(calculatedPercentage);
+
+    // Send the result to the backend
+    try {
+      await ResultService.resultPost(
+        Number(store.formId),
+        store.correctAnswersCount,
+      );
+      setIsModalVisible(true);
+    } catch (err) {
+      console.error('Error submitting result:', err);
+      setError('Failed to submit the result.');
+    }
+  };
+
   const renderAnswerField = (question: QuestionDetails) => {
-    const currentAnswer = answers[question.id] || ''; // Get the answer for the specific question
+    const currentAnswer = answers[question.id] || '';
+    const isDisabled = disabledButtons[question.id]; // Проверяем, заблокирован ли вопрос
 
     switch (question.type) {
       case 'single-line':
@@ -92,6 +184,7 @@ const TestPage: React.FC = () => {
             value={currentAnswer}
             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
             placeholder="Enter your answer"
+            disabled={isDisabled} // Блокируем инпут
           />
         );
       case 'multi-line':
@@ -101,6 +194,7 @@ const TestPage: React.FC = () => {
             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
             placeholder="Enter your answer"
             rows={4}
+            disabled={isDisabled} // Блокируем TextArea
           />
         );
       case 'integer':
@@ -110,6 +204,7 @@ const TestPage: React.FC = () => {
             value={currentAnswer}
             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
             placeholder="Enter a number"
+            disabled={isDisabled} // Блокируем инпут
           />
         );
       case 'checkbox':
@@ -122,6 +217,7 @@ const TestPage: React.FC = () => {
                 e.target.checked ? 'true' : 'false',
               )
             }
+            disabled={isDisabled} // Блокируем чекбокс
           >
             Select this option
           </Checkbox>
@@ -129,6 +225,12 @@ const TestPage: React.FC = () => {
       default:
         return null;
     }
+  };
+  const getQuestionClass = (questionId: number) => {
+    const status = answerStatus[questionId];
+    if (status === true) return 'question-container correct';
+    if (status === false) return 'question-container incorrect';
+    return 'question-container';
   };
 
   if (loading) {
@@ -177,7 +279,7 @@ const TestPage: React.FC = () => {
           </Button>
           {questions.length > 0 ? (
             questions.map((question) => (
-              <div key={question.id} className="question-container">
+              <div key={question.id} className={getQuestionClass(question.id)}>
                 <Title level={4} className="question-title">
                   {question.title}
                 </Title>
@@ -187,18 +289,45 @@ const TestPage: React.FC = () => {
                 <div className="answer-field">
                   {renderAnswerField(question)}
                 </div>
+                <Button
+                  type="primary"
+                  style={{ marginTop: '10px' }}
+                  onClick={(e) => handleSubmitAnswer(question.id, e)}
+                  disabled={disabledButtons[question.id]}
+                >
+                  Submit
+                </Button>
               </div>
             ))
           ) : (
             <Text>No questions available.</Text>
           )}
         </Space>
-        <Button type="primary" style={{ marginTop: '10px' }}>
-          Submit
+        <Button
+          type="primary"
+          style={{ marginTop: '10px' }}
+          onClick={handleFinishTest}
+        >
+          Finish
         </Button>
+
+        <Modal
+          title="Test Progress"
+          visible={isModalVisible}
+          footer={[
+            <Button key="back" onClick={() => navigate('/')}>
+              Exit
+            </Button>,
+            <Button key="retry" type="primary" onClick={handleStartTest}>
+              Retry
+            </Button>,
+          ]}
+        >
+          <Text>Progress: {percentage}%</Text>
+        </Modal>
       </Content>
     </Layout>
   );
-};
+});
 
 export default TestPage;

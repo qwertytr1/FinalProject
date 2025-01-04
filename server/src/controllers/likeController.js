@@ -32,7 +32,7 @@ exports.addLike = async (req, res) => {
     if (!userData || !userData.id) {
       return res.status(401).json({ error: 'User not authorized' });
     }
-
+    console.log(userData);
     const userId = userData.id;
 
     // Check if the like already exists

@@ -15,6 +15,7 @@ import TemplatesPage from '../template/templatesView/templatePage';
 import AddTagPage from '../tags/addTagPage';
 import LanguageSelector from '../../localisation/languageSelector';
 import Main from '../home/main';
+import TemplatesPageAdmin from '../template/templateAdmin/templateAdmin';
 
 const { Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -66,6 +67,12 @@ const SidebarMenu: React.FC = () => {
           <Card bordered={false} className="content-card">
             <Title level={3}>Статистика</Title>
             <p>Здесь будет информация о статистике.</p>
+          </Card>
+        );
+      case 'admin-templates':
+        return (
+          <Card bordered={false} className="content-card">
+            <TemplatesPageAdmin />
           </Card>
         );
       case 'tags':

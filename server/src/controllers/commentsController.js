@@ -15,7 +15,7 @@ exports.getCommentsByTemplates = async (req, res, next) => {
 exports.getCommentsByUsers = async (req, res, next) => {
     const {id:userId} = req.params;
     try {
-        console.log(req.body)
+
         const comments = await CommentsService.getCommentsByUsers(userId);
         res.status(comments.status).json(comments.json);
     } catch (error) {

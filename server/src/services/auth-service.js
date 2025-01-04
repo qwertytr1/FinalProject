@@ -35,7 +35,9 @@ class AuthService {
         if (!user) {
             throw ApiError.BadRequest('User not found');
         }
-
+        if (user.isBlocked) {
+            throw ApiError.BadRequest('Your account is blocked. Please contact support.');
+          }
         const isPassEquals = await bcrypt.compare(password, user.password_hash);
         if (!isPassEquals) {
             throw ApiError.BadRequest('Invalid password');
