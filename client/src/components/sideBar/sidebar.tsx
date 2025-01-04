@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Layout, Menu, Typography, Card } from 'antd';
 import {
   UserOutlined,
@@ -16,12 +16,15 @@ import AddTagPage from '../tags/addTagPage';
 import LanguageSelector from '../../localisation/languageSelector';
 import Main from '../home/main';
 import TemplatesPageAdmin from '../template/templateAdmin/templateAdmin';
+import UserTemplateFormsPage from '../formTable/formTable';
+import Context from '../..';
 
 const { Sider, Content } = Layout;
 const { SubMenu } = Menu;
 const { Title } = Typography;
 
 const SidebarMenu: React.FC = () => {
+  const { store } = useContext(Context);
   const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState('profile');
@@ -42,6 +45,12 @@ const SidebarMenu: React.FC = () => {
         return (
           <Card bordered={false} className="content-card">
             <TemplatesPage />
+          </Card>
+        );
+      case 'forms':
+        return (
+          <Card bordered={false} className="content-card">
+            <UserTemplateFormsPage userId={store.user.id} />
           </Card>
         );
       case 'addTemplate':
@@ -120,6 +129,9 @@ const SidebarMenu: React.FC = () => {
             </Menu.Item>
             <Menu.Item key="profile" icon={<UserOutlined />}>
               {t('sidebarMenu.profile')}
+            </Menu.Item>
+            <Menu.Item key="forms" icon={<BookOutlined />}>
+              {t('sidebarMenu.userForms')} {/* Добавляем новый пункт меню */}
             </Menu.Item>
             <SubMenu
               key="admin"

@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 
 exports.searchTemplates = async (req, res) => {
   const { query } = req.query;
-
+console.log(query)
   if (!query) {
     return res.status(400).json({ error: 'Параметр "query" обязателен для поиска.' });
   }
@@ -57,7 +57,10 @@ exports.searchTemplates = async (req, res) => {
         id: { [Op.in]: templateIds }
       }
     }) : [];
-
+console.log(      templates,
+  templatesByTags,
+  comments,
+  tags)
     return res.status(200).json({
       templates,
       templatesByTags,

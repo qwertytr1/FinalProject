@@ -5,6 +5,7 @@ import TagsService from '../../services/tagsService';
 import MainService from '../../services/mainService';
 import renderCarousel from './renderCarousel';
 import Context from '../..';
+import SearchTemplates from '../search/search';
 
 interface Templates {
   id: number;
@@ -47,6 +48,7 @@ function Main() {
       isLiked?: boolean;
     }>
   >([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const fetchTopTemplate = useCallback(async () => {
     try {
       const response = await MainService.topTemplates();
@@ -62,7 +64,10 @@ function Main() {
       console.error(error);
     }
   }, []);
-
+  const handleTagClick = (tagValue: string) => {
+    console.log(tagValue);
+    setSearchQuery(tagValue);
+  };
   const fetchTagsCloud = useCallback(async () => {
     try {
       const response = await TagsService.getTagsCloud();
@@ -127,6 +132,7 @@ function Main() {
       <Title level={1} style={{ textAlign: 'center' }}>
         Main
       </Title>
+      <SearchTemplates searchQuery={searchQuery} />
       <Title level={2}>Top Templates</Title>
       {renderCarousel({
         chunkedData: chunkedTopTemplates,
@@ -140,27 +146,31 @@ function Main() {
       <TagCloud
         minSize={12}
         maxSize={35}
-        renderer={(tag) => (
-          <span
-            key={`${tag.value}`}
-            style={{
-              fontSize: `${Math.max(12, Math.min(35, tag.count * 2))}px`,
-              margin: '5px',
-              color: getColor(tag.count),
-              padding: '5px',
-              backgroundColor: 'rgba(0, 0, 0, 0.1)',
-              borderRadius: '5px',
-              display: 'inline-block',
-              cursor: 'pointer',
-            }}
-          >
-            {tag.value}
-          </span>
-        )}
         tags={tags}
-        onClick={(tag) => alert(`'${tag.value}' was selected!`)}
+        renderer={(tag) => {
+          // Обернем тег в div с обработчиком onClick
+          return (
+            <div
+              key={tag.value}
+              style={{
+                fontSize: `${Math.max(12, Math.min(35, tag.count * 2))}px`,
+                margin: '5px',
+                color: getColor(tag.count),
+                padding: '5px',
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                borderRadius: '5px',
+                display: 'inline-block',
+                cursor: 'pointer',
+              }}
+            >
+              {tag.value}
+            </div>
+          );
+        }}
+        onClick={(tag) => {
+          handleTagClick(tag.value);
+        }}
       />
-
       <Title level={2} style={{ marginTop: '40px' }}>
         Latest Template
       </Title>
