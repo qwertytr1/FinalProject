@@ -57,7 +57,7 @@ router.delete('/templates/:id/questions/:questionId', questionController.deleteQ
 router.get('/templates/:id/comments',authMiddleware, commentsController.getCommentsByTemplates);
 router.get('/users/:id/comments',authMiddleware, commentsController.getCommentsByUsers);
 router.post('/templates/:id/comments',authMiddleware, commentsController.addComment);
-
+router.delete('/comments/:id',authMiddleware, commentsController.deleteComment);
 //forms+++
 router.get('/forms',authMiddleware, formsController.getAllForms);
 router.get('/forms/:id',authMiddleware, formsController.getFormsById);

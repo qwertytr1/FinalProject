@@ -46,3 +46,23 @@ exports.addComment = async (req, res, next) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+exports.deleteComment = async (req, res, next) => {
+    const { id: commentId } = req.params;  // Get commentId from URL params
+    const accessToken = req.headers['authorization']?.split(' ')[1];  // Extract token from request
+
+    if (!accessToken) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const userData = tokenService.validateAccessToken(accessToken);  // Validate token
+    const userId = userData.id;
+
+    try {
+      const response = await CommentsService.deleteComment(commentId, userId);  // Call deleteComment from service
+
+      res.status(response.status).json(response.json);  // Respond with appropriate status and message
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
