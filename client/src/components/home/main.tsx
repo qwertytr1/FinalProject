@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { message, Typography } from 'antd';
 import { TagCloud } from 'react-tagcloud';
 import TagsService from '../../services/tagsService';
 import MainService from '../../services/mainService';
 import renderCarousel from './renderCarousel';
+import Context from '../..';
 
 interface Templates {
   id: number;
@@ -23,6 +24,7 @@ interface Tag {
 const { Title } = Typography;
 
 function Main() {
+  const { store } = useContext(Context);
   const [topTemplates, setTopTemplates] = useState<
     Array<{
       id: number;
@@ -126,7 +128,11 @@ function Main() {
         Main
       </Title>
       <Title level={2}>Top Templates</Title>
-      {renderCarousel(chunkedTopTemplates, handleComment)}
+      {renderCarousel({
+        chunkedData: chunkedTopTemplates,
+        onCommentClick: handleComment,
+        currentUserId: store.user.id,
+      })}
 
       <Title level={2} style={{ marginTop: '40px' }}>
         Tag Cloud
@@ -158,9 +164,12 @@ function Main() {
       <Title level={2} style={{ marginTop: '40px' }}>
         Latest Template
       </Title>
-      {renderCarousel(chunkedLatestTemplates, handleComment)}
+      {renderCarousel({
+        chunkedData: chunkedLatestTemplates,
+        onCommentClick: handleComment,
+        currentUserId: store.user.id,
+      })}
     </div>
   );
 }
-
 export default Main;

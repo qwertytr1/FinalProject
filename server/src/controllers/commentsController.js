@@ -1,7 +1,7 @@
 const { Template, User, Tag, Question, Answer } = require("../models/index");
 const CommentsService = require('../services/comments-service');
 const jwt = require('jsonwebtoken');
-
+const tokenService = require('../services/token-service.js')
 exports.getCommentsByTemplates = async (req, res, next) => {
     const {id:templateId}  = req.params;
     try {
@@ -26,7 +26,7 @@ exports.getCommentsByUsers = async (req, res, next) => {
 
 exports.addComment = async (req, res, next) => {
     const { id: templateId } = req.params;
-    const { content } = req.body;
+    const { newComment:content } = req.body;
   const accessToken = req.headers['authorization']?.split(' ')[1];
   if (!accessToken) {
       throw ApiError.UnauthorizedError();

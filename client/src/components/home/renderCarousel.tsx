@@ -1,6 +1,8 @@
 import { Carousel, Card, Button, Row, Col } from 'antd';
-import { HeartOutlined, CommentOutlined } from '@ant-design/icons';
+import { CommentOutlined } from '@ant-design/icons';
 import Meta from 'antd/es/card/Meta';
+import React from 'react';
+import LikeButton from '../like/likeButton';
 
 interface Templates {
   id: number;
@@ -10,10 +12,18 @@ interface Templates {
   likes: number;
   isLiked?: boolean;
 }
-const renderCarousel = (
-  chunkedData: Templates[][],
-  onCommentClick: (id: number) => void,
-) => {
+
+interface RenderCarouselProps {
+  chunkedData: Templates[][];
+  onCommentClick: (id: number) => void;
+  currentUserId: number | undefined; // Assuming this is passed down
+}
+
+const renderCarousel: React.FC<RenderCarouselProps> = ({
+  chunkedData,
+  onCommentClick,
+  currentUserId,
+}) => {
   return (
     <Carousel autoplay autoplaySpeed={5000} dots={false} draggable>
       {chunkedData.map((group) => (
@@ -53,9 +63,12 @@ const renderCarousel = (
                       justifyContent: 'center',
                     }}
                   >
-                    <Button type="text" icon={<HeartOutlined />}>
-                      {item.likes || 0}
-                    </Button>
+                    {/* Pass the necessary props to LikeButton */}
+                    <LikeButton
+                      templateId={item.id}
+                      initialLiked={item.isLiked ?? false}
+                      currentUserId={currentUserId}
+                    />
                     <Button
                       type="text"
                       icon={<CommentOutlined />}
@@ -73,4 +86,5 @@ const renderCarousel = (
     </Carousel>
   );
 };
+
 export default renderCarousel;

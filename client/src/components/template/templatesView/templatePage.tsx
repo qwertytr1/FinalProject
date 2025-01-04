@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, Row, Col, Spin, Alert, Button, Modal } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Context from '../../..';
 import TemplateService from '../../../services/templateService';
 import TemplateDetailsPage from '../templateDetailsPage';
 
@@ -17,8 +16,6 @@ const TemplatesPage = observer(() => {
   >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { store } = useContext(Context);
-  const userId = store.user.id;
   const [currentTemplateId, setCurrentTemplateId] = useState<number | null>(
     null,
   );
@@ -28,14 +25,14 @@ const TemplatesPage = observer(() => {
     setLoading(true);
     setError(null);
     try {
-      const response = await TemplateService.getAllTemplatesByUsers(userId);
+      const response = await TemplateService.getAllTemplatesByUsers();
       setTemplates(response.data);
     } catch (err) {
       setError(t('templatePage.errorMessage'));
     } finally {
       setLoading(false);
     }
-  }, [userId, t]);
+  }, [t]);
 
   const handleCardClick = (templateId: number) => {
     navigate(`/templates/${templateId}`);

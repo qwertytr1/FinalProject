@@ -1,19 +1,21 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Card, Row, Col, Spin, Alert, Button, Modal, message } from 'antd';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
+import { Card, Row, Col, Spin, Alert, Button, Modal } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LikeOutlined, LikeFilled } from '@ant-design/icons'; // Import Ant Design icons
 import TemplateService from '../../../services/templateService';
 import TemplateDetailsPage from '../templateDetailsPage';
-import LikeService from '../../../services/like-service';
 import { Templates } from '../../../models/templates';
+import LikeButton from '../../like/likeButton';
+import Context from '../../..';
 
 const { Meta } = Card;
 const { confirm } = Modal;
 
 const TemplatesPageAdmin = observer(() => {
+  const { store } = useContext(Context);
   const { t } = useTranslation();
+  const currentUserId = store.user.id;
   const [templates, setTemplates] = useState<
     Array<{
       id: number;
@@ -79,37 +81,6 @@ const TemplatesPageAdmin = observer(() => {
       },
     });
   };
-
-  const handleLikeTemplate = async (
-    templateId: number,
-    event: React.MouseEvent,
-  ) => {
-    event.stopPropagation(); // Prevent the click from triggering navigate or card click
-    const templateIndex = templates.findIndex(
-      (template) => template.id === templateId,
-    );
-    if (templateIndex === -1) return;
-
-    const template = templates[templateIndex];
-    try {
-      setLoading(true);
-      if (template.liked) {
-        await LikeService.likeDelete(templateId); // Unlike the template
-      } else {
-        await LikeService.likePost(templateId); // Like the template
-      }
-
-      // Update the liked state locally
-      const updatedTemplates = [...templates];
-      updatedTemplates[templateIndex] = { ...template, liked: !template.liked };
-      setTemplates(updatedTemplates);
-    } catch (err) {
-      message.error(t('templatePage.likeError'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchTemplates();
   }, [fetchTemplates]);
@@ -174,10 +145,10 @@ const TemplatesPageAdmin = observer(() => {
                 >
                   {t('templatePage.deleteButton')}
                 </Button>
-                <Button
-                  icon={template.liked ? <LikeFilled /> : <LikeOutlined />}
-                  type={template.liked ? 'primary' : 'default'}
-                  onClick={(event) => handleLikeTemplate(template.id, event)} // Passing event to stop propagation
+                <LikeButton
+                  templateId={template.id}
+                  initialLiked={template.liked}
+                  currentUserId={currentUserId}
                 />
               </div>
             </Card>

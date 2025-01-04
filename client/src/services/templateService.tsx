@@ -18,8 +18,8 @@ export default class TemplateService {
     return $api.get(`/templates`);
   }
 
-  static async getAllTemplatesByUsers(userId: number | undefined) {
-    return $api.get(`/templates/user/${userId}`);
+  static async getAllTemplatesByUsers() {
+    return $api.get(`/templates/user`);
   }
 
   static async getTemplateById(id: number) {

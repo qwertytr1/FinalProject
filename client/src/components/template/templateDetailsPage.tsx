@@ -9,19 +9,27 @@ import {
   Alert,
   List,
   Modal,
+  Tooltip,
 } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { observer } from 'mobx-react-lite';
+import { DeleteOutlined } from '@ant-design/icons';
 import TemplateService from '../../services/templateService';
 import QuestionService from '../../services/questionService';
 import { Templates } from '../../models/templates';
 import { Questions } from '../../models/questions';
 import FormService from '../../services/formService';
 import Context from '../..';
+import CommentsService from '../../services/commentsService';
 
 const { Option } = Select;
-
+interface Comment {
+  id: number;
+  content: string;
+  created_at: string;
+  user: { username: string };
+}
 const TemplateDetailsPage = observer(() => {
   const { store } = useContext(Context);
   const { t } = useTranslation();
@@ -40,6 +48,8 @@ const TemplateDetailsPage = observer(() => {
     description: '',
     correct_answer: '',
   });
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
   const [templateDetails, setTemplateDetails] = useState<{
     title: string;
     description: string;
@@ -227,6 +237,67 @@ const TemplateDetailsPage = observer(() => {
     });
     setShowQuestionForm(true);
   };
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (id) {
+        try {
+          const response = await CommentsService.getComment(Number(id));
+          console.log(response.data);
+          setComments(response.data || []);
+        } catch (err) {
+          setError('Failed to load comments.');
+        }
+      }
+    };
+
+    fetchComments();
+  }, [id]);
+
+  // Handle new comment submission
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+
+    try {
+      const response = await CommentsService.commentPost(
+        Number(id),
+        newComment,
+      );
+      setComments((prevComments) => [...prevComments, response.data]);
+      setNewComment('');
+    } catch (err) {
+      setError('Failed to add comment.');
+    }
+  };
+
+  // Polling to refresh comments every 5 seconds
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const fetchComments = async () => {
+        if (id) {
+          try {
+            const response = await CommentsService.getComment(Number(id));
+            setComments(response.data || []);
+          } catch (err) {
+            setError('Failed to load comments.');
+          }
+        }
+      };
+
+      fetchComments();
+    }, 5000);
+
+    return () => clearInterval(intervalId); // Cleanup on component unmount
+  }, [id]);
+  const handleDeleteComment = async (commentId: number) => {
+    try {
+      await CommentsService.commentDelete(commentId);
+      setComments((prevComments) =>
+        prevComments.filter((comment) => comment.id !== commentId),
+      );
+    } catch (err) {
+      setError('Failed to delete comment.');
+    }
+  };
 
   const handleSaveTemplate = async () => {
     if (!templateDetails.title || !templateDetails.category) {
@@ -268,7 +339,6 @@ const TemplateDetailsPage = observer(() => {
       }
     }
   };
-  console.log(store.formId);
   const handleTemplateTitle = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setTemplateDetails({
@@ -313,7 +383,7 @@ const TemplateDetailsPage = observer(() => {
       </div>
     );
   }
-
+  console.log(comments);
   return (
     <div style={{ padding: '20px' }}>
       <Card
@@ -507,6 +577,47 @@ const TemplateDetailsPage = observer(() => {
           </Form.Item>
         </Form>
       )}
+
+      <List
+        header={<h3>Comments</h3>}
+        bordered
+        dataSource={comments}
+        renderItem={(comment) => (
+          <List.Item
+            actions={[
+              <Tooltip title="Delete">
+                <Button
+                  type="link"
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDeleteComment(comment.id)}
+                />
+              </Tooltip>,
+            ]}
+          >
+            <strong>{comment.user?.username}</strong>: {comment.content} -{' '}
+            <i>
+              {comment.created_at
+                ? new Date(comment.created_at).toLocaleString()
+                : 'Invalid Date'}
+            </i>
+          </List.Item>
+        )}
+      />
+
+      <Form onFinish={handleAddComment}>
+        <Form.Item>
+          <Input.TextArea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Add a comment"
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Add Comment
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 });
