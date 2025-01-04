@@ -26,7 +26,7 @@ const TemplatesPage = observer(() => {
     setError(null);
     try {
       const response = await TemplateService.getAllTemplatesByUsers();
-      setTemplates(response.data);
+      setTemplates(Array.isArray(response.data) ? response.data : []); // Убедиться, что это массив
     } catch (err) {
       setError(t('templatePage.errorMessage'));
     } finally {

@@ -1,18 +1,94 @@
-const {Form, User, Template} = require('../models/index.js');
+const {Form, User, Template, Question, Answer, TemplatesAccess} = require('../models/index.js');
 class FormService {
     async getAllForms() {
-        const allForms = await Form.findAll({ include: User });
-        if (!allForms) {
-            return { status: 404, json: { error: 'allForms not found' } };
-        }
-        return { status: 200, json: allForms };
-    }
-    async getFormsById(id) {
-        const allForms = await Form.findOne({ where:{id:id},include: User });
-        if (!allForms) {
+        const allForms = await Form.findAll({
+            include: [
+                { model: User, attributes: ['id', 'username', 'email'] },
+                { model: Template, attributes: ['id', 'title'] },
+                {
+                    model: Answer,
+                    attributes: ['id', 'answer', 'is_correct'],
+                    include: [
+                        {
+                            model: Question,
+                            attributes: ['id', 'title', 'description', 'type', 'correct_answer'],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (!allForms || allForms.length === 0) {
             return { status: 404, json: { error: 'Forms not found' } };
         }
+
         return { status: 200, json: allForms };
+    }
+    async getFormsByUserTemplates(userId) {
+        // Find all templates accessible by the user
+        const userTemplates = await Template.findAll({
+            include: [
+                {
+                    model: TemplatesAccess,
+                    as: 'templateAccesses',
+                    where: { users_id: userId },
+                    attributes: [],
+                },
+                {
+                    model: Form,
+                    include: [
+                        {
+                            model: User,
+                            attributes: ['id', 'username', 'email'],
+                        },
+                        {
+                            model: Answer,
+                            include: [
+                                {
+                                    model: Question,
+                                    attributes: ['id', 'title', 'description', 'type'],
+                                },
+                                {
+                                    model: User,
+                                    attributes: ['id', 'username', 'email'],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (!userTemplates.length) {
+            return { status: 404, json: { error: 'No forms found for user-created templates' } };
+        }
+
+        return { status: 200, json: userTemplates };
+    }
+    async getFormsById(id) {
+        const form = await Form.findOne({
+            where: { id },
+            include: [
+                { model: User, attributes: ['id', 'username', 'email'] },
+                { model: Template, attributes: ['id', 'title'] },
+                {
+                    model: Answer,
+                    attributes: ['id', 'answer', 'is_correct'],
+                    include: [
+                        {
+                            model: Question,
+                            attributes: ['id', 'title', 'description', 'type', 'correct_answer'],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (!form) {
+            return { status: 404, json: { error: 'Form not found' } };
+        }
+
+        return { status: 200, json: form };
     }
     async updateForms(id, formData) {
         const [updated] = await Form.update(formData, {

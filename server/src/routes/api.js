@@ -64,7 +64,7 @@ router.get('/forms/:id',authMiddleware, formsController.getFormsById);
 router.patch('/forms/:id',checkAdmin, formsController.updateForms);
 router.post('/forms',formsController.createForms);
 router.delete('/forms/:id',checkAdmin, formsController.deleteForms);
-
+router.get('/forms/user-templates/:userId', formsController.getFormsByUserTemplates);
 //answers+
 router.post('/answer',authMiddleware, answerController.addAnswer);
 router.get('/answer',checkAdmin, answerController.getAnswerWithFilter);

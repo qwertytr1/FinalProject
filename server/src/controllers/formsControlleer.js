@@ -24,6 +24,17 @@ exports.getFormsById = async (req, res, next) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+exports.getFormsByUserTemplates = async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+      const result = await FormService.getFormsByUserTemplates(userId);
+      res.status(result.status).json(result.json);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
         exports.updateForms = async (req, res, next) => {
             const { id: id } = req.params;
             const formData = req.body;
