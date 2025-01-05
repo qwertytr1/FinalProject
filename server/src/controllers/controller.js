@@ -1,7 +1,6 @@
 const { sequelize, Template, User, Tag, Question, TemplatesAccess, Like, Comment, Form, TemplatesTag } = require("../models/index");
 const cloudinary = require('../config/cloudinary');
 const tokenService = require('../services/token-service.js');
-const ApiError = require('../exceptions/api-error.js');
 
 class TemplateController {
   static async createTemplate(req, res) {

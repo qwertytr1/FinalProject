@@ -1,6 +1,4 @@
-const { Template, User, Tag, Question, Answer } = require("../models/index");
 const AnswerService = require("../services/answer-service.js");
-const jwt = require('jsonwebtoken');
 const tokenService = require("../services/token-service.js");
 
 class AnswerController {

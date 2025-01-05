@@ -10,63 +10,54 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 
 function Register() {
-  const [username, setUsername] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [language, setLanguage] = useState<string>('');
-  const [theme, setTheme] = useState<string>('');
-  const [role, setRole] = useState<string>('');
+  const [userData, setUserData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    language: '',
+    theme: '',
+    role: '',
+  });
+
   const { store } = useContext(Context);
   const navigate = useNavigate();
-
   const { i18n, t } = useTranslation();
-  console.log(store);
-  const handleUsernameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setUsername(e.target.value);
-    },
+
+  const handleInputChange = useCallback(
+    (field: string) =>
+      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setUserData((prevState) => ({
+          ...prevState,
+          [field]: e.target.value,
+        }));
+      },
     [],
   );
 
-  const handleEmailChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setEmail(e.target.value);
-    },
-    [],
-  );
+  const handleSelectChange = useCallback(
+    (field: string) => (value: string) => {
+      setUserData((prevState) => ({
+        ...prevState,
+        [field]: value,
+      }));
 
-  const handlePasswordChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setPassword(e.target.value);
-    },
-    [],
-  );
-
-  const handleLanguageChange = useCallback(
-    (value: string) => {
-      setLanguage(value);
-      i18n.changeLanguage(value);
+      if (field === 'language') {
+        i18n.changeLanguage(value);
+      }
     },
     [i18n],
   );
 
-  const handleThemeChange = useCallback((value: string) => {
-    setTheme(value);
-  }, []);
-
-  const handleRoleChange = useCallback((value: string) => {
-    setRole(value);
-  }, []);
-
   const handleRegister = useCallback(async () => {
     try {
+      const { username, email, password, language, theme, role } = userData;
       await store.register(username, email, password, language, theme, role);
-      message.success(t('register.successMessage')); // Используем перевод для сообщения
+      message.success(t('register.successMessage'));
       navigate('/login');
     } catch (error) {
       message.error(t('register.errorMessage'));
     }
-  }, [username, email, password, language, theme, role, store, navigate, t]);
+  }, [userData, store, navigate, t]);
 
   return (
     <div className="register-container">
@@ -84,8 +75,8 @@ function Register() {
             <Input
               className="register-input"
               placeholder={t('register.inputUsername')}
-              onChange={handleUsernameChange}
-              value={username}
+              onChange={handleInputChange('username')}
+              value={userData.username}
             />
           </Form.Item>
 
@@ -100,8 +91,8 @@ function Register() {
             <Input
               className="register-input"
               placeholder={t('register.emailPlaceholder')}
-              onChange={handleEmailChange}
-              value={email}
+              onChange={handleInputChange('email')}
+              value={userData.email}
             />
           </Form.Item>
 
@@ -113,8 +104,8 @@ function Register() {
             <Input.Password
               className="register-input"
               placeholder={t('register.passwordPlaceholder')}
-              onChange={handlePasswordChange}
-              value={password}
+              onChange={handleInputChange('password')}
+              value={userData.password}
             />
           </Form.Item>
 
@@ -126,8 +117,8 @@ function Register() {
             <Select
               className="register-input"
               placeholder={t('register.languagePlaceholder')}
-              onChange={handleLanguageChange}
-              value={language}
+              onChange={handleSelectChange('language')}
+              value={userData.language}
             >
               <Option value="ru">{t('register.rus')}</Option>
               <Option value="en">{t('register.en')}</Option>
@@ -143,8 +134,8 @@ function Register() {
             <Select
               className="register-input"
               placeholder={t('register.themePlaceholder')}
-              onChange={handleThemeChange}
-              value={theme}
+              onChange={handleSelectChange('theme')}
+              value={userData.theme}
             >
               <Option value="black">{t('register.black')}</Option>
               <Option value="white">{t('register.white')}</Option>
@@ -159,8 +150,8 @@ function Register() {
             <Select
               className="register-input"
               placeholder={t('register.RolePlaceholder')}
-              onChange={handleRoleChange}
-              value={role}
+              onChange={handleSelectChange('role')}
+              value={userData.role}
             >
               <Option value="user">{t('register.user')}</Option>
               <Option value="admin">{t('register.admin')}</Option>

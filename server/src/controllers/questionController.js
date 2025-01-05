@@ -1,4 +1,3 @@
-const { Question } = require("../models/index");
 const QuestionService = require("../services/question-service.js");
 
 class QuestionController {

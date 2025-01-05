@@ -1,7 +1,6 @@
 const {Form, User, Template, Question, Answer, TemplatesAccess} = require('../models/index.js');
 class FormService {
     async getAllTemplatesWithForms() {
-        // Получаем все шаблоны с формами, включая все ответы
         const allTemplates = await Template.findAll({
             include: [
                 {
@@ -36,7 +35,6 @@ class FormService {
         return { status: 200, json: allTemplates };
     }
     async getFormsByUserTemplates(userId) {
-        // Find all templates accessible by the user
         const userTemplates = await Template.findAll({
             include: [
                 {

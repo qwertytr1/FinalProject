@@ -1,6 +1,6 @@
 import React, { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router } from 'react-router-dom'; // Импорт BrowserRouter
+import { BrowserRouter as Router } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import Store from './store/store';

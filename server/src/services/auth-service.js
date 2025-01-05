@@ -1,10 +1,10 @@
 const UserDto = require('../dtos/user-dto.js');
 const { User } = require('../models/index.js');
-const {TokenSchema} = require('../models/token-model.js');
 const TokenService = require('./token-service.js');
 const bcrypt = require('bcryptjs');
 const tokenService = require('./token-service.js');
 const ApiError = require('../exceptions/api-error.js');
+
 class AuthService {
     async register(username, email, password, language, theme, role, isBlocked) {
         const hashedPassword = await bcrypt.hash(password, 10);

@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import Context from '../..';
 import './sideBar.css';
 import LanguageSelector from '../../localisation/languageSelector';
-import SearchTemplates from '../search/search';
+import SearchTemplates from '../search/searchTemplates';
 
 const { Sider, Content } = Layout;
 

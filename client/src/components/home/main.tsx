@@ -61,7 +61,6 @@ function Main() {
       message.success('Templates fetched successfully');
     } catch (error) {
       message.error('Failed to fetch templates');
-      console.error(error);
     }
   }, []);
 
@@ -71,17 +70,12 @@ function Main() {
       setTags(response.data);
     } catch (error) {
       message.error('Failed to fetch tags');
-      console.error(error);
     }
   }, []);
 
   const fetchLatestTemplates = useCallback(async () => {
-    try {
-      const response = await MainService.latestTemplate();
-      setLatestTemplates(response.data);
-    } catch (e) {
-      console.error(e);
-    }
+    const response = await MainService.latestTemplate();
+    setLatestTemplates(response.data);
   }, []);
   const getColor = (count: number) => {
     const colors = ['#FF5733', '#33FF57', '#3357FF', '#FFD700', '#FF33A1'];
@@ -161,7 +155,7 @@ function Main() {
           );
         }}
         onClick={(tag) => {
-          store.setQuery(tag.value); // Use `tag.value` instead of `e.target.innerText`
+          store.setQuery(tag.value);
         }}
       />
       <Title level={2} style={{ marginTop: '40px' }}>

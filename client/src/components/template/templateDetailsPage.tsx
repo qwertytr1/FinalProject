@@ -62,34 +62,34 @@ const TemplateDetailsPage = observer(() => {
   const hasTemplateAccess = store.user.role === 'admin' || template?.hasAccess;
   const [isEditingQuestion, setIsEditingQuestion] = useState(false);
 
-  const handleDeleteTemplate = async (
-    templateId: number,
-    event: React.MouseEvent,
-  ) => {
-    if (!hasTemplateAccess) {
-      setError(t('templateDetailsPage.noAccessError'));
-      return;
-    }
-    event.stopPropagation();
-    Modal.confirm({
-      title: t('templateDetailsPage.deleteTemplateTitle'),
-      content: t('templateDetailsPage.deleteTemplateContent'),
-      okText: t('templateDetailsPage.okText'),
-      okType: 'danger',
-      cancelText: t('templateDetailsPage.cancelText'),
-      async onOk() {
-        try {
-          setLoading(true);
-          await TemplateService.deleteTemplate(templateId);
-          navigate('/templates');
-        } catch (err) {
-          setError(t('templateDetailsPage.errorMessage'));
-        } finally {
-          setLoading(false);
-        }
-      },
-    });
-  };
+  const handleDeleteTemplate = useCallback(
+    async (templateId: number, event: React.MouseEvent) => {
+      if (!hasTemplateAccess) {
+        setError(t('templateDetailsPage.noAccessError'));
+        return;
+      }
+      event.stopPropagation();
+      Modal.confirm({
+        title: t('templateDetailsPage.deleteTemplateTitle'),
+        content: t('templateDetailsPage.deleteTemplateContent'),
+        okText: t('templateDetailsPage.okText'),
+        okType: 'danger',
+        cancelText: t('templateDetailsPage.cancelText'),
+        async onOk() {
+          try {
+            setLoading(true);
+            await TemplateService.deleteTemplate(templateId);
+            navigate('/templates');
+          } catch (err) {
+            setError(t('templateDetailsPage.errorMessage'));
+          } finally {
+            setLoading(false);
+          }
+        },
+      });
+    },
+    [hasTemplateAccess, navigate, t],
+  );
 
   useEffect(() => {
     const fetchTemplate = async () => {
@@ -104,7 +104,6 @@ const TemplateDetailsPage = observer(() => {
           category: response.data.category,
         });
       } catch (err) {
-        console.error('Error fetching template:', err);
         setError(t('templateDetailsPage.errorMessage'));
       } finally {
         setLoading(false);
@@ -116,7 +115,7 @@ const TemplateDetailsPage = observer(() => {
     }
   }, [id, t]);
 
-  const handleAddQuestionClick = () => {
+  const handleAddQuestionClick = useCallback(() => {
     setIsEditingQuestion(false);
     setQuestionDetails({
       id: 0,
@@ -126,7 +125,7 @@ const TemplateDetailsPage = observer(() => {
       correct_answer: '',
     });
     setShowQuestionForm(true);
-  };
+  }, []);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -147,7 +146,7 @@ const TemplateDetailsPage = observer(() => {
     }
   }, [id]);
 
-  const handleSaveQuestion = async () => {
+  const handleSaveQuestion = useCallback(async () => {
     if (!questionDetails.title || !questionDetails.type) {
       setError(t('templateDetailsPage.errorMessage'));
       return;
@@ -179,20 +178,31 @@ const TemplateDetailsPage = observer(() => {
     } catch (err) {
       setError(t('templateDetailsPage.errorAddQuestion'));
     }
-  };
+  }, [
+    id,
+    questionDetails.correct_answer,
+    questionDetails.description,
+    questionDetails.id,
+    questionDetails.title,
+    questionDetails.type,
+    t,
+  ]);
 
-  const handleDeleteQuestion = async (questionId: number) => {
-    try {
-      await QuestionService.deleteQuestion(Number(id), questionId);
-      setQuestions((prevQuestions) =>
-        prevQuestions.filter((q) => q.id !== questionId),
-      );
-    } catch (err) {
-      setError(t('templateDetailsPage.errorDeleteQuestion'));
-    }
-  };
+  const handleDeleteQuestion = useCallback(
+    async (questionId: number) => {
+      try {
+        await QuestionService.deleteQuestion(Number(id), questionId);
+        setQuestions((prevQuestions) =>
+          prevQuestions.filter((q) => q.id !== questionId),
+        );
+      } catch (err) {
+        setError(t('templateDetailsPage.errorDeleteQuestion'));
+      }
+    },
+    [id, t],
+  );
 
-  const handleSaveEditedQuestion = async () => {
+  const handleSaveEditedQuestion = useCallback(async () => {
     if (!questionDetails.title || !questionDetails.type) {
       setError(t('templateDetailsPage.errorEmptyFields'));
       return;
@@ -229,19 +239,33 @@ const TemplateDetailsPage = observer(() => {
     } catch (err) {
       setError(t('templateDetailsPage.errorUpdateQuestion'));
     }
-  };
+  }, [
+    id,
+    questionDetails.correct_answer,
+    questionDetails.description,
+    questionDetails.id,
+    questionDetails.title,
+    questionDetails.type,
+    t,
+  ]);
 
-  const handleEditQuestion = (question: Questions) => {
-    setIsEditingQuestion(true);
-    setQuestionDetails({
-      id: question.id,
-      title: question.title,
-      type: question.type,
-      description: question.description || '',
-      correct_answer: question.correct_answer || '',
-    });
-    setShowQuestionForm(true);
-  };
+  const handleEditQuestion = useCallback(
+    (questionId: number) => {
+      const question = questions.find((q) => q.id === questionId);
+      if (question) {
+        setIsEditingQuestion(true);
+        setQuestionDetails({
+          id: question.id,
+          title: question.title,
+          type: question.type,
+          description: question.description || '',
+          correct_answer: question.correct_answer || '',
+        });
+        setShowQuestionForm(true);
+      }
+    },
+    [questions],
+  );
   useEffect(() => {
     const fetchComments = async () => {
       if (id) {
@@ -253,7 +277,6 @@ const TemplateDetailsPage = observer(() => {
             setError(t('templateDetailsPage.noCommentsFound'));
           }
         } catch (err) {
-          console.error(err);
           setError(t('templateDetailsPage.failedToLoadComments'));
         }
       }
@@ -261,23 +284,13 @@ const TemplateDetailsPage = observer(() => {
     fetchComments();
   }, [id, t]);
 
-  // Handle new comment submission
-  const handleAddComment = async () => {
+  const handleAddComment = useCallback(async () => {
     if (!newComment.trim()) return;
+    const response = await CommentsService.commentPost(Number(id), newComment);
+    setComments((prevComments) => [...prevComments, response.data]);
+    setNewComment('');
+  }, [id, newComment]);
 
-    try {
-      const response = await CommentsService.commentPost(
-        Number(id),
-        newComment,
-      );
-      setComments((prevComments) => [...prevComments, response.data]);
-      setNewComment('');
-    } catch (err) {
-      setError('Failed to add comment.');
-    }
-  };
-
-  // Polling to refresh comments every 5 seconds
   useEffect(() => {
     const intervalId = setInterval(() => {
       const fetchComments = async () => {
@@ -294,9 +307,9 @@ const TemplateDetailsPage = observer(() => {
       fetchComments();
     }, 5000);
 
-    return () => clearInterval(intervalId); // Cleanup on component unmount
+    return () => clearInterval(intervalId);
   }, [id]);
-  const handleDeleteComment = async (commentId: number) => {
+  const handleDeleteComment = useCallback(async (commentId: number) => {
     try {
       await CommentsService.commentDelete(commentId);
       setComments((prevComments) =>
@@ -305,9 +318,9 @@ const TemplateDetailsPage = observer(() => {
     } catch (err) {
       setError('Failed to delete comment.');
     }
-  };
+  }, []);
 
-  const handleSaveTemplate = async () => {
+  const handleSaveTemplate = useCallback(async () => {
     if (!templateDetails.title || !templateDetails.category) {
       setError(t('templateDetailsPage.errorEmptyFields'));
       return;
@@ -328,9 +341,15 @@ const TemplateDetailsPage = observer(() => {
     } catch (err) {
       setError(t('templateDetailsPage.errorUpdateTemplate'));
     }
-  };
+  }, [
+    id,
+    t,
+    templateDetails.category,
+    templateDetails.description,
+    templateDetails.title,
+  ]);
 
-  const handleStartTest = async () => {
+  const handleStartTest = useCallback(async () => {
     if (id) {
       setLoading(true);
       setError(null);
@@ -340,13 +359,12 @@ const TemplateDetailsPage = observer(() => {
         store.setFormId(response.data.form.id);
         navigate(`/test/${id}`);
       } catch (err) {
-        console.error(err);
         setError('Failed to load the form data.');
       } finally {
         setLoading(false);
       }
     }
-  };
+  }, [id, navigate, store]);
   const handleTemplateTitle = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setTemplateDetails({
@@ -356,7 +374,60 @@ const TemplateDetailsPage = observer(() => {
     },
     [templateDetails],
   );
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setQuestionDetails((prevDetails) => ({
+        ...prevDetails,
+        title: e.target.value,
+      }));
+    },
+    [],
+  );
 
+  const handleTypeChange = useCallback((value: string) => {
+    setQuestionDetails((prevDetails) => ({
+      ...prevDetails,
+      type: value,
+    }));
+  }, []);
+
+  const handleDescriptionChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setQuestionDetails((prevDetails) => ({
+        ...prevDetails,
+        description: e.target.value,
+      }));
+    },
+    [],
+  );
+
+  const handleCorrectAnswerChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setQuestionDetails((prevDetails) => ({
+        ...prevDetails,
+        correct_answer: e.target.value,
+      }));
+    },
+    [],
+  );
+  const handleTemplateCategory = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTemplateDetails({
+        ...templateDetails,
+        category: e.target.value,
+      });
+    },
+    [templateDetails],
+  );
+  const handleTemplateDescription = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setTemplateDetails({
+        ...templateDetails,
+        description: e.target.value,
+      });
+    },
+    [templateDetails],
+  );
   if (loading) {
     return (
       <div style={{ padding: '20px' }}>
@@ -391,7 +462,6 @@ const TemplateDetailsPage = observer(() => {
       </div>
     );
   }
-  console.log(comments);
   return (
     <div style={{ padding: '20px' }}>
       <Card
@@ -449,24 +519,14 @@ const TemplateDetailsPage = observer(() => {
           <Form.Item label={t('templateDetailsPage.description')}>
             <Input.TextArea
               value={templateDetails.description}
-              onChange={(e) =>
-                setTemplateDetails({
-                  ...templateDetails,
-                  description: e.target.value,
-                })
-              }
+              onChange={handleTemplateDescription}
               placeholder={t('templateDetailsPage.enterDescription')}
             />
           </Form.Item>
           <Form.Item label={t('templateDetailsPage.category')} required>
             <Input
               value={templateDetails.category}
-              onChange={(e) =>
-                setTemplateDetails({
-                  ...templateDetails,
-                  category: e.target.value,
-                })
-              }
+              onChange={handleTemplateCategory}
               placeholder={t('templateDetailsPage.selectCategory')}
             />
           </Form.Item>
@@ -494,7 +554,7 @@ const TemplateDetailsPage = observer(() => {
                   <>
                     <Button
                       icon={<EditOutlined />}
-                      onClick={() => handleEditQuestion(question)}
+                      onClick={() => handleEditQuestion(question.id)}
                     >
                       {t('templateDetailsPage.editQuestion')}
                     </Button>
@@ -545,21 +605,14 @@ const TemplateDetailsPage = observer(() => {
           <Form.Item label={t('templateDetailsPage.questionTitle')} required>
             <Input
               value={questionDetails.title}
-              onChange={(e) =>
-                setQuestionDetails({
-                  ...questionDetails,
-                  title: e.target.value,
-                })
-              }
+              onChange={handleTitleChange}
               placeholder={t('templateDetailsPage.questionTitlePlaceholder')}
             />
           </Form.Item>
           <Form.Item label={t('templateDetailsPage.questionType')} required>
             <Select
               value={questionDetails.type}
-              onChange={(value) =>
-                setQuestionDetails({ ...questionDetails, type: value })
-              }
+              onChange={handleTypeChange}
               placeholder={t('templateDetailsPage.questionTypePlaceholder')}
             >
               <Option value="single-line">Single Line</Option>
@@ -571,12 +624,7 @@ const TemplateDetailsPage = observer(() => {
           <Form.Item label={t('templateDetailsPage.questionDescription')}>
             <Input.TextArea
               value={questionDetails.description}
-              onChange={(e) =>
-                setQuestionDetails({
-                  ...questionDetails,
-                  description: e.target.value,
-                })
-              }
+              onChange={handleDescriptionChange}
               placeholder={t(
                 'templateDetailsPage.questionDescriptionPlaceholder',
               )}
@@ -585,12 +633,7 @@ const TemplateDetailsPage = observer(() => {
           <Form.Item label={t('templateDetailsPage.correctAnswer')}>
             <Input
               value={String(questionDetails.correct_answer)}
-              onChange={(e) =>
-                setQuestionDetails({
-                  ...questionDetails,
-                  correct_answer: e.target.value,
-                })
-              }
+              onChange={handleCorrectAnswerChange}
               placeholder={t('templateDetailsPage.correctAnswerPlaceholder')}
             />
           </Form.Item>

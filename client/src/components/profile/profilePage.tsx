@@ -44,7 +44,6 @@ const ProfilePage = observer(() => {
       message.success(t('profile.saveSuccess'));
       setIsEditing(false);
     } catch (error) {
-      console.error('Error saving changes:', error);
       message.error(t('profile.saveError'));
     }
   };

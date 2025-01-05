@@ -50,7 +50,6 @@ const FormTableAdmin = () => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await FormService.getForms();
-      console.log(response);
       if (response.status === 200) {
         setTemplates(response.data);
       }

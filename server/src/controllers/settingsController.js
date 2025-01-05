@@ -1,4 +1,3 @@
-const { Template, User, Tag, Question, Answer } = require("../models/index");
 const SettingService = require("../services/settings-service.js");
 
 class SettingsController {

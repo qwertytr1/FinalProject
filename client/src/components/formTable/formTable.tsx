@@ -67,9 +67,6 @@ const UserTemplateFormsPage: React.FC = () => {
       setModalVisible(true);
     }
   };
-  useEffect(() => {
-    console.log(modalData); // Логируем данные modalData при изменении
-  }, [modalData]);
   if (isLoading) {
     return <div>Loading...</div>;
   }

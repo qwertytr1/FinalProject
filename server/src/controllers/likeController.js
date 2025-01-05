@@ -1,4 +1,4 @@
-const { Like, Template, User } = require('../models/index.js');
+const { Like, User } = require('../models/index.js');
 const tokenService = require('../services/token-service.js');
 
 class LikeController {

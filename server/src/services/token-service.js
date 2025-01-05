@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const TokenSchema = require('../models/token-model.js');
-const ApiError = require('../exceptions/api-error.js');
 class TokenService{
     generateTokens (payload) {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' })
@@ -32,7 +31,7 @@ class TokenService{
     }
 }
 async saveToken(userId, refreshToken) {
-    console.log("userId:", userId, "refreshToken:", refreshToken); // Debugging logs
+    console.log("userId:", userId, "refreshToken:", refreshToken);
     const tokenData = await TokenSchema.findOne({ where: { user_id: userId } });
     if (tokenData) {
         tokenData.refresh_token = refreshToken;

@@ -26,7 +26,7 @@ const TemplatesPage = observer(() => {
     setError(null);
     try {
       const response = await TemplateService.getAllTemplatesByUsers();
-      setTemplates(Array.isArray(response.data) ? response.data : []); // Убедиться, что это массив
+      setTemplates(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       setError(t('templatePage.errorMessage'));
     } finally {
@@ -43,7 +43,7 @@ const TemplatesPage = observer(() => {
     templateId: number,
     event: React.MouseEvent,
   ) => {
-    event.stopPropagation(); // Prevent the card's click event
+    event.stopPropagation();
     confirm({
       title: t('templatePage.title'),
       content: t('templatePage.content'),

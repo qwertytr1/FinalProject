@@ -20,7 +20,7 @@ interface Templates {
 interface RenderCarouselProps {
   chunkedData: Templates[][];
   onCommentClick: (id: number) => void;
-  currentUserId: number | undefined; // Assuming this is passed down
+  currentUserId: number | undefined;
 }
 
 const RenderCarousel: React.FC<RenderCarouselProps> = ({

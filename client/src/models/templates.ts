@@ -19,7 +19,7 @@ export interface Templates {
   tags?: string[];
   created_at: string;
   templateAccesses?: TemplateAccess[];
-  hasAccess?: boolean; // Добавьте это поле
+  hasAccess?: boolean;
 }
 export interface Answer {
   answer: string;

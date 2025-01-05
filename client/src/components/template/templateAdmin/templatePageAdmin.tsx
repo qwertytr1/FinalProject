@@ -5,20 +5,25 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TemplateService from '../../../services/templateService';
 import TemplateDetailsPage from '../templateDetailsPage';
-import { Templates, TemplateAccess } from '../../../models/templates';
+import { Templates } from '../../../models/templates';
 import LikeButton from '../../like/likeButton';
 import Context from '../../..';
 
 const { Meta } = Card;
 const { confirm } = Modal;
 
-const TemplatesAllPage = observer(() => {
+const TemplatesPageAdmin = observer(() => {
   const { store } = useContext(Context);
   const { t } = useTranslation();
   const currentUserId = store.user.id;
-  const currentUserRole = store.user.role;
   const [templates, setTemplates] = useState<
-    Array<Templates & { hasAccess: boolean; liked: boolean }>
+    Array<{
+      id: number;
+      title: string;
+      image_url?: string;
+      created_at: string;
+      liked: boolean;
+    }>
   >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,13 +38,9 @@ const TemplatesAllPage = observer(() => {
     try {
       const response = await TemplateService.getTemplates();
       setTemplates(
-        response.data.map((template: Templates) => ({
+        response.data.map((template: Templates[]) => ({
           ...template,
           liked: false,
-          hasAccess:
-            template.templateAccesses?.some(
-              (access: TemplateAccess) => access.user.id === currentUserId,
-            ) ?? false,
         })),
       );
     } catch (err) {
@@ -47,14 +48,13 @@ const TemplatesAllPage = observer(() => {
     } finally {
       setLoading(false);
     }
-  }, [t, currentUserId]);
+  }, [t]);
+
   const handleCardClick = (templateId: number) => {
-    if (store.isAuth) {
-      navigate(`/templates/${templateId}`);
-      setCurrentTemplateId(templateId);
-    }
+    navigate(`/templates/${templateId}`);
+    setCurrentTemplateId(templateId);
   };
-  console.log(store.user, templates);
+
   const handleDeleteTemplate = async (
     templateId: number,
     event: React.MouseEvent,
@@ -129,34 +129,24 @@ const TemplatesAllPage = observer(() => {
                     template.image_url ||
                     'https://via.placeholder.com/300x200?text=No+Image'
                   }
-                  style={{
-                    width: '100%',
-                    height: '200px',
-                    objectFit: 'cover', // Обеспечивает правильное обрезание изображения, чтобы оно подходило
-                  }}
                 />
               }
-              onClick={() => template.id && handleCardClick(template.id)}
-              style={{ height: '400px' }} // Устанавливаем фиксированную высоту для карточки
+              onClick={() => handleCardClick(template.id)}
             >
               <Meta
                 title={template.title}
                 description={`${t('templatePage.createdAt')}: ${new Date(template.created_at).toLocaleDateString()}`}
               />
               <div style={{ marginTop: '10px', textAlign: 'right' }}>
-                {(template.hasAccess || currentUserRole === 'admin') && (
-                  <Button
-                    type="link"
-                    danger
-                    onClick={(event) =>
-                      template.id && handleDeleteTemplate(template.id, event)
-                    }
-                  >
-                    {t('templatePage.deleteButton')}
-                  </Button>
-                )}
+                <Button
+                  type="link"
+                  danger
+                  onClick={(event) => handleDeleteTemplate(template.id, event)}
+                >
+                  {t('templatePage.deleteButton')}
+                </Button>
                 <LikeButton
-                  templateId={template.id ?? 0}
+                  templateId={template.id}
                   initialLiked={template.liked}
                   currentUserId={currentUserId}
                 />
@@ -169,4 +159,4 @@ const TemplatesAllPage = observer(() => {
   );
 });
 
-export default TemplatesAllPage;
+export default TemplatesPageAdmin;

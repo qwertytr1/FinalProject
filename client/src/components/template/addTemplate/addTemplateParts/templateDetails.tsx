@@ -17,7 +17,6 @@ interface TemplateDetailsInt {
   ) => void;
   handleImageUpload: (file: File) => boolean;
   handleSubmit: () => void;
-  loading: boolean;
   tags: { id: number; value: string }[];
 }
 
@@ -26,7 +25,6 @@ const TemplateDetails: React.FC<TemplateDetailsInt> = ({
   updateTemplateData,
   handleImageUpload,
   handleSubmit,
-  loading,
   tags,
 }) => {
   const { t } = useTranslation();
@@ -126,21 +124,21 @@ const TemplateDetails: React.FC<TemplateDetailsInt> = ({
       </Form.Item>
       <Form.Item label={t('templateDetails.image')}>
         <Upload beforeUpload={handleImageUpload} maxCount={1} name="image">
-          <Button loading={loading}>{t('templateDetails.ButtonImage')}</Button>
+          <Button>{t('templateDetails.ButtonImage')}</Button>
         </Upload>
       </Form.Item>
       <Form.Item label={t('templateDetails.selectTags')}>
         <Select
           mode="multiple"
-          value={templateData.tags} // Передаем массив ID тегов
+          value={templateData.tags}
           onChange={(ids: number[]) => {
-            updateTemplateData('tags', ids); // Передаем массив ID тегов
+            updateTemplateData('tags', ids);
           }}
           placeholder={t('templateDetails.selectTags')}
         >
           {tags.map((tag) => (
             <Select.Option key={tag.id} value={tag.id}>
-              {tag.value} {/* Отображаем значение тега, но передаем его ID */}
+              {tag.value}
             </Select.Option>
           ))}
         </Select>

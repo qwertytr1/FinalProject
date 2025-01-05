@@ -1,6 +1,4 @@
-const { Template, User, Tag, Question, Answer } = require("../models/index");
 const CommentsService = require('../services/comments-service');
-const jwt = require('jsonwebtoken');
 const tokenService = require('../services/token-service.js');
 
 class CommentsController {

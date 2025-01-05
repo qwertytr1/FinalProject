@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import TemplateDetails from './templateDetails';
 import TemplateService from '../../../../services/templateService';
 import { Templates } from '../../../../models/templates';
-import TagsService from '../../../../services/tagsService'; // добавляем сервис для получения тэгов
+import TagsService from '../../../../services/tagsService';
 
-const CreateTemplateModal: React.FC = () => {
+const CreateTemplate: React.FC = () => {
   const { t } = useTranslation();
   const [templateData, setTemplateData] = useState<Templates>({
     title: '',
@@ -18,23 +18,20 @@ const CreateTemplateModal: React.FC = () => {
     created_at: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [loading] = useState(false);
   const [tags, setTags] = useState<{ id: number; value: string }[]>([]);
   useEffect(() => {
     const fetchTags = async () => {
       try {
         const response = await TagsService.getTags();
-        // Обновляем теги как массив объектов с полями id и value
         const formattedTags = response.data.map(
           (tag: { id: number; value: string }) => ({
-            id: tag.id, // Используем id как уникальный ключ
-            value: tag.value, // Значение тега будет строкой
+            id: tag.id,
+            value: tag.value,
           }),
         );
         setTags(formattedTags);
       } catch (error) {
         message.error(t('addTemplates.errorFetchingTags'));
-        console.error(error);
       }
     };
 
@@ -62,12 +59,10 @@ const CreateTemplateModal: React.FC = () => {
       formData.append('description', templateData.description);
       formData.append('category', templateData.category);
       formData.append('is_public', templateData.isPublic.toString());
-
-      // Обработка тэгов с проверкой на undefined
       if (templateData.tags && templateData.tags.length > 0) {
-        formData.append('tags', templateData.tags.join(',')); // добавляем тэги
+        formData.append('tags', templateData.tags.join(','));
       } else {
-        formData.append('tags', ''); // если нет тегов, передаем пустую строку
+        formData.append('tags', '');
       }
 
       if (imageFile) {
@@ -77,7 +72,6 @@ const CreateTemplateModal: React.FC = () => {
       await TemplateService.addTemplate(formData);
       message.success(t('addTemplates.successMessage'));
     } catch (error) {
-      console.error(error);
       message.error(t('addTemplates.errorMessage'));
     }
   };
@@ -93,12 +87,11 @@ const CreateTemplateModal: React.FC = () => {
           updateTemplateData={updateTemplateData}
           handleImageUpload={handleImageUpload}
           handleSubmit={handleSubmit}
-          loading={loading}
-          tags={tags} // передаем теги
+          tags={tags}
         />
       </div>
     </div>
   );
 };
 
-export default CreateTemplateModal;
+export default CreateTemplate;

@@ -2,7 +2,6 @@ import React, { useCallback, useContext, useEffect } from 'react';
 import { Input, Spin, notification, Card, Col, Row } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { observer } from 'mobx-react-lite';
-import { autorun } from 'mobx';
 import { useTranslation } from 'react-i18next';
 import Context from '../..';
 
@@ -18,7 +17,6 @@ const SearchTemplates = observer(() => {
       try {
         await store.search(query);
       } catch (error) {
-        console.error('Error during search:', error);
         notification.error({
           message: t('searchTemplates.errorMessage'),
         });
@@ -33,12 +31,6 @@ const SearchTemplates = observer(() => {
     },
     [store],
   );
-
-  useEffect(() => {
-    autorun(() => {
-      console.log('Current query:', store.query);
-    });
-  }, [store]);
 
   useEffect(() => {
     if (store.query) {

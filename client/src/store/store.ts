@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { message } from 'antd';
-import { type IUser } from '../models/iUser';
+import { IUser } from '../models/iUser';
 import AuthService from '../services/authService';
 import $api from '../http';
 import UserService from '../services/userService';
@@ -131,7 +131,7 @@ export default class Store {
       if (response.data.user.isBlocked) {
         message.error('Your account is blocked. Please contact support.');
         this.setAuth(false);
-        return; // Exit the function to prevent further actions
+        return;
       }
       localStorage.setItem('token', response.data.accessToken);
       this.setAuth(true);
@@ -240,7 +240,6 @@ export default class Store {
       this.setUser(updatedUser);
     } catch (error) {
       console.error('Error saving profile changes:', error);
-      alert('Failed to save changes. Please try again.');
     }
   }
 }

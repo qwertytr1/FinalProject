@@ -12,7 +12,6 @@ import {
   Checkbox,
   Modal,
 } from 'antd';
-
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 import TemplateService from '../../services/templateService';
@@ -75,14 +74,12 @@ const TestPage: React.FC = observer(() => {
         setAnswerStatus({});
         setDisabledButtons({});
       } catch (err) {
-        console.error(err);
         setError(t('test_page.error'));
       } finally {
         setLoading(false);
       }
     }
   };
-  console.log(store.formId);
   useEffect(() => {
     const fetchTemplateAndQuestions = async () => {
       setLoading(true);
@@ -96,7 +93,6 @@ const TestPage: React.FC = observer(() => {
         setTemplate(templateResponse.data);
         setQuestions(questionsResponse.data || []);
       } catch (err) {
-        console.error('Error fetching data:', err);
         setError('Failed to load template or questions.');
       } finally {
         setLoading(false);
@@ -140,29 +136,23 @@ const TestPage: React.FC = observer(() => {
       if (isCorrect) {
         store.incrementCorrectAnswers();
       }
-      console.log(store.answeredQuestionsCount, store.correctAnswersCount);
-      // Disable the button after answering
       setDisabledButtons((prev) => ({
         ...prev,
         [questionId]: true,
       }));
     } catch (err) {
-      console.error('Error submitting answer:', err);
       setError('Failed to submit the answer.');
     } finally {
       setLoading(false);
     }
   };
   const handleFinishTest = async () => {
-    // Calculate the percentage
     const totalQuestions = questions.length;
     const correctAnswers = store.correctAnswersCount;
     const calculatedPercentage = Math.round(
       (correctAnswers / totalQuestions) * 100,
     );
     setPercentage(calculatedPercentage);
-
-    // Send the result to the backend
     try {
       await ResultService.resultPost(
         Number(store.formId),
@@ -170,7 +160,6 @@ const TestPage: React.FC = observer(() => {
       );
       setIsModalVisible(true);
     } catch (err) {
-      console.error('Error submitting result:', err);
       setError('Failed to submit the result.');
     }
   };
@@ -219,7 +208,7 @@ const TestPage: React.FC = observer(() => {
                 e.target.checked ? 'true' : 'false',
               )
             }
-            disabled={isDisabled} // Блокируем чекбокс
+            disabled={isDisabled}
           >
             Select this option
           </Checkbox>

@@ -2,8 +2,6 @@ const UserDto = require('../dtos/user-dto.js');
 const { User, Answer } = require('../models/index.js');
 const TokenSchema = require('../models/token-model.js');
 const TokenService = require('./token-service.js');
-const bcrypt = require('bcryptjs');
-const tokenService = require('./token-service.js');
 const ApiError = require('../exceptions/api-error.js');
 class UserService {
     async getAllUsers() {

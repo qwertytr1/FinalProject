@@ -22,12 +22,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
     const fetchLikeCount = async () => {
       try {
         const response = await LikeService.getLike(templateId);
-        console.log(response.data);
-
-        // Получаем количество лайков
         setLikeCount(response.data.likes);
-
-        // Проверяем, лайкнул ли текущий пользователь
         const userHasLiked = response.data.users.some(
           (user: { userId: number }) => user.userId === currentUserId,
         );
@@ -46,11 +41,11 @@ const LikeButton: React.FC<LikeButtonProps> = ({
     try {
       if (liked) {
         await LikeService.likeDelete(templateId);
-        setLikeCount((prev) => prev - 1); // Уменьшаем количество лайков
+        setLikeCount((prev) => prev - 1);
         message.success('Template unliked!');
       } else {
         await LikeService.likePost(templateId);
-        setLikeCount((prev) => prev + 1); // Увеличиваем количество лайков
+        setLikeCount((prev) => prev + 1);
         message.success('Template liked!');
       }
       setLiked(!liked);

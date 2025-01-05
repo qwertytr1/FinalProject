@@ -1,4 +1,4 @@
-const {Form, User, Results} = require('../models/index.js');
+const {Form, Results} = require('../models/index.js');
 class ResultService {
 
     async createResult ( score, forms_id,userId)  {

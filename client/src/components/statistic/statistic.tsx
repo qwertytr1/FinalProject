@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Spin, Typography } from 'antd';
+import { Card, Col, message, Row, Spin, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import StatService from '../../services/statistics-service';
 
@@ -21,7 +21,7 @@ const StatisticsPage: React.FC = () => {
         const response = await StatService.statistic();
         setStatistics(response.data);
       } catch (error) {
-        console.error('Ошибка при загрузке статистики:', error);
+        message.error('Ошибка при загрузке статистики');
       } finally {
         setLoading(false);
       }
