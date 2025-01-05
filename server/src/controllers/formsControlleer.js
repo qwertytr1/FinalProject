@@ -50,16 +50,15 @@ exports.getFormsByUserTemplates = async (req, res, next) => {
         exports.createForms = async (req, res, next) => {
           const accessToken = req.headers['authorization']?.split(' ')[1];
           if (!accessToken) {
-              return res.status(401).json({ error: 'Access token missing' }); // Improved error message
+              return res.status(401).json({ error: 'Access token missing' });
           }
 
           let userData;
           try {
               userData = tokenService.validateAccessToken(accessToken);
           } catch (error) {
-              return res.status(401).json({ error: 'Invalid or expired token' }); // Handle token errors
+              return res.status(401).json({ error: 'Invalid or expired token' });
           }
-console.log(userData)
           const userId = userData.id;
             if (!userId) {
               return res.status(401).json({ error: 'User is not authorized' });

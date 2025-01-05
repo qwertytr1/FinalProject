@@ -2,14 +2,7 @@ const express = require('express');
 const router = express();
 const authController = require('../controllers/authController.js'); // Предположим, что ваши контроллеры здесь
 const userController = require('../controllers/userController.js'); // Предположим, что ваши контроллеры здесь
-const {
-  getTemplates,
-  getTemplateById,
-  createTemplate,
-  updateTemplate,
-  deleteTemplate,
-  getTemplatesByUser,
-} = require('../controllers/controller.js');
+const templatesController = require('../controllers/controller.js');
 const searchController = require('../controllers/searchController');
 const { body } = require('express-validator');
 const commentsController = require('../controllers/commentsController.js');
@@ -40,12 +33,12 @@ router.post('/user/unblock/:id', userController.toggleUnblockUser);
 router.delete('/users/:id', userController.deleteUser);
 
 //templates
-router.get('/templates', authMiddleware, getTemplates);
-router.get('/templates/user',authMiddleware, getTemplatesByUser);
-router.get('/templates/:id',authMiddleware, getTemplateById);
-router.post('/templates', upload.single('image'),authMiddleware, createTemplate);//++
-router.patch('/templates/:id', updateTemplate);//++
-router.delete('/templates/:id', deleteTemplate);//??
+router.get('/templates', authMiddleware, templatesController.getTemplates);
+router.get('/templates/user',authMiddleware, templatesController.getTemplatesByUser);
+router.get('/templates/:id',authMiddleware, templatesController.getTemplateById);
+router.post('/templates', upload.single('image'),authMiddleware, templatesController.createTemplate);//++
+router.patch('/templates/:id', templatesController.updateTemplate);//++
+router.delete('/templates/:id', templatesController.deleteTemplate);//??
 
 //questions//+
 router.get('/templates/:id/questions', authMiddleware,questionController.getAllQuestions);
