@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Button,
@@ -8,6 +8,7 @@ import {
   Typography,
   Descriptions,
   message,
+  Switch,
 } from 'antd';
 import { useTranslation } from 'react-i18next';
 import Context from '../..';
@@ -27,6 +28,9 @@ const ProfilePage = observer(() => {
     theme: store.user.theme || '',
     password: '',
   };
+
+  // Определите класс для темной/светлой темы на уровне компонента
+  const darkMode = store.user.theme === 'dark';
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -48,6 +52,31 @@ const ProfilePage = observer(() => {
     }
   };
 
+  // Функция для обновления класса body
+  const updateBodyClass = (theme: string) => {
+    // Удаляем старые классы
+    document.body.classList.remove('dark-theme', 'light-theme');
+    // Добавляем новый класс
+    document.body.classList.add(`${theme}-theme`);
+  };
+  const handleThemeChange = (checked: boolean) => {
+    // Сохраните новый выбор темы в store и обновите класс
+    const newTheme = checked ? 'dark' : 'light';
+    store.user.theme = newTheme;
+    updateBodyClass(newTheme);
+  };
+  useEffect(() => {
+    // Проверим текущий класс на body
+    const currentClass = document.body.classList.contains('dark-theme')
+      ? 'dark'
+      : 'light';
+    if (store.user.theme !== currentClass) {
+      store.user.theme = currentClass; // Обновим тему в store, если нужно
+    }
+    // Обновляем класс на body при изменении темы
+    updateBodyClass(store.user.theme);
+  }, [store.user, store.user.theme]);
+
   return (
     <div className="container mt-5">
       <Card
@@ -61,6 +90,17 @@ const ProfilePage = observer(() => {
         <Title level={3} className="text-center">
           {t('profile.pageTitle')}
         </Title>
+
+        {/* Переключатель темы */}
+        <div className="theme-switcher">
+          <span>{t('profile.themeLabel')}</span>
+          <Switch
+            checked={darkMode}
+            onChange={handleThemeChange}
+            checkedChildren="Dark"
+            unCheckedChildren="Light"
+          />
+        </div>
 
         {isEditing ? (
           <Form

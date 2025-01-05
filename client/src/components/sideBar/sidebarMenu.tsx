@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Layout, Menu, Card } from 'antd';
+import React, { useContext, useState, useEffect } from 'react';
+import { Layout, Menu, Card, Switch } from 'antd';
 import { Outlet, useNavigate } from 'react-router-dom';
 import {
   UserOutlined,
@@ -21,8 +21,20 @@ const SidebarMenu: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [darkMode, setDarkMode] = useState(false); // Состояние для темы
 
   const toggleSidebar = () => setCollapsed(!collapsed);
+
+  // Функция для переключения темы
+  const toggleTheme = (checked: boolean) => {
+    setDarkMode(checked);
+  };
+
+  // Эффект для применения класса темы на body
+  useEffect(() => {
+    document.body.classList.toggle('dark-theme', darkMode);
+    document.body.classList.toggle('light-theme', !darkMode);
+  }, [darkMode]);
 
   return (
     <Layout className="layout-container">
@@ -30,11 +42,11 @@ const SidebarMenu: React.FC = () => {
         collapsible
         collapsed={collapsed}
         onCollapse={toggleSidebar}
-        className="layout-sider"
+        className={`layout-sider ${darkMode ? 'dark-theme' : 'light-theme'}`} // добавляем класс в зависимости от темы
       >
         <div className="layout-logo" />
         <Menu
-          theme="dark"
+          theme={darkMode ? 'dark' : 'light'} // меню меняет тему в зависимости от состояния
           mode="inline"
           selectedKeys={[window.location.pathname]}
           onClick={(e) => navigate(e.key)}
@@ -88,6 +100,14 @@ const SidebarMenu: React.FC = () => {
         </Menu>
         <div className="language-selector">
           <LanguageSelector />
+        </div>
+        <div className="theme-switcher">
+          <span>{t('sidebarMenu.toggleTheme')}</span>
+          <Switch
+            checked={darkMode}
+            onChange={toggleTheme}
+            className="theme-switch"
+          />
         </div>
       </Sider>
       <Layout>

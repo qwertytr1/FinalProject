@@ -105,6 +105,8 @@ const translationsEn = {
     errorUnblockMessage: 'Failed to unblock user.',
   },
   sidebarMenu: {
+    toggleTheme: 'Theme',
+    login: 'Login',
     main: 'Main',
     allTemplates: 'All Templates',
     addTemplate: 'Add Form',

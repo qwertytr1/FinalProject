@@ -1,28 +1,19 @@
-/* Основной стиль для всего Layout */
+
 .layout-container {
   height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.layout-sider.light-theme {
+  background-color: #ffffff;
+  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Шапка */
-.layout-header {
-  background-color: #001529;
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.layout-header-title {
-  color: white;
-  margin: 0;
-  font-size: 18px;
-}
-
-.layout-sider {
+.layout-sider.dark-theme {
   background-color: #001529;
   box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
 }
 
+/* Логотип */
 .layout-logo {
   background-image: url(../../assets/logo/logoWhite.png);
   background-repeat: no-repeat;
@@ -40,10 +31,57 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+body.light-theme .layout-sider .ant-menu-item {
+  color: #000;
+}
+
+body.light-theme .layout-sider .ant-menu-item:hover {
+  background-color: #e6f7ff;
+}
+
+body.light-theme .layout-sider .ant-menu-item-active {
+  background-color: #1890ff;
+}
+
+body.dark-theme .layout-sider .ant-menu-item {
+  color: #fff;
+}
+
+body.dark-theme .layout-sider .ant-menu-item:hover {
+  background-color: #001529;
+}
+
+body.dark-theme .layout-sider .ant-menu-item-active {
+  background-color: #1890ff;
+}
+
+body.light-theme .layout-sider .ant-menu-item-selected {
+  background-color: #1890ff;
+}
+
+body.dark-theme .layout-sider .ant-menu-item-selected {
+  background-color: #1890ff;
+}
+
+.layout-header {
+  background-color: #001529;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.layout-header-title {
+  color: white;
+  margin: 0;
+  font-size: 18px;
+}
+
 .layout-content {
   padding: 24px;
   background-color: #f0f2f5;
   overflow-y: auto;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .content-card {
@@ -52,11 +90,142 @@
   border-radius: 8px;
   padding: 24px;
 }
-.add-templates-button{
-margin: 50px 15px;
-height: 50px;
 
+.add-templates-button {
+  margin: 50px 15px;
+  height: 50px;
   background-color: #1677ff;
   color: white;
-  border: 4px;
+  border: none;
+  border-radius: 4px;
+}
+
+.theme-switcher {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  color: #fff;
+  background-color: #f0f2f5;
+}
+
+body.light-theme .theme-switcher {
+  background-color: White;
+  color: #000;
+}
+
+body.dark-theme .theme-switcher {
+  background-color: #001529;
+  color: #fff;
+}
+
+.theme-switcher span {
+  font-size: 14px;
+}
+
+.theme-switcher .ant-switch {
+  background-color: #d9d9d9;
+  border-color: #d9d9d9;
+}
+
+body.light-theme .theme-switcher .ant-switch {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+
+body.dark-theme .theme-switcher .ant-switch {
+  background-color: #333;
+  border-color: #333;
+}
+
+body.light-theme .theme-switcher .ant-switch-checked {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+
+body.dark-theme .theme-switcher .ant-switch-checked {
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+
+body.light-theme .theme-switcher .ant-switch:not(.ant-switch-checked) {
+  background-color: #d9d9d9;
+  border-color: #d9d9d9;
+}
+
+body.dark-theme .theme-switcher .ant-switch:not(.ant-switch-checked) {
+  background-color: #333;
+  border-color: #333;
+}
+.language-selector {
+  padding: 10px;
+}
+
+.language-selector button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: #1677ff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.language-selector button:hover {
+  background-color: #40a9ff;
+}
+
+
+body.light-theme .ant-btn,
+body.dark-theme .ant-btn {
+  background-color: transparent;
+  color: inherit;
+  border: none;
+}
+
+body.light-theme .ant-btn:hover,
+body.dark-theme .ant-btn:hover {
+  background-color: transparent;
+}
+
+body.light-theme .ant-input,
+body.dark-theme .ant-input {
+  border-radius: 8px;
+  border-color: #d9d9d9;
+  transition: border-color 0.3s ease;
+}
+
+body.light-theme .ant-input:focus,
+body.dark-theme .ant-input:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 8px rgba(24, 144, 255, 0.2);
+}
+
+
+body.light-theme .ant-btn {
+  background-color: #1677ff;
+  color: white;
+  border-radius: 4px;
+}
+
+body.dark-theme .ant-btn {
+  background-color: #1890ff;
+  color: white;
+  border-radius: 4px;
+}
+
+body.light-theme .ant-btn:hover,
+body.dark-theme .ant-btn:hover {
+  background-color: #40a9ff;
+}
+
+body.light-theme {
+  background-color: #f0f2f5;
+  color: #000;
+}
+
+body.dark-theme {
+  background-color: #1d1f26;
+  color: #fff;
 }

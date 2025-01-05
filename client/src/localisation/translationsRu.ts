@@ -108,6 +108,7 @@ const translationsRu = {
     errorUnblockMessage: 'Не удалось разблокировать пользователя.',
   },
   sidebarMenu: {
+    toggleTheme: 'Тема',
     main: 'Главная',
     allTemplates: 'Все шаблоны',
     addTemplate: 'Добавить форму',
