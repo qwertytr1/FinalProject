@@ -14,6 +14,7 @@ import {
 } from 'antd';
 
 import { observer } from 'mobx-react-lite';
+import { useTranslation } from 'react-i18next';
 import TemplateService from '../../services/templateService';
 import QuestionService from '../../services/questionService';
 import AnswerService from '../../services/answerService';
@@ -39,10 +40,11 @@ interface TemplateDetails {
   title: string;
   description: string;
   category: string;
-  imageUrl: string;
+  image_url: string;
 }
 
 const TestPage: React.FC = observer(() => {
+  const { t } = useTranslation();
   const { store } = useContext(Context);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -74,7 +76,7 @@ const TestPage: React.FC = observer(() => {
         setDisabledButtons({});
       } catch (err) {
         console.error(err);
-        setError('Failed to load the form data.');
+        setError(t('test_page.error'));
       } finally {
         setLoading(false);
       }
@@ -175,7 +177,7 @@ const TestPage: React.FC = observer(() => {
 
   const renderAnswerField = (question: QuestionDetails) => {
     const currentAnswer = answers[question.id] || '';
-    const isDisabled = disabledButtons[question.id]; // Проверяем, заблокирован ли вопрос
+    const isDisabled = disabledButtons[question.id];
 
     switch (question.type) {
       case 'single-line':
@@ -183,8 +185,8 @@ const TestPage: React.FC = observer(() => {
           <Input
             value={currentAnswer}
             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-            placeholder="Enter your answer"
-            disabled={isDisabled} // Блокируем инпут
+            placeholder={t('test_page.enter_answer')}
+            disabled={isDisabled}
           />
         );
       case 'multi-line':
@@ -192,9 +194,9 @@ const TestPage: React.FC = observer(() => {
           <TextArea
             value={currentAnswer}
             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-            placeholder="Enter your answer"
+            placeholder={t('test_page.enter_answer')}
             rows={4}
-            disabled={isDisabled} // Блокируем TextArea
+            disabled={isDisabled}
           />
         );
       case 'integer':
@@ -203,8 +205,8 @@ const TestPage: React.FC = observer(() => {
             type="number"
             value={currentAnswer}
             onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-            placeholder="Enter a number"
-            disabled={isDisabled} // Блокируем инпут
+            placeholder={t('test_page.enter_answer')}
+            disabled={isDisabled}
           />
         );
       case 'checkbox':
@@ -256,7 +258,7 @@ const TestPage: React.FC = observer(() => {
           cover={
             <img
               alt={template?.title}
-              src={template?.imageUrl || 'https://via.placeholder.com/800x400'}
+              src={template?.image_url || 'https://via.placeholder.com/800x400'}
               className="template-image"
             />
           }
@@ -265,7 +267,7 @@ const TestPage: React.FC = observer(() => {
           <Title level={2}>{template?.title}</Title>
           <Text>{template?.description}</Text> <br />
           <Text strong>
-            {`Category: ${template?.category.split(' ').join('\n')}`}
+            {t('test_page.category')}:{template?.category.split(' ').join('\n')}
           </Text>
         </Card>
 
@@ -275,7 +277,7 @@ const TestPage: React.FC = observer(() => {
             onClick={() => navigate('/')}
             style={{ alignSelf: 'flex-end' }}
           >
-            Back to Main Menu
+            {t('test_page.back_to_main_menu')}
           </Button>
           {questions.length > 0 ? (
             questions.map((question) => (
@@ -295,12 +297,12 @@ const TestPage: React.FC = observer(() => {
                   onClick={(e) => handleSubmitAnswer(question.id, e)}
                   disabled={disabledButtons[question.id]}
                 >
-                  Submit
+                  {t('test_page.submit')}
                 </Button>
               </div>
             ))
           ) : (
-            <Text>No questions available.</Text>
+            <Text> {t('test_page.no_questions')}</Text>
           )}
         </Space>
         <Button
@@ -308,22 +310,25 @@ const TestPage: React.FC = observer(() => {
           style={{ marginTop: '10px' }}
           onClick={handleFinishTest}
         >
-          Finish
+          {t('test_page.finish')}
         </Button>
 
         <Modal
-          title="Test Progress"
+          title={t('test_page.test_progress')}
           visible={isModalVisible}
           footer={[
             <Button key="back" onClick={() => navigate('/')}>
-              Exit
+              {t('test_page.exit')}
             </Button>,
             <Button key="retry" type="primary" onClick={handleStartTest}>
-              Retry
+              {t('test_page.retry')}
             </Button>,
           ]}
         >
-          <Text>Progress: {percentage}%</Text>
+          <Text>
+            {' '}
+            {t('test_page.progress')} {percentage}%
+          </Text>
         </Modal>
       </Content>
     </Layout>

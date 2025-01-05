@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Typography, Divider } from 'antd';
 import { useTranslation } from 'react-i18next';
 import FormService from '../../services/formService';
-import Context from '../..';
 
 const { Title, Text } = Typography;
 
@@ -40,9 +39,9 @@ interface Template {
   title: string;
   forms: Form[] | undefined;
 }
-const UserTemplateFormsPage: React.FC = () => {
+
+const FormTableAdmin = () => {
   const { t } = useTranslation();
-  const { store } = useContext(Context);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -50,15 +49,15 @@ const UserTemplateFormsPage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!store.user.id) return;
-      const response = await FormService.getUserTemplates(store.user.id);
+      const response = await FormService.getForms();
+      console.log(response);
       if (response.status === 200) {
         setTemplates(response.data);
       }
       setIsLoading(false);
     };
     fetchData();
-  }, [store.user.id]);
+  }, []);
 
   const handleFormClick = async (formId: number) => {
     const response = await FormService.getFormUser(formId);
@@ -67,18 +66,14 @@ const UserTemplateFormsPage: React.FC = () => {
       setModalVisible(true);
     }
   };
-  useEffect(() => {
-    console.log(modalData); // Логируем данные modalData при изменении
-  }, [modalData]);
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
-      <h1>
-        {t('forms.created')} {store.user.username}
-      </h1>
+      <h1>{t('forms.allForm')}</h1>
 
       {templates.length > 0 ? (
         templates.map((template) => (
@@ -159,4 +154,4 @@ const UserTemplateFormsPage: React.FC = () => {
   );
 };
 
-export default UserTemplateFormsPage;
+export default FormTableAdmin;

@@ -12,9 +12,10 @@ const CreateTemplateModal: React.FC = () => {
     title: '',
     description: '',
     category: '',
-    imageUrl: '',
+    image_url: '',
     isPublic: false,
     tags: [],
+    created_at: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading] = useState(false);

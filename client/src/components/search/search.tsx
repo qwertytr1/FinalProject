@@ -1,192 +1,167 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { Input, Spin, notification, Card, Col, Row } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import SearchService from '../../services/searchService';
+import { observer } from 'mobx-react-lite';
+import { autorun } from 'mobx';
+import { useTranslation } from 'react-i18next';
+import Context from '../..';
 
 const { Search } = Input;
 const { Meta } = Card;
 
-interface Template {
-  id: number;
-  title: string;
-  description: string;
-  image_url?: string;
-  created_at: string;
-}
-
-interface Tag {
-  id: number;
-  value: string;
-}
-
-interface Comment {
-  id: number;
-  content: string;
-  user?: {
-    username: string;
-  };
-}
-
-interface SearchResults {
-  templates: Template[];
-  templatesByTags: Template[];
-  comments: Comment[];
-  tags: Tag[];
-}
-
-const SearchTemplates = ({ searchQuery }: { searchQuery: string }) => {
-  const [query, setQuery] = useState(searchQuery || '');
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<SearchResults>({
-    templates: [],
-    templatesByTags: [],
-    comments: [],
-    tags: [],
-  });
-  const handleSearch = useCallback(async () => {
-    if (!query) {
-      notification.warning({
-        message: 'Пожалуйста, введите запрос для поиска.',
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await SearchService.search(query);
-      setResults(response.data);
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
+const SearchTemplates = observer(() => {
+  const { t } = useTranslation();
+  const { store } = useContext(Context);
+  const { results, isLoading } = store;
+  const handleSearch = useCallback(
+    async (query: string) => {
+      try {
+        await store.search(query);
+      } catch (error) {
+        console.error('Error during search:', error);
         notification.error({
-          message: 'Ошибка при выполнении поиска',
-          description: error.response
-            ? error.response.data.error
-            : 'Неизвестная ошибка',
-        });
-      } else {
-        notification.error({
-          message: 'Ошибка при выполнении поиска',
-          description: 'Неизвестная ошибка',
+          message: t('searchTemplates.errorMessage'),
         });
       }
-    } finally {
-      setLoading(false);
-    }
-  }, [query]);
+    },
+    [store, t],
+  );
+
+  const handleQueryChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      store.setQuery(e.target.value);
+    },
+    [store],
+  );
 
   useEffect(() => {
-    if (searchQuery) {
-      setQuery(searchQuery);
-      handleSearch();
+    autorun(() => {
+      console.log('Current query:', store.query);
+    });
+  }, [store]);
+
+  useEffect(() => {
+    if (store.query) {
+      handleSearch(store.query);
+    } else {
+      store.results = {
+        templates: [],
+        templatesByTags: [],
+        comments: [],
+        tags: [],
+      };
     }
-  }, [searchQuery, handleSearch]);
+  }, [handleSearch, store, store.query]);
 
   return (
     <div style={{ padding: '20px' }}>
       <Search
-        placeholder="Ищите шаблоны, вопросы, комментарии или теги"
+        placeholder={t('searchTemplates.placeholder')}
         enterButton={<SearchOutlined />}
         size="large"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        value={store.query}
+        onChange={handleQueryChange}
         onSearch={handleSearch}
       />
 
-      {loading && (
+      {isLoading && (
         <Spin size="large" style={{ display: 'block', marginTop: '20px' }} />
       )}
 
-      <div style={{ marginTop: '20px' }}>
-        <h3>Шаблоны</h3>
-        <Row gutter={[16, 16]}>
-          {results.templates.map((item: Template) => (
-            <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
-              <Card
-                hoverable
-                cover={
-                  <img
-                    alt={item.title}
-                    src={
-                      item.image_url ||
-                      'https://via.placeholder.com/400x250?text=No+Image'
-                    }
-                    style={{
-                      width: '100%',
-                      height: '200px',
-                      objectFit: 'cover',
-                    }}
+      {store.query && !isLoading && (
+        <div style={{ marginTop: '20px' }}>
+          <h3>{t('searchTemplates.templates')}</h3>
+          <Row gutter={[16, 16]}>
+            {results.templates.map((item) => (
+              <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
+                <Card
+                  hoverable
+                  cover={
+                    <img
+                      alt={item.title}
+                      src={
+                        item.image_url ||
+                        'https://via.placeholder.com/400x250?text=No+Image'
+                      }
+                      style={{
+                        width: '100%',
+                        height: '200px',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  }
+                  style={{ textAlign: 'center' }}
+                >
+                  <Meta
+                    title={item.title}
+                    description={`Created At: ${new Date(item.created_at).toLocaleDateString()}`}
                   />
-                }
-                style={{ textAlign: 'center' }}
-              >
-                <Meta
-                  title={item.title}
-                  description={`Created At: ${new Date(item.created_at).toLocaleDateString()}`}
-                />
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                </Card>
+              </Col>
+            ))}
+          </Row>
 
-        <h3 style={{ marginTop: '20px' }}>Шаблоны по тегам</h3>
-        <Row gutter={[16, 16]}>
-          {results.templatesByTags.map((item: Template) => (
-            <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
-              <Card
-                hoverable
-                cover={
-                  <img
-                    alt={item.title}
-                    src={
-                      item.image_url ||
-                      'https://via.placeholder.com/400x250?text=No+Image'
-                    }
-                    style={{
-                      width: '100%',
-                      height: '200px',
-                      objectFit: 'cover',
-                    }}
+          <h3 style={{ marginTop: '20px' }}>
+            {t('searchTemplates.templatesByTags')}
+          </h3>
+          <Row gutter={[16, 16]}>
+            {results.templatesByTags.map((item) => (
+              <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
+                <Card
+                  hoverable
+                  cover={
+                    <img
+                      alt={item.title}
+                      src={
+                        item.image_url ||
+                        'https://via.placeholder.com/400x250?text=No+Image'
+                      }
+                      style={{
+                        width: '100%',
+                        height: '200px',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  }
+                  style={{ textAlign: 'center' }}
+                >
+                  <Meta
+                    title={item.title}
+                    description={`Created At: ${new Date(item.created_at).toLocaleDateString()}`}
                   />
-                }
-                style={{ textAlign: 'center' }}
-              >
-                <Meta
-                  title={item.title}
-                  description={`Created At: ${new Date(item.created_at).toLocaleDateString()}`}
-                />
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                </Card>
+              </Col>
+            ))}
+          </Row>
 
-        <h3 style={{ marginTop: '20px' }}>Комментарии</h3>
-        <Row gutter={[16, 16]}>
-          {results.comments.map((item: Comment) => (
-            <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
-              <Card hoverable style={{ textAlign: 'center' }}>
-                <Meta
-                  title={item.user?.username || 'Неизвестный пользователь'}
-                  description={item.content}
-                />
-              </Card>
-            </Col>
-          ))}
-        </Row>
+          <h3 style={{ marginTop: '20px' }}>{t('searchTemplates.comments')}</h3>
+          <Row gutter={[16, 16]}>
+            {results.comments.map((item) => (
+              <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
+                <Card hoverable style={{ textAlign: 'center' }}>
+                  <Meta
+                    title={item.user?.username || 'Unknown User'}
+                    description={item.content}
+                  />
+                </Card>
+              </Col>
+            ))}
+          </Row>
 
-        <h3 style={{ marginTop: '20px' }}>Теги</h3>
-        <Row gutter={[16, 16]}>
-          {results.tags.map((item: Tag) => (
-            <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
-              <Card hoverable style={{ textAlign: 'center' }}>
-                <Meta title={item.value} />
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </div>
+          <h3 style={{ marginTop: '20px' }}>{t('searchTemplates.tags')}</h3>
+          <Row gutter={[16, 16]}>
+            {results.tags.map((item) => (
+              <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
+                <Card hoverable style={{ textAlign: 'center' }}>
+                  <Meta title={item.value} />
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </div>
+      )}
     </div>
   );
-};
+});
 
 export default SearchTemplates;

@@ -129,7 +129,18 @@ exports.getTemplatesByUser = async (req, res) => {
 
 exports.getTemplates = async (req, res) => {
   try {
-    const templates = await Template.findAll();//include User
+    const templates = await Template.findAll({
+      include: {
+        model: TemplatesAccess, // Таблица доступа к шаблонам
+        as: 'templateAccesses', // Убедитесь, что имя ассоциации соответствует
+        include: {
+          model: User, // Подключаем модель User
+          as: 'user', // Убедитесь, что у вас есть ассоциация с моделью User
+          attributes: ['id', 'username', 'email'], // Выбираем нужные поля пользователя
+        },
+      },
+    });
+
     if (templates.length === 0) {
       return res.status(200).json({ message: "No templates found." });
     }
@@ -183,13 +194,34 @@ exports.deleteTemplate = async (req, res) => {
   const transaction = await sequelize.transaction(); // Начинаем транзакцию
   try {
       const templateId = req.params.id;
+      const accessToken = req.headers['authorization']?.split(' ')[1];
+
+      if (!accessToken) {
+        return res.status(400).json({ error: 'Токен не предоставлен' });
+      }
+
+      let userData;
+      try {
+        userData = tokenService.validateAccessToken(accessToken);
+      } catch (error) {
+        return res.status(401).json({ error: 'Недействительный токен' });
+      }
+
+      if (!userData) {
+        return res.status(401).json({ error: 'Не удалось извлечь данные пользователя из токена' });
+      }
+
+      const userId = userData.id;
 
       // Проверяем существование шаблона
       const template = await Template.findByPk(templateId, { transaction });
       if (!template) {
           return res.status(404).json({ error: 'Template not found.' });
       }
-
+      const access = await TemplatesAccess.findOne({ where: { templates_id: templateId, users_id: userId }, transaction });
+      if (!access && userData.role !== 'admin') {
+        return res.status(403).json({ error: 'У вас нет доступа к этому шаблону' });
+      }
       // Проверяем и удаляем связанные записи только при их наличии
       const relatedTables = [
           { model: TemplatesTag, where: { templates_id: templateId } },

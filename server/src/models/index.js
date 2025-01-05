@@ -271,6 +271,10 @@ User.hasMany(TemplatesAccess, {
   foreignKey: "users_id",
   as: "userTemplateAccesses",
 });
+TemplatesAccess.belongsTo(User, {
+  foreignKey: "users_id",
+  as: "user", // Ensure you have an alias if you're eager loading with that alias
+});
 Results.belongsTo(User, { foreignKey: 'users_id' });
 Results.belongsTo(Form, { foreignKey: 'forms_id' });
 Answer.belongsTo(Form, { foreignKey: 'forms_id' });

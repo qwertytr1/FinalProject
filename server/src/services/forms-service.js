@@ -1,28 +1,39 @@
 const {Form, User, Template, Question, Answer, TemplatesAccess} = require('../models/index.js');
 class FormService {
-    async getAllForms() {
-        const allForms = await Form.findAll({
+    async getAllTemplatesWithForms() {
+        // Получаем все шаблоны с формами, включая все ответы
+        const allTemplates = await Template.findAll({
             include: [
-                { model: User, attributes: ['id', 'username', 'email'] },
-                { model: Template, attributes: ['id', 'title'] },
                 {
-                    model: Answer,
-                    attributes: ['id', 'answer', 'is_correct'],
+                    model: Form,
                     include: [
                         {
-                            model: Question,
-                            attributes: ['id', 'title', 'description', 'type', 'correct_answer'],
+                            model: User,
+                            attributes: ['id', 'username', 'email'],
+                        },
+                        {
+                            model: Answer,
+                            include: [
+                                {
+                                    model: Question,
+                                    attributes: ['id', 'title', 'description', 'type', 'correct_answer'],
+                                },
+                                {
+                                    model: User,
+                                    attributes: ['id', 'username', 'email'],
+                                },
+                            ],
                         },
                     ],
                 },
             ],
         });
 
-        if (!allForms || allForms.length === 0) {
-            return { status: 404, json: { error: 'Forms not found' } };
+        if (!allTemplates || allTemplates.length === 0) {
+            return { status: 404, json: { error: 'No templates or forms found' } };
         }
 
-        return { status: 200, json: allForms };
+        return { status: 200, json: allTemplates };
     }
     async getFormsByUserTemplates(userId) {
         // Find all templates accessible by the user
@@ -59,9 +70,6 @@ class FormService {
             ],
         });
 
-        if (!userTemplates.length) {
-            return { status: 404, json: { error: 'No forms found for user-created templates' } };
-        }
 
         return { status: 200, json: userTemplates };
     }
@@ -83,10 +91,6 @@ class FormService {
                 },
             ],
         });
-
-        if (!form) {
-            return { status: 404, json: { error: 'Form not found' } };
-        }
 
         return { status: 200, json: form };
     }

@@ -95,7 +95,7 @@ router.get('/search',authMiddleware, searchController.searchTemplates);
 router.get("/settings/:id",checkAdmin, settingsController.getSettings)
 router.patch("/settings/:id",checkAdmin, settingsController.editSettings)
 //Администрировани //+
-router.get('/admin/statistics',checkAdmin, statisticController.getStatistics);
+router.get('/admin/statistics', statisticController.getStatistics);
 //права доступа
 
 module.exports = router;

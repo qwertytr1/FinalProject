@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { message, Typography } from 'antd';
 import { TagCloud } from 'react-tagcloud';
+import { useTranslation } from 'react-i18next';
 import TagsService from '../../services/tagsService';
 import MainService from '../../services/mainService';
 import renderCarousel from './renderCarousel';
 import Context from '../..';
-import SearchTemplates from '../search/search';
 
 interface Templates {
   id: number;
@@ -25,6 +25,7 @@ interface Tag {
 const { Title } = Typography;
 
 function Main() {
+  const { t } = useTranslation();
   const { store } = useContext(Context);
   const [topTemplates, setTopTemplates] = useState<
     Array<{
@@ -48,7 +49,6 @@ function Main() {
       isLiked?: boolean;
     }>
   >([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const fetchTopTemplate = useCallback(async () => {
     try {
       const response = await MainService.topTemplates();
@@ -64,10 +64,7 @@ function Main() {
       console.error(error);
     }
   }, []);
-  const handleTagClick = (tagValue: string) => {
-    console.log(tagValue);
-    setSearchQuery(tagValue);
-  };
+
   const fetchTagsCloud = useCallback(async () => {
     try {
       const response = await TagsService.getTagsCloud();
@@ -86,7 +83,6 @@ function Main() {
       console.error(e);
     }
   }, []);
-  console.log(latestTemplates);
   const getColor = (count: number) => {
     const colors = ['#FF5733', '#33FF57', '#3357FF', '#FFD700', '#FF33A1'];
     return colors[count % colors.length];
@@ -126,29 +122,26 @@ function Main() {
   for (let i = 0; i < latestTemplates.length; i += visibleCards) {
     chunkedLatestTemplates.push(latestTemplates.slice(i, i + visibleCards));
   }
-
   return (
     <div style={{ padding: '20px' }}>
       <Title level={1} style={{ textAlign: 'center' }}>
-        Main
+        {t('main.main')}
       </Title>
-      <SearchTemplates searchQuery={searchQuery} />
-      <Title level={2}>Top Templates</Title>
+      <Title level={2}> {t('main.topTemplate')}</Title>
       {renderCarousel({
         chunkedData: chunkedTopTemplates,
         onCommentClick: handleComment,
-        currentUserId: store.user.id,
+        currentUserId: store.user?.id || 0,
       })}
 
       <Title level={2} style={{ marginTop: '40px' }}>
-        Tag Cloud
+        {t('main.tagCloud')}
       </Title>
       <TagCloud
         minSize={12}
         maxSize={35}
         tags={tags}
         renderer={(tag) => {
-          // Обернем тег в div с обработчиком onClick
           return (
             <div
               key={tag.value}
@@ -168,11 +161,11 @@ function Main() {
           );
         }}
         onClick={(tag) => {
-          handleTagClick(tag.value);
+          store.setQuery(tag.value); // Use `tag.value` instead of `e.target.innerText`
         }}
       />
       <Title level={2} style={{ marginTop: '40px' }}>
-        Latest Template
+        {t('main.latestTemplate')}
       </Title>
       {renderCarousel({
         chunkedData: chunkedLatestTemplates,

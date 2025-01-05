@@ -67,6 +67,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
       type={liked ? 'primary' : 'default'}
       loading={loading}
       onClick={handleLike}
+      style={{ marginLeft: '8px' }}
     >
       {likeCount} {/* Отображение количества лайков */}
     </Button>

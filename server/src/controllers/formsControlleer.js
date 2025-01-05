@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const tokenService = require('../services/token-service.js')
 exports.getAllForms = async (req, res, next) => {
     try {
-        const forms = await FormService.getAllForms();
+        const forms = await FormService.getAllTemplatesWithForms();
         res.status(forms.status).json(forms.json);
     }
     catch (error) {

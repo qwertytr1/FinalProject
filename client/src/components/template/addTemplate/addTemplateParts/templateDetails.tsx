@@ -30,7 +30,6 @@ const TemplateDetails: React.FC<TemplateDetailsInt> = ({
   tags,
 }) => {
   const { t } = useTranslation();
-  console.log(templateData.tags, tags);
   return (
     <Form layout="vertical">
       <Form.Item label={t('templateDetails.title')}>

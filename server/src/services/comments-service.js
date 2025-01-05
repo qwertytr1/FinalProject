@@ -2,9 +2,6 @@ const { Comment, User, Template } = require('../models/index.js');
 class CommentsService{
     async getCommentsByTemplates(templateId) {
         const template = await Template.findByPk(templateId);
-        if (!template) {
-            return { status: 404, json: { error: 'Template not found' } };
-        }
 
         // Get comments for the template
         //maybe add serch for users id;
@@ -13,7 +10,7 @@ class CommentsService{
             order: [['created_at', 'ASC']],
         });
         // If no comments found
-        if (!comments || comments.length === 0) {
+        if (!comments) {
             return { status: 404, json: { error: 'No comments found for this template' } };
         }
 

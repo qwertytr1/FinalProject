@@ -14,7 +14,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { observer } from 'mobx-react-lite';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import TemplateService from '../../services/templateService';
 import QuestionService from '../../services/questionService';
 import { Templates } from '../../models/templates';
@@ -59,12 +59,17 @@ const TemplateDetailsPage = observer(() => {
     description: '',
     category: '',
   });
+  const hasTemplateAccess = store.user.role === 'admin' || template?.hasAccess;
   const [isEditingQuestion, setIsEditingQuestion] = useState(false);
 
   const handleDeleteTemplate = async (
     templateId: number,
     event: React.MouseEvent,
   ) => {
+    if (!hasTemplateAccess) {
+      setError(t('templateDetailsPage.noAccessError'));
+      return;
+    }
     event.stopPropagation();
     Modal.confirm({
       title: t('templateDetailsPage.deleteTemplateTitle'),
@@ -242,16 +247,19 @@ const TemplateDetailsPage = observer(() => {
       if (id) {
         try {
           const response = await CommentsService.getComment(Number(id));
-          console.log(response.data);
-          setComments(response.data || []);
+          if (response.data) {
+            setComments(response.data);
+          } else {
+            setError(t('templateDetailsPage.noCommentsFound'));
+          }
         } catch (err) {
-          setError('Failed to load comments.');
+          console.error(err);
+          setError(t('templateDetailsPage.failedToLoadComments'));
         }
       }
     };
-
     fetchComments();
-  }, [id]);
+  }, [id, t]);
 
   // Handle new comment submission
   const handleAddComment = async () => {
@@ -387,10 +395,31 @@ const TemplateDetailsPage = observer(() => {
   return (
     <div style={{ padding: '20px' }}>
       <Card
+        actions={[
+          hasTemplateAccess && (
+            <Button
+              key="edit"
+              onClick={() => setShowTemplateEditForm(true)}
+              icon={<EditOutlined />}
+            >
+              {t('templateDetailsPage.editTemplate')}
+            </Button>
+          ),
+          hasTemplateAccess && (
+            <Button
+              key="delete"
+              onClick={(e) => handleDeleteTemplate(template?.id || 0, e)}
+              icon={<DeleteOutlined />}
+              danger
+            >
+              {t('templateDetailsPage.deleteTemplate')}
+            </Button>
+          ),
+        ]}
         cover={
           <img
             alt={template.title}
-            src={template.imageUrl || 'https://via.placeholder.com/300x200'}
+            src={template.image_url || 'https://via.placeholder.com/300x200'}
           />
         }
       >
@@ -399,16 +428,6 @@ const TemplateDetailsPage = observer(() => {
         <p>
           {t('templateDetailsPage.category')}: {template.category}
         </p>
-        <Button type="link" onClick={() => setShowTemplateEditForm(true)}>
-          {t('templateDetailsPage.editTemplate')}
-        </Button>
-        <Button
-          type="link"
-          danger
-          onClick={(event) => handleDeleteTemplate(Number(id), event)}
-        >
-          {t('templateDetailsPage.deleteButton')}
-        </Button>
         <Button
           type="primary"
           onClick={handleStartTest}
@@ -471,25 +490,23 @@ const TemplateDetailsPage = observer(() => {
                   {t('templateDetailsPage.questionDescription')}{' '}
                   {question.description || 'No description'}
                 </p>
-                {question.correct_answer && (
-                  <p>
-                    {t('templateDetailsPage.correctAnswer')}{' '}
-                    {question.correct_answer}
-                  </p>
+                {hasTemplateAccess && (
+                  <>
+                    <Button
+                      icon={<EditOutlined />}
+                      onClick={() => handleEditQuestion(question)}
+                    >
+                      {t('templateDetailsPage.editQuestion')}
+                    </Button>
+                    <Button
+                      type="link"
+                      danger
+                      onClick={() => handleDeleteQuestion(question.id)}
+                    >
+                      {t('templateDetailsPage.deleteButtonQuestion')}
+                    </Button>
+                  </>
                 )}
-                <Button
-                  type="link"
-                  onClick={() => handleEditQuestion(question)}
-                >
-                  {t('templateDetailsPage.editButton')}
-                </Button>
-                <Button
-                  type="link"
-                  danger
-                  onClick={() => handleDeleteQuestion(question.id)}
-                >
-                  {t('templateDetailsPage.deleteButtonQuestion')}
-                </Button>
               </Card>
             </List.Item>
           )}
@@ -504,13 +521,15 @@ const TemplateDetailsPage = observer(() => {
         </div>
       )}
 
-      <Button
-        type="primary"
-        onClick={handleAddQuestionClick}
-        style={{ marginBottom: '20px' }}
-      >
-        {t('templateDetailsPage.addQuestion')}
-      </Button>
+      {hasTemplateAccess && (
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleAddQuestionClick}
+        >
+          {t('templateDetailsPage.addQuestion')}
+        </Button>
+      )}
       <Button
         type="primary"
         onClick={
@@ -579,13 +598,13 @@ const TemplateDetailsPage = observer(() => {
       )}
 
       <List
-        header={<h3>Comments</h3>}
+        header={<h3>{t('templateDetailsPage.comment')}</h3>}
         bordered
         dataSource={comments}
         renderItem={(comment) => (
           <List.Item
             actions={[
-              <Tooltip title="Delete">
+              <Tooltip title={t('templateDetailsPage.deleteComment')}>
                 <Button
                   type="link"
                   icon={<DeleteOutlined />}
@@ -598,7 +617,7 @@ const TemplateDetailsPage = observer(() => {
             <i>
               {comment.created_at
                 ? new Date(comment.created_at).toLocaleString()
-                : 'Invalid Date'}
+                : t('templateDetailsPage.invalidDate')}
             </i>
           </List.Item>
         )}
@@ -609,15 +628,23 @@ const TemplateDetailsPage = observer(() => {
           <Input.TextArea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment"
+            placeholder={t('templateDetailsPage.addComment')}
           />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Add Comment
+            {t('templateDetailsPage.addComment')}
           </Button>
         </Form.Item>
       </Form>
+
+      {comments.length === 0 && (
+        <Alert
+          message={t('templateDetailsPage.noComments')}
+          type="info"
+          showIcon
+        />
+      )}
     </div>
   );
 });
