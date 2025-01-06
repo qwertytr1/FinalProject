@@ -1,18 +1,96 @@
-const {Form, User, Template} = require('../models/index.js');
+const {Form, User, Template, Question, Answer, TemplatesAccess} = require('../models/index.js');
 class FormService {
-    async getAllForms() {
-        const allForms = await Form.findAll({ include: User });
-        if (!allForms) {
-            return { status: 404, json: { error: 'allForms not found' } };
+    async getAllTemplatesWithForms() {
+        const allTemplates = await Template.findAll({
+            include: [
+                {
+                    model: Form,
+                    include: [
+                        {
+                            model: User,
+                            attributes: ['id', 'username', 'email'],
+                        },
+                        {
+                            model: Answer,
+                            include: [
+                                {
+                                    model: Question,
+                                    attributes: ['id', 'title', 'description', 'type', 'correct_answer'],
+                                },
+                                {
+                                    model: User,
+                                    attributes: ['id', 'username', 'email'],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (!allTemplates || allTemplates.length === 0) {
+            return { status: 404, json: { error: 'No templates or forms found' } };
         }
-        return { status: 200, json: allForms };
+
+        return { status: 200, json: allTemplates };
+    }
+    async getFormsByUserTemplates(userId) {
+        const userTemplates = await Template.findAll({
+            include: [
+                {
+                    model: TemplatesAccess,
+                    as: 'templateAccesses',
+                    where: { users_id: userId },
+                    attributes: [],
+                },
+                {
+                    model: Form,
+                    include: [
+                        {
+                            model: User,
+                            attributes: ['id', 'username', 'email'],
+                        },
+                        {
+                            model: Answer,
+                            include: [
+                                {
+                                    model: Question,
+                                    attributes: ['id', 'title', 'description', 'type'],
+                                },
+                                {
+                                    model: User,
+                                    attributes: ['id', 'username', 'email'],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+
+        return { status: 200, json: userTemplates };
     }
     async getFormsById(id) {
-        const allForms = await Form.findOne({ where:{id:id},include: User });
-        if (!allForms) {
-            return { status: 404, json: { error: 'Forms not found' } };
-        }
-        return { status: 200, json: allForms };
+        const form = await Form.findOne({
+            where: { id },
+            include: [
+                { model: User, attributes: ['id', 'username', 'email'] },
+                { model: Template, attributes: ['id', 'title'] },
+                {
+                    model: Answer,
+                    attributes: ['id', 'answer', 'is_correct'],
+                    include: [
+                        {
+                            model: Question,
+                            attributes: ['id', 'title', 'description', 'type', 'correct_answer'],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        return { status: 200, json: form };
     }
     async updateForms(id, formData) {
         const [updated] = await Form.update(formData, {

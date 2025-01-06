@@ -1,0 +1,120 @@
+
+.card-container {
+    transition: transform 0.2s ease;
+}
+
+.light-theme {
+    color: #000000;
+}
+
+.card-container:hover {
+    transform: scale(1.05);
+}
+
+.dark-theme {
+    color: #ffffff;
+}
+
+.search-bar.light-theme .ant-input-group-addon .ant-btn {
+    background-color: #1890ff;
+    border-color: #1890ff;
+    color: white;
+}
+
+.search-bar.light-theme .ant-input-group-addon .ant-btn:hover {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+}
+
+.search-bar.dark-theme .ant-input-group-addon .ant-btn {
+    background-color: #1a73e8;
+    border-color: #1a73e8;
+    color: white;
+}
+
+.search-bar.dark-theme .ant-input-group-addon .ant-btn:hover {
+    background-color: #3367d6;
+    border-color: #3367d6;
+}
+
+.search-bar.light-theme .ant-input::placeholder {
+    color: #b0b0b0;
+}
+
+.search-bar.dark-theme .ant-input::placeholder {
+    color: #888888;
+}
+
+.search-bar.dark-theme .ant-input {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #666666;
+}
+
+.search-bar.dark-theme .ant-input:focus {
+    border-color: #1890ff;
+}
+
+.search-bar.light-theme .ant-input {
+    background-color: #f5f5f5;
+    color: #000000;
+    border-color: #d9d9d9;
+}
+
+.search-bar.light-theme .ant-input:focus {
+    border-color: #1890ff;
+}
+
+.card-container {
+    transition: transform 0.2s ease;
+}
+
+.light-theme .card-container {
+    background-color: #f9f9f9;
+    border: 1px solid #d9d9d9;
+}
+
+.light-theme .card-meta {
+    color: #000000;
+}
+
+.dark-theme .card-container {
+    background-color: #f0f0f0;
+    border: 1px solid #666666;
+}
+
+.dark-theme .card-meta {
+    background-color: #f0f0f0;
+    color: #ffffff;
+}
+
+h1.dark-theme, h2.dark-theme, h3.dark-theme {
+    color: #f0f0f0;
+  }
+
+  h1.light-theme, h2.light-theme, h3.light-theme {
+    color: #333333;
+  }
+
+.ant-card-meta-title.light-theme {
+    color: #ffffff;
+}
+
+.ant-card-meta-title.dark-theme {
+    color: #000000;
+}
+
+.ant-card-meta-description.light-theme {
+    color: #666666;
+}
+
+.ant-card-meta-description.dark-theme {
+    color: #b0b0b0;
+}
+
+.ant-card.content-card.dark-theme .ant-card-body {
+    background-color: #333333;
+  }
+  .ant-card.content-card.light-theme .ant-card-body {
+    background-color: #f9f9f9;
+  }

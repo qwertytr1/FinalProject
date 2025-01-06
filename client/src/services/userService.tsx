@@ -25,7 +25,18 @@ export default class UserService {
     return $api.post(`/user/block/${userId}`);
   }
 
+  static async changeRole(
+    id: number,
+    role: string,
+  ): Promise<AxiosResponse<IUser>> {
+    return $api.put(`/user/${id}`, { role });
+  }
+
   static async toggleUnblockUSer(userId: string) {
     return $api.post(`/user/unblock/${userId}`);
+  }
+
+  static async deleteUser(userId: number) {
+    return $api.delete(`/users/${userId}`);
   }
 }

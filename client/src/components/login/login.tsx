@@ -29,8 +29,10 @@ function Login() {
 
   const handleLogin = async () => {
     await store.login(email, password);
-    message.success('Login successful');
-    navigate('/Profile');
+    if (store.isAuth && !store.user.isBlocked) {
+      message.success('Login successful');
+      navigate('/Profile');
+    }
   };
 
   const handleRegistrationRedirect = () => {

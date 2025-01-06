@@ -31,4 +31,21 @@ export default class QuestionService {
   static async deleteQuestion(id: number, questionId: number) {
     return $api.delete(`/templates/${id}/questions/${questionId}`);
   }
+
+  static async editOrderQuestion(
+    id: number,
+    questionId: number,
+    questionData: {
+      title: string;
+      description?: string;
+      order?: number;
+      type?: string;
+      showInResults?: boolean;
+      correctAnswer?: string;
+    },
+  ) {
+    return $api.patch(`/templates/${id}/questions/${questionId}`, {
+      questionData,
+    });
+  }
 }

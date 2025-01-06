@@ -1,0 +1,140 @@
+
+.light-theme .page-container {
+    padding: 20px;
+    background-color: #fafafa;
+    color: #333;
+}
+
+.light-theme .template-container {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.light-theme .template-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+}
+
+.light-theme .form-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.light-theme .form-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.light-theme .form-button {
+    background-color: #1890ff;
+    color: #fff;
+    border-radius: 4px;
+}
+
+.light-theme .no-templates-message {
+    text-align: center;
+    font-size: 18px;
+    color: #999;
+}
+
+.light-theme .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f7fa;
+}
+
+.light-theme .modal {
+    padding: 20px;
+    background-color: #f4f7fa;
+    border-radius: 8px;
+}
+
+.light-theme .modal-title {
+    color: #333;
+}
+
+.light-theme .answers-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.light-theme .answer-item {
+    margin-bottom: 10px;
+}
+
+.light-theme .answer-box {
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+.light-theme .correct-answer {
+    background-color: #e6f7e6;
+}
+
+.light-theme .incorrect-answer {
+    background-color: #fff2f0;
+}
+
+.dark-theme .page-container {
+    padding: 20px;
+    background-color: #333333;
+    color: #e1e1e1;
+}
+
+.dark-theme .template-container {
+    background-color: #2d2d2d;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.dark-theme .template-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #e1e1e1;
+}
+
+.dark-theme .form-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.dark-theme .form-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #444;
+}
+
+.dark-theme .form-button {
+    background-color: #1d75f4;
+    color: #fff;
+    border-radius: 4px;
+}
+
+.dark-theme .no-templates-message {
+    text-align: center;
+    font-size: 18px;
+    color: #ccc;
+}
+
+.dark-theme .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #2d2d2d;
+}
+

@@ -1,4 +1,4 @@
-const {Form, User, Answer, Question} = require('../models/index.js');
+const {Answer, Question} = require('../models/index.js');
 class AnswerService {
     async getAnswerById(id) {
       const answer = await Answer.findByPk(id);

@@ -14,8 +14,12 @@ export default class TemplateService {
     return $api.post(`/templates/${templateId}/questions`, { questions });
   }
 
-  static async getAllTemplatesByUsers(userId: number | undefined) {
-    return $api.get(`/templates/user/${userId}`);
+  static async getTemplates() {
+    return $api.get(`/templates`);
+  }
+
+  static async getAllTemplatesByUsers() {
+    return $api.get(`/templates/user`);
   }
 
   static async getTemplateById(id: number) {

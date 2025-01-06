@@ -9,8 +9,29 @@ const Tag = sequelize.define("tags", {
   timestamps: false,
   tableName: 'tags',
 });
-
+const Results = sequelize.define('results', {
+  id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+  score: { type: Sequelize.STRING, allowNull: false },
+  created_at: { type: Sequelize.DATE, allowNull: false },
+  forms_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: { model: 'forms', key: 'id' },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+  },
+  users_id: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: { model: 'users', key: 'id' },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+  },
+}, {
+    timestamps: false,
+});
 const User = sequelize.define('users', {
+  id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
   username: { type: DataTypes.STRING, allowNull: false },
   email: { type: DataTypes.STRING, allowNull: false, unique: true },
   password_hash: { type: DataTypes.STRING, allowNull: false },
@@ -107,7 +128,8 @@ const Answer = sequelize.define("answers", {
     references: {
       model: 'users',
       key: 'id'
-    }
+    },
+    onDelete: 'CASCADE',
   }
 }, {
   timestamps: false,
@@ -207,6 +229,8 @@ Template.hasMany(Like, { foreignKey: 'templates_id', onDelete: 'CASCADE' });
 Template.hasMany(Question, { foreignKey: 'templates_id', onDelete: 'CASCADE' });
 Template.hasMany(Comment, { foreignKey: 'templates_id', onDelete: 'CASCADE' });
 Template.hasMany(Form, { foreignKey: 'templates_id', onDelete: 'CASCADE' });
+Form.hasMany(Results, { foreignKey: 'forms_id', onDelete: 'CASCADE' });
+User.hasMany(Results, { foreignKey: 'users_id' });
 Template.belongsToMany(Tag, {
   through: TemplatesTag,
   foreignKey: "templates_id",
@@ -247,11 +271,37 @@ User.hasMany(TemplatesAccess, {
   foreignKey: "users_id",
   as: "userTemplateAccesses",
 });
+TemplatesAccess.belongsTo(User, {
+  foreignKey: "users_id",
+  as: "user",
+});
+Results.belongsTo(User, { foreignKey: 'users_id' });
+Results.belongsTo(Form, { foreignKey: 'forms_id' });
+Answer.belongsTo(Form, { foreignKey: 'forms_id' });
+Form.hasMany(Answer, { foreignKey: 'forms_id' });
+User.hasMany(Answer, { foreignKey: "users_id", onDelete: "CASCADE" });
+Answer.belongsTo(User, { foreignKey: "users_id" });
+User.hasMany(Comment, { foreignKey: "users_id", onDelete: "CASCADE" });
+Comment.belongsTo(User, { foreignKey: "users_id" });
+
+User.hasMany(Like, { foreignKey: "users_id", onDelete: "CASCADE" });
+Like.belongsTo(User, { foreignKey: "users_id" });
+
+User.hasMany(TemplatesTag, { foreignKey: "users_id", onDelete: "CASCADE" });
+TemplatesTag.belongsTo(User, { foreignKey: "users_id" });
+
+User.hasMany(Results, { foreignKey: "users_id", onDelete: "CASCADE" });
+Results.belongsTo(User, { foreignKey: "users_id" });
+
+User.hasMany(Form, { foreignKey: "users_id", onDelete: "CASCADE" });
+Form.belongsTo(User, { foreignKey: "users_id" });
+
 module.exports = {
   sequelize,
   User,
   Template,
   Question,
+  Results,
   Form,
   Answer,
   Comment,
