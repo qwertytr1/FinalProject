@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Card, Col, message, Row, Spin, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { observer } from 'mobx-react-lite';
 import StatService from '../../services/statistics-service';
+import Context from '../..';
 
 const { Title, Text } = Typography;
 
-const StatisticsPage: React.FC = () => {
+const StatisticsPage: React.FC = observer(() => {
   const { t } = useTranslation();
+  const { store } = useContext(Context);
   const [statistics, setStatistics] = useState<{
     users: number;
     templates: number;
@@ -47,8 +50,13 @@ const StatisticsPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Title level={2}>{t('statistic.title')}</Title>
+    <div
+      className={`statistics-page ${store.theme}`}
+      style={{ padding: '20px' }}
+    >
+      <Title className={`page-title ${store.theme}`} level={2}>
+        {t('statistic.title')}
+      </Title>
       <Row gutter={[16, 16]}>
         <Col span={6}>
           <Card>
@@ -77,6 +85,6 @@ const StatisticsPage: React.FC = () => {
       </Row>
     </div>
   );
-};
+});
 
 export default StatisticsPage;

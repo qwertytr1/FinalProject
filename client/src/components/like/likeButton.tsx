@@ -64,7 +64,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
       onClick={handleLike}
       style={{ marginLeft: '8px' }}
     >
-      {likeCount} {/* Отображение количества лайков */}
+      {likeCount}
     </Button>
   );
 };

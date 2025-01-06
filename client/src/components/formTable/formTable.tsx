@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Modal, Button, Typography, Divider } from 'antd';
+import { Modal, Button, Typography, Divider, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { observer } from 'mobx-react-lite';
 import FormService from '../../services/formService';
 import Context from '../..';
+import './formTable.css';
 
 const { Title, Text } = Typography;
 
@@ -40,7 +42,8 @@ interface Template {
   title: string;
   forms: Form[] | undefined;
 }
-const UserTemplateFormsPage: React.FC = () => {
+
+const FormTable: React.FC = observer(() => {
   const { t } = useTranslation();
   const { store } = useContext(Context);
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -60,6 +63,15 @@ const UserTemplateFormsPage: React.FC = () => {
     fetchData();
   }, [store.user.id]);
 
+  useEffect(() => {
+    const savedTheme =
+      localStorage.getItem('theme') || store.theme || 'light-theme';
+    document.body.classList.add(savedTheme);
+    return () => {
+      document.body.classList.remove(savedTheme);
+    };
+  }, [store.theme]);
+
   const handleFormClick = async (formId: number) => {
     const response = await FormService.getFormUser(formId);
     if (response.status === 200) {
@@ -67,27 +79,35 @@ const UserTemplateFormsPage: React.FC = () => {
       setModalVisible(true);
     }
   };
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading-container">
+        <Spin tip={t('forms.loading')} size="large" />
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h1>
+    <div className="page-container">
+      <Title level={1} className={`page-title ${store.theme}`}>
         {t('forms.created')} {store.user.username}
-      </h1>
-
+      </Title>
       {templates.length > 0 ? (
         templates.map((template) => (
-          <div key={template.id} style={{ marginBottom: '20px' }}>
-            <h2>{template.title}</h2>
-            <ul>
+          <div key={template.id} className="template-container">
+            <Title level={2} className="template-title">
+              {template.title}
+            </Title>
+            <ul className="form-list">
               {template.forms && template.forms.length > 0 ? (
                 template.forms.map((form) => (
-                  <li key={form.id}>
+                  <li key={form.id} className="form-item">
                     <strong>{form.user.username}</strong> {t('forms.filled')}
                     <Button
-                      type="link"
+                      type="primary"
+                      size="small"
+                      className="form-button"
                       onClick={() => handleFormClick(form.id)}
                     >
                       {t('forms.buttonForm')}
@@ -101,7 +121,7 @@ const UserTemplateFormsPage: React.FC = () => {
           </div>
         ))
       ) : (
-        <div>{t('forms.noTemplates')}</div>
+        <div className="no-templates-message">{t('forms.noTemplates')}</div>
       )}
 
       {modalVisible && modalData && (
@@ -112,34 +132,23 @@ const UserTemplateFormsPage: React.FC = () => {
           footer={null}
           width={800}
           centered
-          style={{
-            padding: '20px',
-            backgroundColor: '#f4f7fa',
-            borderRadius: '8px',
-          }}
+          className="modal-container"
         >
           <Typography>
-            <Title level={4}>
+            <Title level={4} className="modal-title">
               {t('forms.formBy')} {modalData.user.username}
             </Title>
             <Text strong>{t('forms.template')}: </Text>
             <Text>{modalData.template.title}</Text>
             <Divider />
             <Text strong>{t('forms.answer')}</Text>
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            <div className="answers-container">
               {modalData.answers && modalData.answers.length > 0 ? (
                 modalData.answers.map((answer) => (
-                  <div key={answer.id} style={{ marginBottom: '10px' }}>
+                  <div key={answer.id} className="answer-item">
                     <Text>{answer.question.title}:</Text>
                     <div
-                      style={{
-                        padding: '8px',
-                        backgroundColor: answer.is_correct
-                          ? '#e6f7e6'
-                          : '#fff2f0',
-                        borderRadius: '4px',
-                        marginTop: '4px',
-                      }}
+                      className={`answer-box ${answer.is_correct ? 'correct-answer' : 'incorrect-answer'}`}
                     >
                       <Text>{answer.answer}</Text>
                     </div>
@@ -154,6 +163,6 @@ const UserTemplateFormsPage: React.FC = () => {
       )}
     </div>
   );
-};
+});
 
-export default UserTemplateFormsPage;
+export default FormTable;

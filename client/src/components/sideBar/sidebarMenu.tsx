@@ -21,20 +21,26 @@ const SidebarMenu: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); // Состояние для темы
+  const [darkMode, setDarkMode] = useState(store.theme === 'dark-theme');
 
   const toggleSidebar = () => setCollapsed(!collapsed);
 
-  // Функция для переключения темы
   const toggleTheme = (checked: boolean) => {
+    const newTheme = checked ? 'dark-theme' : 'light-theme';
+    store.setTheme(newTheme);
     setDarkMode(checked);
   };
 
-  // Эффект для применения класса темы на body
   useEffect(() => {
-    document.body.classList.toggle('dark-theme', darkMode);
-    document.body.classList.toggle('light-theme', !darkMode);
-  }, [darkMode]);
+    const currentTheme = store.theme;
+    setDarkMode(currentTheme === 'dark-theme');
+
+    document.body.className = currentTheme;
+
+    return () => {
+      document.body.className = '';
+    };
+  }, [store.theme]);
 
   return (
     <Layout className="layout-container">
@@ -42,11 +48,11 @@ const SidebarMenu: React.FC = () => {
         collapsible
         collapsed={collapsed}
         onCollapse={toggleSidebar}
-        className={`layout-sider ${darkMode ? 'dark-theme' : 'light-theme'}`} // добавляем класс в зависимости от темы
+        className={`layout-sider ${darkMode ? 'dark-theme' : 'light-theme'}`}
       >
         <div className="layout-logo" />
         <Menu
-          theme={darkMode ? 'dark' : 'light'} // меню меняет тему в зависимости от состояния
+          theme={darkMode ? 'dark' : 'light'}
           mode="inline"
           selectedKeys={[window.location.pathname]}
           onClick={(e) => navigate(e.key)}
@@ -111,8 +117,13 @@ const SidebarMenu: React.FC = () => {
         </div>
       </Sider>
       <Layout>
-        <Content className="layout-content">
-          <Card bordered={false} className="content-card">
+        <Content
+          className={`layout-content ${darkMode ? 'dark-theme' : 'light-theme'}`}
+        >
+          <Card
+            bordered={false}
+            className={`content-card ${darkMode ? 'dark-theme' : 'light-theme'}`}
+          >
             <SearchTemplates />
           </Card>
           <Outlet />

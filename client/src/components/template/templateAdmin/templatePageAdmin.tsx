@@ -129,8 +129,14 @@ const TemplatesPageAdmin = observer(() => {
                     template.image_url ||
                     'https://via.placeholder.com/300x200?text=No+Image'
                   }
+                  style={{
+                    width: '100%',
+                    height: '200px',
+                    objectFit: 'cover',
+                  }}
                 />
               }
+              style={{ height: '400px' }}
               onClick={() => handleCardClick(template.id)}
             >
               <Meta

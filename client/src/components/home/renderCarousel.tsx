@@ -1,9 +1,7 @@
-import { Carousel, Card, Button, Row, Col } from 'antd';
-import { CommentOutlined } from '@ant-design/icons';
+import { Carousel, Card, Row, Col } from 'antd';
 import Meta from 'antd/es/card/Meta';
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import LikeButton from '../like/likeButton';
 import TemplateDetailsPage from '../template/templateDetailsPage';
 import Context from '../..';
@@ -19,16 +17,13 @@ interface Templates {
 
 interface RenderCarouselProps {
   chunkedData: Templates[][];
-  onCommentClick: (id: number) => void;
   currentUserId: number | undefined;
 }
 
 const RenderCarousel: React.FC<RenderCarouselProps> = ({
   chunkedData,
-  onCommentClick,
   currentUserId,
 }) => {
-  const { t } = useTranslation();
   const { store } = useContext(Context);
   const navigate = useNavigate();
   const [currentTemplateId, setCurrentTemplateId] = useState<number | null>(
@@ -107,13 +102,6 @@ const RenderCarousel: React.FC<RenderCarouselProps> = ({
                         initialLiked={item.isLiked ?? false}
                         currentUserId={currentUserId}
                       />
-                      <Button
-                        type="text"
-                        icon={<CommentOutlined />}
-                        onClick={() => onCommentClick(item.id)}
-                      >
-                        {t('renderCarousel.comments')}
-                      </Button>
                     </div>
                   </Card>
                 </Col>

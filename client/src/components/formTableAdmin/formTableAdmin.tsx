@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Modal, Button, Typography, Divider } from 'antd';
 import { useTranslation } from 'react-i18next';
 import FormService from '../../services/formService';
+import Context from '../..';
+import '../formTable/formTable.css';
 
 const { Title, Text } = Typography;
 
@@ -46,7 +48,7 @@ const FormTableAdmin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState<Form | null>(null);
-
+  const { store } = useContext(Context);
   useEffect(() => {
     const fetchData = async () => {
       const response = await FormService.getForms();
@@ -71,20 +73,25 @@ const FormTableAdmin = () => {
   }
 
   return (
-    <div>
-      <h1>{t('forms.allForm')}</h1>
-
+    <div className="page-container">
+      <Title level={1} className={`page-title ${store.theme}`}>
+        {t('forms.allForm')}
+      </Title>
       {templates.length > 0 ? (
         templates.map((template) => (
-          <div key={template.id} style={{ marginBottom: '20px' }}>
-            <h2>{template.title}</h2>
-            <ul>
+          <div key={template.id} className="template-container">
+            <Title level={2} className="template-title">
+              {template.title}
+            </Title>
+            <ul className="form-list">
               {template.forms && template.forms.length > 0 ? (
                 template.forms.map((form) => (
-                  <li key={form.id}>
+                  <li key={form.id} className="form-item">
                     <strong>{form.user.username}</strong> {t('forms.filled')}
                     <Button
-                      type="link"
+                      type="primary"
+                      size="small"
+                      className="form-button"
                       onClick={() => handleFormClick(form.id)}
                     >
                       {t('forms.buttonForm')}
@@ -98,7 +105,7 @@ const FormTableAdmin = () => {
           </div>
         ))
       ) : (
-        <div>{t('forms.noTemplates')}</div>
+        <div className="no-templates-message">{t('forms.noTemplates')}</div>
       )}
 
       {modalVisible && modalData && (
@@ -109,34 +116,23 @@ const FormTableAdmin = () => {
           footer={null}
           width={800}
           centered
-          style={{
-            padding: '20px',
-            backgroundColor: '#f4f7fa',
-            borderRadius: '8px',
-          }}
+          className="modal-container"
         >
           <Typography>
-            <Title level={4}>
+            <Title level={4} className="modal-title">
               {t('forms.formBy')} {modalData.user.username}
             </Title>
             <Text strong>{t('forms.template')}: </Text>
             <Text>{modalData.template.title}</Text>
             <Divider />
             <Text strong>{t('forms.answer')}</Text>
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            <div className="answers-container">
               {modalData.answers && modalData.answers.length > 0 ? (
                 modalData.answers.map((answer) => (
-                  <div key={answer.id} style={{ marginBottom: '10px' }}>
+                  <div key={answer.id} className="answer-item">
                     <Text>{answer.question.title}:</Text>
                     <div
-                      style={{
-                        padding: '8px',
-                        backgroundColor: answer.is_correct
-                          ? '#e6f7e6'
-                          : '#fff2f0',
-                        borderRadius: '4px',
-                        marginTop: '4px',
-                      }}
+                      className={`answer-box ${answer.is_correct ? 'correct-answer' : 'incorrect-answer'}`}
                     >
                       <Text>{answer.answer}</Text>
                     </div>

@@ -46,6 +46,10 @@ export default class Store {
 
   isLoading = false;
 
+  theme: 'light-theme' | 'dark-theme' =
+    (localStorage.getItem('theme') as 'light-theme' | 'dark-theme') ||
+    'light-theme';
+
   correctAnswersCount = 0;
 
   results: SearchResults = {
@@ -67,6 +71,13 @@ export default class Store {
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  setTheme(theme: 'light-theme' | 'dark-theme') {
+    this.theme = theme;
+    localStorage.setItem('theme', theme);
+    document.body.classList.remove('light-theme', 'dark-theme');
+    document.body.classList.add(theme);
   }
 
   setQuery(query: string) {
