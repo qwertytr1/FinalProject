@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TemplateService from '../../../services/templateService';
 import TemplateDetailsPage from '../templateDetailsPage';
-import { Templates, TemplateAccess } from '../../../models/templates';
+import { TemplatesUser, TemplateAccess } from '../../../models/templates';
 import LikeButton from '../../like/likeButton';
 import Context from '../../..';
 
@@ -18,7 +18,7 @@ const TemplatesAllPage = observer(() => {
   const currentUserId = store.user.id;
   const currentUserRole = store.user.role;
   const [templates, setTemplates] = useState<
-    Array<Templates & { hasAccess: boolean; liked: boolean }>
+    Array<TemplatesUser & { hasAccess: boolean; liked: boolean }>
   >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ const TemplatesAllPage = observer(() => {
     try {
       const response = await TemplateService.getTemplates();
       setTemplates(
-        response.data.map((template: Templates) => ({
+        response.data.map((template: TemplatesUser) => ({
           ...template,
           liked: false,
           hasAccess:

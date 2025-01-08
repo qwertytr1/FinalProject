@@ -140,6 +140,7 @@ const translationsPl = {
     title: 'Tytuł',
     description: 'Opis',
     category: 'Kategoria',
+    selectTags: 'Wybierz tagi',
     image: 'Obrazek',
     ButtonImage: 'Załaduj obrazek',
     makePublic: 'Czy ma być publiczny?',

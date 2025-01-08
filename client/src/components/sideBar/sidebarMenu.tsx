@@ -72,6 +72,9 @@ const SidebarMenu: React.FC = () => {
               <Menu.Item key="/templates" icon={<BookOutlined />}>
                 {t('sidebarMenu.templates')}
               </Menu.Item>
+              <Menu.Item key="/templates/create" icon={<BookOutlined />}>
+                {t('sidebarMenu.addTemplate')}
+              </Menu.Item>
               <Menu.Item key="/profile" icon={<UserOutlined />}>
                 {t('sidebarMenu.profile')}
               </Menu.Item>

@@ -60,7 +60,11 @@ const SearchTemplates = observer(() => {
       />
 
       {isLoading && (
-        <Spin size="large" style={{ display: 'block', marginTop: '20px' }} />
+        <Spin
+          tip="Loading"
+          size="large"
+          style={{ display: 'block', marginTop: '20px' }}
+        />
       )}
 
       {store.query && !isLoading && (
