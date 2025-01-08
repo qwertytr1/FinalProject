@@ -3,12 +3,12 @@ import { message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import TemplateDetails from './templateDetails';
 import TemplateService from '../../../../services/templateService';
-import { Templates } from '../../../../models/templates';
+import { TemplatesUser } from '../../../../models/templates';
 import TagsService from '../../../../services/tagsService';
 
 const CreateTemplate: React.FC = () => {
   const { t } = useTranslation();
-  const [templateData, setTemplateData] = useState<Templates>({
+  const [templateData, setTemplateData] = useState<TemplatesUser>({
     title: '',
     description: '',
     category: '',
@@ -38,7 +38,7 @@ const CreateTemplate: React.FC = () => {
     fetchTags();
   }, [t]);
   const updateTemplateData = (
-    key: keyof Templates,
+    key: keyof TemplatesUser,
     value: string | boolean | number[],
   ) => {
     setTemplateData((prev) => ({

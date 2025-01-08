@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TemplateService from '../../../services/templateService';
 import TemplateDetailsPage from '../templateDetailsPage';
-import { Templates } from '../../../models/templates';
+import { TemplatesUser } from '../../../models/templates';
 import LikeButton from '../../like/likeButton';
 import Context from '../../..';
 
@@ -38,7 +38,7 @@ const TemplatesPageAdmin = observer(() => {
     try {
       const response = await TemplateService.getTemplates();
       setTemplates(
-        response.data.map((template: Templates[]) => ({
+        response.data.map((template: TemplatesUser[]) => ({
           ...template,
           liked: false,
         })),

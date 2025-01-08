@@ -15,7 +15,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [store]);
   useEffect(() => {
-    if (store.isAuth && store.user.isBlocked) {
+    if (!store.isAuth && store.user.isBlocked) {
       message.error('Your account is blocked. Please contact support.');
       navigate('/login');
     }

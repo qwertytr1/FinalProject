@@ -143,6 +143,7 @@ const translationsRu = {
     title: 'Заголовок',
     description: 'Описание',
     category: 'Категория',
+    selectTags: 'Выберите тэги',
     image: 'Изображение',
     ButtonImage: 'Загрузить изображение',
     makePublic: 'Сделать шаблон публичным?',

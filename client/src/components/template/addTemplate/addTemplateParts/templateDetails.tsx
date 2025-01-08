@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Button, Select, Upload } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { Templates } from '../../../../models/templates';
+import { TemplatesUser } from '../../../../models/templates';
 
 interface TemplateDetailsInt {
   templateData: {
@@ -12,7 +12,7 @@ interface TemplateDetailsInt {
     tags?: number[] | undefined;
   };
   updateTemplateData: (
-    key: keyof Templates,
+    key: keyof TemplatesUser,
     value: string | boolean | number[],
   ) => void;
   handleImageUpload: (file: File) => boolean;

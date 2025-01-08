@@ -82,12 +82,8 @@ class TemplateController {
         return res.status(401).json({ error: 'Недействительный токен' });
       }
 
-      if (!userData) {
-        return res.status(401).json({ error: 'Не удалось извлечь данные пользователя из токена' });
-      }
-
       const userId = userData.id;
-
+console.log(userId)
       const templates = await Template.findAll({
         include: {
           model: TemplatesAccess,
@@ -96,7 +92,7 @@ class TemplateController {
           required: true,
         },
       });
-
+      console.log(templates)
       if (templates.length === 0) {
         return res.status(200).json({ message: "No templates found for this user." });
       }

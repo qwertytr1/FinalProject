@@ -36,7 +36,7 @@ const StatisticsPage: React.FC = observer(() => {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
-        <Spin size="large" />
+        <Spin tip={t('forms.loading')} size="large" />
       </div>
     );
   }

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Modal, Button, Typography, Divider, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { observer } from 'mobx-react-lite';
+import { DeleteOutlined } from '@ant-design/icons';
 import FormService from '../../services/formService';
 import Context from '../..';
 import './formTable.css';
@@ -158,6 +159,7 @@ const FormTable: React.FC = observer(() => {
                 <div>{t('forms.noAnswer')}</div>
               )}
             </div>
+            <Button type="link" icon={<DeleteOutlined />} />
           </Typography>
         </Modal>
       )}

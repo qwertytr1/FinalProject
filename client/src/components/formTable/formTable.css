@@ -77,14 +77,21 @@
     margin-top: 4px;
 }
 
-.light-theme .correct-answer {
+.light-theme .correct {
     background-color: #e6f7e6;
 }
 
-.light-theme .incorrect-answer {
+.light-theme .incorrect {
     background-color: #fff2f0;
 }
-
+.answer-box.correct {
+    border: 2px solid green;
+    border-radius: 15px;
+  }
+  .answer-box.incorrect {
+    border: 2px solid red;
+    border-radius: 15px;
+  }
 .dark-theme .page-container {
     padding: 20px;
     background-color: #333333;

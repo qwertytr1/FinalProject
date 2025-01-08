@@ -4,7 +4,7 @@ import { IUser } from '../models/iUser';
 import AuthService from '../services/authService';
 import $api from '../http';
 import UserService from '../services/userService';
-import { Templates } from '../models/templates';
+import { TemplatesUser } from '../models/templates';
 import SearchService from '../services/searchService';
 
 interface Template {
@@ -61,7 +61,7 @@ export default class Store {
 
   answeredQuestionsCount = 0;
 
-  templates: Templates[] = [];
+  templates: TemplatesUser[] = [];
 
   isCheckedAuth = false;
 
@@ -84,7 +84,7 @@ export default class Store {
     this.query = query;
   }
 
-  setTemplate(templates: Templates[]) {
+  setTemplate(templates: TemplatesUser[]) {
     this.templates = templates;
   }
 

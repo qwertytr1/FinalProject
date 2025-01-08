@@ -38,7 +38,7 @@ class TemplateController {
           ],
         },
         order: [[Sequelize.literal("formsCount"), "DESC"]],
-        limit: 10,
+        limit: 5,
       });
 
       res.status(200).json(topTemplates);

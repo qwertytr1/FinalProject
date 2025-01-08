@@ -227,7 +227,7 @@ const TestPage: React.FC = observer(() => {
   if (loading) {
     return (
       <div className="test-page-spinner">
-        <Spin size="large" />
+        <Spin tip={t('templatePage.spinTip')} size="large" />
       </div>
     );
   }

@@ -9,6 +9,7 @@ const app = express();
 
 app.use(cors({
   origin: 'https://final-project-31fn.vercel.app',
+  // origin: 'http://localhost:3001',
   methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

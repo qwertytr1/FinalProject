@@ -17,7 +17,7 @@ import { observer } from 'mobx-react-lite';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import TemplateService from '../../services/templateService';
 import QuestionService from '../../services/questionService';
-import { Templates } from '../../models/templates';
+import { TemplatesUser } from '../../models/templates';
 import { Questions } from '../../models/questions';
 import FormService from '../../services/formService';
 import Context from '../..';
@@ -35,7 +35,7 @@ const TemplateDetailsPage = observer(() => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const [template, setTemplate] = useState<Templates | null>(null);
+  const [template, setTemplate] = useState<TemplatesUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Questions[]>([]);

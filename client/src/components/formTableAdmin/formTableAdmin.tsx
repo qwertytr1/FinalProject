@@ -52,6 +52,7 @@ const FormTableAdmin = () => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await FormService.getForms();
+      console.log(response);
       if (response.status === 200) {
         setTemplates(response.data);
       }
@@ -62,6 +63,7 @@ const FormTableAdmin = () => {
 
   const handleFormClick = async (formId: number) => {
     const response = await FormService.getFormUser(formId);
+    console.log(response);
     if (response.status === 200) {
       setModalData(response.data);
       setModalVisible(true);
@@ -132,7 +134,7 @@ const FormTableAdmin = () => {
                   <div key={answer.id} className="answer-item">
                     <Text>{answer.question.title}:</Text>
                     <div
-                      className={`answer-box ${answer.is_correct ? 'correct-answer' : 'incorrect-answer'}`}
+                      className={`answer-box ${answer.is_correct ? 'correct' : 'incorrect'}`}
                     >
                       <Text>{answer.answer}</Text>
                     </div>

@@ -9,7 +9,7 @@ export interface TemplateAccess {
   users_id: number;
 }
 
-export interface Templates {
+export interface TemplatesUser {
   id?: number | undefined;
   title: string;
   description: string;
