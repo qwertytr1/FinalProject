@@ -8,8 +8,8 @@ const errorMiddleware = require('../src/middleware/error-middleware.js');
 const app = express();
 
 app.use(cors({
-  // origin: 'https://final-project-31fn.vercel.app',
-  origin: 'http://localhost:3001',
+  origin: 'https://final-project-31fn.vercel.app',
+ // origin: 'http://localhost:3001',
   methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
