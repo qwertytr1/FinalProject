@@ -22,11 +22,14 @@ app.use("/api", apiRoutes);
 
 app.use(errorMiddleware);
 
-sequelize
-  .sync({ force: false })
-  .then(() => {
-    app.listen(process.env.PORT || 3000, () => {
-      console.log("Server running on port 3000");
+export default (req, res) => {
+  sequelize
+    .sync({ force: false })
+    .then(() => {
+      app(req, res);
+    })
+    .catch((err) => {
+      console.error("Failed to sync database:", err);
+      res.status(500).json({ error: 'Failed to sync database' });
     });
-  })
-  .catch((err) => console.error("Failed to sync database:", err));
+};
