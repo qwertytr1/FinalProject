@@ -40,10 +40,6 @@ class LikeController {
     try {
       const userData = tokenService.validateAccessToken(accessToken);
 
-      if (!userData || !userData.id) {
-        return res.status(401).json({ error: 'User not authorized' });
-      }
-
       const userId = userData.id;
 
       const existingLike = await Like.findOne({
@@ -71,10 +67,6 @@ class LikeController {
 
     try {
       const userData = tokenService.validateAccessToken(accessToken);
-
-      if (!userData || !userData.id) {
-        return res.status(401).json({ error: 'User not authorized' });
-      }
 
       const userId = userData.id;
 
