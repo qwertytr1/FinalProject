@@ -10,18 +10,18 @@ const $api = axios.create({
   },
 });
 
-$api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      message.error('Session expired. Please log in again.');
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 1500);
-    }
-    return Promise.reject(error);
-  },
-);
+// $api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       localStorage.removeItem('token');
+//       message.error('Session expired. Please log in again.');
+//       setTimeout(() => {
+//         window.location.href = '/login';
+//       }, 1500);
+//     }
+//     return Promise.reject(error);
+//   },
+// );
 
 export default $api;
