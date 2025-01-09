@@ -22,11 +22,6 @@ class TemplateController {
       } catch (error) {
         return res.status(401).json({ error: 'Недействительный токен' });
       }
-
-      if (!userData) {
-        return res.status(401).json({ error: 'Не удалось извлечь данные пользователя из токена' });
-      }
-
       const userId = userData.id;
 
       const result = await cloudinary.uploader.upload(req.file.path);
