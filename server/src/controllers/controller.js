@@ -22,8 +22,10 @@ class TemplateController {
       } catch (error) {
         return res.status(401).json({ error: 'Недействительный токен' });
       }
-      const userId = userData.id;
 
+console.log(userData)
+      const userId = userData.id;
+console.log(userId)
       const result = await cloudinary.uploader.upload(req.file.path);
 
       const newTemplate = await Template.create({
@@ -59,7 +61,8 @@ class TemplateController {
 
       return res.status(201).json({ message: "Шаблон успешно создан", template: newTemplate });
     } catch (err) {
-      res.status(500).json({ error: "Ошибка при создании шаблона", details: err.message });
+      console.log(err)
+      res.status(500).json({ error: "Ошибка при создании шаблона", details: err });
     }
   }
 

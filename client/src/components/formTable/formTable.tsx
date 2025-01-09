@@ -149,7 +149,7 @@ const FormTable: React.FC = observer(() => {
                   <div key={answer.id} className="answer-item">
                     <Text>{answer.question.title}:</Text>
                     <div
-                      className={`answer-box ${answer.is_correct ? 'correct-answer' : 'incorrect-answer'}`}
+                      className={`answer-box ${answer.is_correct ? 'correct' : 'incorrect'}`}
                     >
                       <Text>{answer.answer}</Text>
                     </div>

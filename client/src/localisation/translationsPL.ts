@@ -10,6 +10,7 @@ const translationsPl = {
     emailMessage: 'Proszę wprowadzić swój e-mail!',
     emailPlaceholder: 'Wprowadź swój e-mail',
     passwordLabel: 'Hasło',
+    successMessage: 'Success',
     passwordMessage: 'Proszę wprowadzić swoje hasło!',
     passwordPlaceholder: 'Wprowadź hasło',
     languageLabel: 'Język',
