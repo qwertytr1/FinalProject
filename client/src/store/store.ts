@@ -6,6 +6,7 @@ import $api from '../http';
 import UserService from '../services/userService';
 import { TemplatesUser } from '../models/templates';
 import SearchService from '../services/searchService';
+import SalesforceService from '../services/saleforceService';
 
 interface Template {
   id: number;
@@ -46,6 +47,8 @@ export default class Store {
 
   isLoading = false;
 
+  userData: { Name?: string; Phone?: number } = {};
+
   theme: 'light-theme' | 'dark-theme' =
     (localStorage.getItem('theme') as 'light-theme' | 'dark-theme') ||
     'light-theme';
@@ -71,6 +74,10 @@ export default class Store {
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  setUserData(name: string | undefined, phone?: number | undefined) {
+    this.userData = { Name: name, Phone: phone };
   }
 
   setTheme(theme: 'light-theme' | 'dark-theme') {
@@ -251,6 +258,35 @@ export default class Store {
       this.setUser(updatedUser);
     } catch (error) {
       console.error('Error saving profile changes:', error);
+    }
+  }
+
+  async sendToSalesforce() {
+    const { Name, Phone } = this.userData;
+
+    if (!Name) {
+      message.error('Name is required');
+      return;
+    }
+
+    try {
+      const response = await SalesforceService.SalesforcePost(
+        Name,
+        Phone?.toString(),
+      );
+      if (response.data.success) {
+        message.success('Account created successfully in Salesforce');
+      } else {
+        message.error(`Account already exists: ${response.data.message}`);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Failed to send data to Salesforce:', error.message);
+        message.error('Account is required');
+      } else {
+        console.error('Unexpected error:', error);
+        message.error('An unexpected error occurred');
+      }
     }
   }
 }

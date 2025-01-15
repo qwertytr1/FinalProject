@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Layout, Menu, Card, Switch } from 'antd';
+import { Layout, Menu, Card, Switch, Button } from 'antd';
 import { Outlet, useNavigate } from 'react-router-dom';
 import {
   UserOutlined,
@@ -13,6 +13,7 @@ import Context from '../..';
 import './sideBar.css';
 import LanguageSelector from '../../localisation/languageSelector';
 import SearchTemplates from '../search/searchTemplates';
+import CreateTicketModal from '../ticket/createTicket';
 
 const { Sider, Content } = Layout;
 
@@ -22,9 +23,9 @@ const SidebarMenu: React.FC = () => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(store.theme === 'dark-theme');
-
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const toggleSidebar = () => setCollapsed(!collapsed);
-
+  console.log(store.templates);
   const toggleTheme = (checked: boolean) => {
     const newTheme = checked ? 'dark-theme' : 'light-theme';
     store.setTheme(newTheme);
@@ -128,10 +129,17 @@ const SidebarMenu: React.FC = () => {
             className={`content-card ${darkMode ? 'dark-theme' : 'light-theme'}`}
           >
             <SearchTemplates />
+            <Button type="primary" onClick={() => setIsModalVisible(true)}>
+              {t('Create Support Ticket')}
+            </Button>
           </Card>
           <Outlet />
         </Content>
       </Layout>
+      <CreateTicketModal
+        isVisible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+      />
     </Layout>
   );
 };

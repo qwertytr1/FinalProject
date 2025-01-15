@@ -16,6 +16,8 @@ const upload = require('../middleware/upload.js');
 const statisticController = require('../controllers/statisticController.js');
 const homeController = require('../controllers/mainPageController.js');
 const resultController = require('../controllers/resultsController.js')
+const SalesforceController = require('../controllers/salesforceController.js');
+const { createJiraTicket, getJiraTickets } = require('../controllers/jiraIntegration.js');
 
 router.post('/register', body('email').isEmail(), authController.register);
 router.post('/login', authController.login);
@@ -76,4 +78,10 @@ router.get("/tags-cloud",authMiddleware, homeController.getTagsCloud);
 router.get('/search',authMiddleware, searchController.searchTemplates);
 
 router.get('/admin/statistics', statisticController.getStatistics);
+
+router.post('/salesforce/account', SalesforceController.Salesforce);
+
+router.post('/create-jira-ticket', createJiraTicket)
+router.get('/tickets', getJiraTickets);
+
 module.exports = router;

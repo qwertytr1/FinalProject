@@ -8,6 +8,9 @@ import {
   Popconfirm,
   Tag,
   Select,
+  Input,
+  Form,
+  Modal,
 } from 'antd';
 import { useTranslation } from 'react-i18next';
 import UserService from '../../services/userService';
@@ -22,6 +25,13 @@ const AdminPanel: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSelfRoleRemoved, setIsSelfRoleRemoved] = useState(false);
   const { store } = useContext(Context);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+    setSelectedUser(null);
+  };
 
   const getUsers = useCallback(async () => {
     try {
@@ -32,6 +42,33 @@ const AdminPanel: React.FC = () => {
     }
   }, [t]);
 
+  const handleSaveSalesforce = useCallback(
+    async (user: IUser, values: { Phone?: number }) => {
+      setIsLoading(true);
+      try {
+        if (!values.Phone) {
+          throw new Error(t('profile.salesforcePhoneError'));
+        }
+        const phoneString = values.Phone.toString();
+        if (phoneString.length < 10 || phoneString.length > 15) {
+          throw new Error(t('profile.salesforcePhoneInvalid'));
+        }
+        store.setUserData(user.username, values.Phone);
+        await store.sendToSalesforce();
+
+        message.success(
+          t('profile.salesforceSuccessMessage', { name: user.username }),
+        );
+        setIsModalVisible(false);
+      } catch (error) {
+        message.error((error as Error).message || t('profile.salesforceError'));
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [store, t],
+  );
+  console.log(selectedUser);
   const blockUser = useCallback(
     async (userId: number) => {
       setIsLoading(true);
@@ -207,6 +244,15 @@ const AdminPanel: React.FC = () => {
                         {t('adminPanel.deleteButton')}
                       </Button>
                     </Popconfirm>
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setIsModalVisible(true);
+                      }}
+                    >
+                      {t('profile.createSalesforceButton')}
+                    </Button>
                   </div>
                 </List.Item>
               )}
@@ -217,6 +263,39 @@ const AdminPanel: React.FC = () => {
         </Panel>
       </Collapse>
       {isSelfRoleRemoved && <div>{t('adminPanel.roleChangeSuccess')}</div>}
+      <Modal
+        title={t('profile.salesforceModalTitle')}
+        visible={isModalVisible}
+        onCancel={handleModalCancel}
+        footer={null}
+      >
+        <Form
+          onFinish={(values) => {
+            if (selectedUser) handleSaveSalesforce(selectedUser, values);
+          }}
+        >
+          <Form.Item label={t('profile.salesforceName')} name="Name">
+            {selectedUser?.username}
+          </Form.Item>
+          <Form.Item
+            label={t('profile.salesforcePhone')}
+            name="Phone"
+            rules={[
+              { required: true, message: t('profile.salesforcePhoneError') },
+            ]}
+          >
+            <Input type="number" />
+          </Form.Item>
+          <div className="text-center">
+            <Button type="primary" htmlType="submit" className="me-2">
+              {t('profile.createButton')}
+            </Button>
+            <Button htmlType="button" onClick={handleModalCancel}>
+              {t('profile.cancelButton')}
+            </Button>
+          </div>
+        </Form>
+      </Modal>
     </Card>
   );
 };
