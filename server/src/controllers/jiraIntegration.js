@@ -1,9 +1,10 @@
+require('dotenv').config();
 const axios = require('axios');
 
-const JIRA_BASE_URL = 'https://mahnach20040208.atlassian.net';
-const JIRA_API_TOKEN = 'ATATT3xFfGF0uufOvkSD2PtsFnzp1ClPgUxP1YBF-jNR6hpLLvvwtP7OIazUv6E-xsh0YAIFJcyyQu5-ioMFtVHr9ba-OqHWdkW4TKuXV4SEhLrAdZu_ksEJXMiFV09m4qBGbfJlYCPPCkMZBl-sWhNKGBtuor2f2Q1NXCv7cUzaOFPrA97rUbY=B9F6026D';
-const JIRA_EMAIL = 'mahnach20040208@gmail.com';
-const JIRA_PROJECT_KEY = 'GGG';
+const JIRA_BASE_URL = process.env.JIRA_BASE_URL;
+const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN;
+const JIRA_EMAIL = process.env.JIRA_EMAIL;
+const JIRA_PROJECT_KEY = process.env.JIRA_PROJECT_KEY;
 
 async function createJiraTicket(req, res) {
   const { summary, priority, status, reportedBy, template, link } = req.body;
